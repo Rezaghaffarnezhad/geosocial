@@ -2205,18 +2205,18 @@ async function bootData() {
 async function checkTelegramMiniApp() {
   if (window.Telegram && window.Telegram.WebApp) {
     const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+    try { tg.ready(); tg.expand(); } catch (e) {}
 
-    const user = tg.initDataUnsafe?.user;
-    if (user && user.id) {
-      console.log('✨ Telegram Mini-App User detected:', user);
+    const tgUser = tg.initDataUnsafe?.user;
+    if (tgUser && tgUser.id) {
+      console.log('✨ Telegram Mini-App User detected:', tgUser);
+      $('auth').style.display = 'none';
       await onTelegramAuth({
-        id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        username: user.username,
-        photo_url: user.photo_url
+        id: tgUser.id,
+        first_name: tgUser.first_name,
+        last_name: tgUser.last_name,
+        username: tgUser.username,
+        photo_url: tgUser.photo_url
       });
       return true;
     }
