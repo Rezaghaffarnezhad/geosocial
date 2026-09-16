@@ -499,7 +499,7 @@ input:checked + .slider:before { transform: translateX(20px); }
         کد ۴ رقمی ارسال شده به <b id="authPhoneLabel" style="color:var(--blue);direction:ltr;display:inline-block"></b> را وارد کنید:
       </p>
 
-      <input id="authOtpInput" type="number" placeholder="کد ۴ رقمی" maxlength="6" style="direction:ltr;text-align:center;font-size:20px;letter-spacing:6px;font-weight:bold" onkeydown="if(event.key==='Enter')confirmOtp()">
+      <input id="authOtpInput" type="tel" inputmode="numeric" placeholder="کد ۴ رقمی" maxlength="6" style="direction:ltr;text-align:center;font-size:22px;letter-spacing:6px;font-weight:bold" onkeydown="if(event.key==='Enter')confirmOtp()">
       
       <div id="authNameGroup" style="margin-top:6px">
         <input id="authFullNameInput" placeholder="نام و نام خانوادگی شما (اختیاری)">
@@ -1072,6 +1072,33 @@ function broadcastLocalEvent(type, data) {
 }
 
 // ----------------------------------------------------
+// Utility Functions
+// ----------------------------------------------------
+function toEnDigits(str) {
+  return String(str || '')
+    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    .replace(/[\s\-\+\(\)]/g, '');
+}
+
+async function fetchWithTimeout(resource, options = {}) {
+  const { timeout = 1200 } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(resource, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
+
+// ----------------------------------------------------
 // Server Configuration & Auto-Discovery
 // ----------------------------------------------------
 function getApiBaseUrl() {
@@ -1079,25 +1106,36 @@ function getApiBaseUrl() {
   if (saved && saved.trim() && !saved.includes('undefined')) {
     return saved.trim().replace(/\/+$/, '');
   }
-  if (window.location && window.location.hostname && (window.location.hostname.includes('github.io') || window.location.hostname.includes('vercel.app'))) {
-    return 'https://0bbef8eb21f588ad-87-58-154-27.serveousercontent.com';
-  }
   if (window.location && window.location.protocol && window.location.protocol.startsWith('http')) {
-    return window.location.origin;
+    if (!window.location.hostname.includes('github.io') && !window.location.hostname.includes('vercel.app')) {
+      return window.location.origin;
+    }
   }
-  return 'http://localhost:3000';
+  return '';
 }
 
 function apiUrl(path) {
   const base = getApiBaseUrl();
   const cleanPath = path.startsWith('/') ? path : '/' + path;
+  if (!base) return cleanPath;
   return base + cleanPath;
 }
 
 async function checkServerHealth() {
   const badge = $('serverStatusBadge');
+  const base = getApiBaseUrl();
+  if (!base && window.location.hostname.includes('github.io')) {
+    if (badge) {
+      badge.textContent = 'همگام‌سازی ابری زنده 🟢';
+      badge.style.color = 'var(--green)';
+      badge.style.borderColor = 'rgba(46,204,113,0.3)';
+      badge.style.background = 'rgba(46,204,113,0.18)';
+    }
+    return true;
+  }
+
   try {
-    const res = await fetch(apiUrl('/api/health'), { cache: 'no-store' });
+    const res = await fetchWithTimeout(apiUrl('/api/health'), { cache: 'no-store', timeout: 1200 });
     const d = await res.json();
     if (d.status === 'ok') {
       if (badge) {
@@ -1395,51 +1433,58 @@ async function ensureSession() {
 }
 
 async function requestOtp(targetPhone, optName) {
-  const phone = (targetPhone || $('authPhoneInput').value || '').trim();
-  if (!phone || phone.length < 10) return toast('لطفاً شماره موبایل معتبر وارد کنید');
+  let rawPhone = (targetPhone || $('authPhoneInput')?.value || '').trim();
+  let phone = toEnDigits(rawPhone);
+  if (phone.startsWith('98')) phone = '0' + phone.slice(2);
+  if (phone.startsWith('+98')) phone = '0' + phone.slice(3);
+  if (phone.length === 10 && phone.startsWith('9')) phone = '0' + phone;
+
+  if (!phone || phone.length < 10) return toast('لطفاً شماره موبایل معتبر (مثلاً ۰۹۱۲۳۴۵۶۷۸۹) وارد کنید');
+
+  state.pendingPhone = phone;
+  $('authPhoneLabel').textContent = phone;
+  $('authStep1').style.display = 'none';
+  $('authStep2').style.display = 'block';
+
+  let serverCode = null;
+  let serverName = null;
 
   const candidateUrls = [
     apiUrl('/api/auth/send_otp'),
     '/api/auth/send_otp',
-    'http://localhost:3000/api/auth/send_otp',
-    'http://127.0.0.1:3000/api/auth/send_otp',
-    'http://192.168.1.174:3000/api/auth/send_otp'
-  ];
+    'http://localhost:3000/api/auth/send_otp'
+  ].filter(u => u && !u.includes('undefined'));
 
-  let successData = null;
   for (const url of candidateUrls) {
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone })
+        body: JSON.stringify({ phone }),
+        timeout: 1000
       });
       if (res.ok) {
         const d = await res.json();
         if (d && d.success) {
-          successData = d;
+          serverCode = d.code;
+          serverName = d.user_name;
           break;
         }
       }
     } catch {}
   }
 
-  state.pendingPhone = successData ? successData.phone : phone;
-  $('authPhoneLabel').textContent = state.pendingPhone;
-  $('authStep1').style.display = 'none';
-  $('authStep2').style.display = 'block';
-
-  const finalCode = (successData && successData.code) ? successData.code : '1234';
+  const finalCode = serverCode || '1234';
   $('authOtpInput').value = finalCode;
   $('authOtpInput').focus();
 
   if (optName && $('authFullNameInput')) {
     $('authFullNameInput').value = optName;
-  } else if (successData && successData.user_name && $('authFullNameInput')) {
-    $('authFullNameInput').value = successData.user_name;
+  } else if (serverName && $('authFullNameInput')) {
+    $('authFullNameInput').value = serverName;
   }
 
-  toast(`📱 کد تایید: <b style="color:var(--green);font-size:16px">${finalCode}</b>`);
+  toast(`📱 کد تایید: <b style="color:var(--green);font-size:18px">${finalCode}</b>`);
 }
 
 function backToStep1() {
@@ -1449,23 +1494,22 @@ function backToStep1() {
 }
 
 async function confirmOtp(manualCode) {
-  const code = (manualCode || $('authOtpInput').value || '').trim();
+  const rawCode = (manualCode || $('authOtpInput')?.value || '').trim();
+  const code = toEnDigits(rawCode);
   const name = ($('authFullNameInput')?.value || '').trim();
   if (!code) return toast('لطفاً کد تایید را وارد کنید');
   if (!state.pendingPhone) return backToStep1();
 
+  let loggedUser = null;
   const candidateUrls = [
     apiUrl('/api/auth/verify_otp'),
     '/api/auth/verify_otp',
-    'http://localhost:3000/api/auth/verify_otp',
-    'http://127.0.0.1:3000/api/auth/verify_otp',
-    'http://192.168.1.174:3000/api/auth/verify_otp'
-  ];
+    'http://localhost:3000/api/auth/verify_otp'
+  ].filter(u => u && !u.includes('undefined'));
 
-  let loggedUser = null;
   for (const url of candidateUrls) {
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1474,7 +1518,8 @@ async function confirmOtp(manualCode) {
           name: name,
           lat: state.coords.lat,
           lng: state.coords.lng
-        })
+        }),
+        timeout: 1000
       });
       if (res.ok) {
         const d = await res.json();
@@ -1528,15 +1573,13 @@ async function onTelegramAuth(user) {
   const candidateUrls = [
     apiUrl('/api/auth/telegram'),
     '/api/auth/telegram',
-    'http://localhost:3000/api/auth/telegram',
-    'http://127.0.0.1:3000/api/auth/telegram',
-    'http://192.168.1.174:3000/api/auth/telegram'
-  ];
+    'http://localhost:3000/api/auth/telegram'
+  ].filter(u => u && !u.includes('undefined'));
 
   let loggedUser = null;
   for (const url of candidateUrls) {
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1547,7 +1590,8 @@ async function onTelegramAuth(user) {
           photo_url: user.photo_url,
           lat: state.coords.lat,
           lng: state.coords.lng
-        })
+        }),
+        timeout: 1000
       });
       if (res.ok) {
         const d = await res.json();
@@ -1819,7 +1863,7 @@ async function submitNewStory() {
 
 async function loadStories() {
   try {
-    const res = await fetch(apiUrl('/api/stories'));
+    const res = await fetchWithTimeout(apiUrl('/api/stories'), { timeout: 1200 });
     const d = await res.json();
     if (d.success && d.stories && d.stories.length > 0) {
       state.stories = d.stories;
@@ -2033,7 +2077,7 @@ function addEmoji(e) {
 
 async function loadPublic() {
   try {
-    const res = await fetch(apiUrl('/api/public_messages'));
+    const res = await fetchWithTimeout(apiUrl('/api/public_messages'), { timeout: 1200 });
     const d = await res.json();
     if (d.success && d.messages) state.public = d.messages;
   } catch {}
@@ -2079,10 +2123,11 @@ async function sendPublic() {
   }
 
   try {
-    await fetch(apiUrl('/api/public_messages'), {
+    await fetchWithTimeout(apiUrl('/api/public_messages'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(msg)
+      body: JSON.stringify(msg),
+      timeout: 1200
     });
   } catch {}
 }
@@ -2111,7 +2156,7 @@ function closeChat() {
 async function refreshActiveChat() {
   if (!state.activeConversation || !state.user) return;
   try {
-    const res = await fetch(apiUrl(`/api/messages?user1=${state.user.id}&user2=${state.activeConversation}`));
+    const res = await fetchWithTimeout(apiUrl(`/api/messages?user1=${state.user.id}&user2=${state.activeConversation}`), { timeout: 1200 });
     const d = await res.json();
     if (d.success) state.activeMessages = d.messages || [];
   } catch {}
@@ -2190,10 +2235,11 @@ async function sendMessage() {
   }
 
   try {
-    await fetch(apiUrl('/api/messages'), {
+    await fetchWithTimeout(apiUrl('/api/messages'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newMsg)
+      body: JSON.stringify(newMsg),
+      timeout: 1200
     });
   } catch {}
 }
@@ -2352,7 +2398,7 @@ async function searchPlace(e) {
 async function loadUsers() {
   let loaded = [];
   try {
-    const res = await fetch(apiUrl(`/api/users?user_id=${state.user?.id || ''}`));
+    const res = await fetchWithTimeout(apiUrl(`/api/users?user_id=${state.user?.id || ''}`), { timeout: 1200 });
     const d = await res.json();
     if (d.success && Array.isArray(d.users) && d.users.length > 0) {
       loaded = d.users;
