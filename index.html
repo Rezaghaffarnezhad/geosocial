@@ -1,0 +1,2254 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17212b">
+<meta name="description" content="GeoSocial - نقشه موقعیت‌محور و شبکه اجتماعی افراد نزدیک">
+<title>GeoSocial - نقشه روز و شب</title>
+
+<!-- Telegram WebApp SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- Leaflet Map CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- FontAwesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+  --bg: #0e1621;
+  --panel: #17212b;
+  --panel-glass: rgba(23, 33, 43, 0.92);
+  --blue: #2aabee;
+  --blue-glow: rgba(42, 171, 238, 0.35);
+  --text: #f5f5f5;
+  --muted: #879ab0;
+  --border: #263646;
+  --green: #2ecc71;
+  --danger: #e74c3c;
+  --input-bg: #0e1621;
+  --card-bg: #1c2733;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+[data-theme="light"] {
+  --bg: #f0f4f8;
+  --panel: #ffffff;
+  --panel-glass: rgba(255, 255, 255, 0.94);
+  --blue: #0088cc;
+  --blue-glow: rgba(0, 136, 204, 0.25);
+  --text: #17212b;
+  --muted: #627485;
+  --border: #d3dce6;
+  --green: #27ae60;
+  --danger: #e74c3c;
+  --input-bg: #f5f7fb;
+  --card-bg: #f8fafc;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Vazirmatn", sans-serif; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); }
+button, input, textarea { font: inherit; outline: none; }
+button { color: inherit; cursor: pointer; border: none; }
+button:disabled { opacity: .5; pointer-events: none; }
+input, textarea { direction: rtl; }
+.hidden { display: none !important; }
+.solid { background: var(--panel-glass); backdrop-filter: blur(14px); border: 1px solid var(--border); }
+
+/* Fullscreen Map & Watermark-Free Tiles */
+#map { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: var(--bg); }
+
+/* Public Dark Mode Map Styling */
+[data-theme="dark"] .leaflet-tile-pane {
+  filter: brightness(0.62) invert(1) contrast(1.7) hue-rotate(190deg) saturate(0.22) brightness(0.88);
+}
+.leaflet-control-attribution,
+.leaflet-control-container .leaflet-bottom,
+.leaflet-control-zoom {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Custom Markers */
+.user-marker {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+  transform-origin: bottom center;
+}
+.user-marker:hover {
+  transform: scale(1.18);
+  z-index: 1000 !important;
+}
+.user-marker .pin-body {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--blue);
+  box-shadow: 0 0 14px var(--blue-glow), 0 6px 16px rgba(0,0,0,0.4);
+  background: var(--panel);
+}
+.user-marker .pin-body img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.user-marker .led {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--panel);
+}
+.user-marker .pin-stem {
+  width: 2px;
+  height: 8px;
+  background: linear-gradient(to bottom, var(--blue), transparent);
+}
+.user-marker .pin-name {
+  margin-top: 1px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--panel-glass);
+  backdrop-filter: blur(8px);
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.my-marker {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.my-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #2aabee;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 14px #2aabee, 0 0 28px #2aabee;
+}
+.my-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  margin-top: -14px;
+  margin-left: -14px;
+  border-radius: 50%;
+  border: 2px solid rgba(42, 171, 238, 0.9);
+  animation: myPulse 2s infinite ease-out;
+}
+@keyframes myPulse {
+  0% { transform: scale(0.4); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.icon { width: 40px; height: 40px; border-radius: 10px; background: transparent; display: grid; place-items: center; color: var(--muted); transition: all .2s; }
+.icon:hover { background: rgba(42, 171, 238, 0.15); color: var(--blue); }
+
+.primary, .secondary { width: 100%; padding: 12px; border-radius: 11px; font-weight: 700; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.primary { background: var(--blue); color: #fff; box-shadow: 0 4px 15px var(--blue-glow); }
+.primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.secondary { border: 1px solid var(--border); background: var(--input-bg); color: var(--text); }
+.secondary:hover { background: var(--border); }
+
+/* Top Search & Stories */
+.top { position: absolute; top: max(10px, var(--safe-top)); left: 10px; right: 10px; z-index: 10; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.search { display: flex; align-items: center; gap: 9px; padding: 8px 12px; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); pointer-events: auto; }
+.search input { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--text); font-size: 13px; }
+.search i { color: var(--muted); }
+.badge { background: rgba(42, 171, 238, 0.18); color: var(--blue); padding: 5px 10px; border-radius: 20px; font-size: 11px; white-space: nowrap; cursor: pointer; font-weight: 600; border: 1px solid rgba(42, 171, 238, 0.3); }
+
+.stories { display: flex; gap: 9px; overflow-x: auto; scrollbar-width: none; pointer-events: auto; padding: 2px 0; }
+.stories::-webkit-scrollbar { display: none; }
+.story { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 58px; cursor: pointer; }
+.ring { width: 52px; height: 52px; padding: 2px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.ring.viewed { background: var(--muted); }
+.ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--bg); }
+.story span { max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.add { position: absolute; right: -1px; bottom: -1px; width: 20px; height: 20px; border-radius: 50%; background: var(--blue); display: grid; place-items: center; font-size: 11px; color: #fff; border: 2px solid var(--bg); }
+
+/* Controls Column */
+.controls { position: absolute; right: 12px; bottom: calc(82px + var(--safe-bottom)); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 9px; }
+.ctrl { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; box-shadow: 0 4px 18px rgba(0,0,0,0.3); transition: all .2s; }
+.ctrl:hover { transform: scale(1.06); }
+.radius { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; }
+.radius input { height: 75px; writing-mode: vertical-lr; direction: rtl; accent-color: var(--blue); }
+
+.online { background: var(--green); }
+.offline { background: var(--muted); }
+
+/* Public Chat Drawer */
+.public-drawer {
+  position: absolute;
+  left: 10px;
+  bottom: calc(76px + var(--safe-bottom));
+  width: min(360px, calc(100vw - 20px));
+  height: 380px;
+  z-index: 45;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  transform: translateY(20px) scale(0.92);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+.public-drawer.active {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+.public-head {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel-glass);
+  border-radius: 18px 18px 0 0;
+}
+.public-feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.feeditem {
+  max-width: 85%;
+  padding: 7px 11px;
+  font-size: 12px;
+  border-radius: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+  animation: fadeIn 0.2s ease;
+}
+.feeditem.out { align-self: flex-start; background: var(--blue); color: #fff; border-bottom-right-radius: 3px; }
+.feeditem.in { align-self: flex-end; background: var(--card-bg); border: 1px solid var(--border); border-bottom-left-radius: 3px; }
+.feeditem .sender { font-size: 10px; font-weight: 700; margin-bottom: 2px; color: var(--blue); }
+.feeditem.out .sender { color: #d0f0ff; }
+
+.quick-emojis {
+  display: flex;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--input-bg);
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+}
+.quick-emoji {
+  background: transparent;
+  font-size: 16px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: transform 0.15s;
+}
+.quick-emoji:hover { transform: scale(1.2); }
+
+.public-inputline {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--panel);
+  border-radius: 0 0 18px 18px;
+  border-top: 1px solid var(--border);
+}
+.public-inputline input {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 8px 14px;
+  color: var(--text);
+  font-size: 12px;
+}
+.send-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px var(--blue-glow);
+}
+
+/* Floating Action Button for Public Chat */
+.global-fab {
+  position: absolute;
+  left: 14px;
+  bottom: calc(84px + var(--safe-bottom));
+  z-index: 20;
+}
+.global-fab-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), #1d8cd8);
+  color: #fff;
+  font-size: 20px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 20px var(--blue-glow);
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.global-fab-btn:hover { transform: scale(1.08); }
+.pulse-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  background: var(--green);
+  border: 2px solid var(--panel);
+  border-radius: 50%;
+}
+
+/* Person & Chat Cards */
+.card { position: absolute; left: 10px; right: 10px; bottom: calc(76px + var(--safe-bottom)); z-index: 30; border-radius: 16px; padding: 14px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+.card.open { display: block; animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.card .head { display: flex; align-items: center; gap: 10px; }
+.card .avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.card .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+
+/* Direct Chat Sheet */
+.sheet { position: absolute; inset: 0; z-index: 50; background: var(--bg); display: flex; flex-direction: column; transform: translateY(100%); transition: transform .3s cubic-bezier(.32,1,.23,1); }
+.sheet.open { transform: translateY(0); }
+.chathead { display: flex; align-items: center; justify-content: space-between; padding: max(10px, var(--safe-top)) 14px 10px; border-bottom: 1px solid var(--border); background: var(--panel); }
+.chathead .userinfo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.chathead .name { font-weight: 700; font-size: 14px; }
+.chathead .status { font-size: 11px; color: var(--muted); }
+.messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 9px; }
+.msg { max-width: 80%; padding: 8px 12px; border-radius: 14px; font-size: 13px; line-height: 1.5; position: relative; word-break: break-word; }
+.msg.out { align-self: flex-start; background: var(--blue); color: #fff; border-bottom-right-radius: 4px; }
+.msg.in { align-self: flex-end; background: var(--panel); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+.msg .meta { font-size: 10px; opacity: .8; display: block; margin-top: 4px; text-align: left; }
+.inputbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px calc(8px + var(--safe-bottom)); background: var(--panel); border-top: 1px solid var(--border); }
+.inputbar input { flex: 1; background: var(--input-bg); border: 1px solid var(--border); border-radius: 20px; padding: 10px 14px; color: var(--text); font-size: 13px; }
+.rec-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--input-bg); border: 1px solid var(--border); display: grid; place-items: center; color: var(--muted); }
+.rec-btn.recording { background: var(--danger); color: #fff; animation: pulse 1s infinite; }
+
+/* Voice message item */
+.voice-msg { display: flex; align-items: center; gap: 8px; min-width: 140px; padding: 2px 0; }
+.voice-play-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.25); color: #fff; display: grid; place-items: center; }
+.voice-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; position: relative; overflow: hidden; }
+.voice-progress { height: 100%; background: #fff; width: 0%; }
+
+/* Story Viewer */
+.viewer { position: fixed; inset: 0; z-index: 100; background: #000; display: none; flex-direction: column; }
+.viewer.active { display: flex; }
+.storytop { position: absolute; top: var(--safe-top); left: 0; right: 0; padding: 12px; z-index: 10; display: flex; flex-direction: column; gap: 8px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
+.progresses { display: flex; gap: 4px; }
+.progress { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
+.progress .fill { height: 100%; width: 0%; background: #fff; }
+.storyhead { display: flex; align-items: center; justify-content: space-between; }
+.storyzone { position: absolute; top: 0; bottom: 0; width: 40%; z-index: 5; background: transparent; }
+.storyzone.prev { right: 0; }
+.storyzone.next { left: 0; }
+.media { flex: 1; display: grid; place-items: center; position: relative; overflow: hidden; }
+.media img, .media video { width: 100%; height: 100%; object-fit: contain; }
+.storybottom { position: absolute; bottom: calc(10px + var(--safe-bottom)); left: 12px; right: 12px; z-index: 10; display: flex; flex-direction: column; gap: 8px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding-top: 15px; }
+.story-caption-overlay { position: absolute; bottom: 80px; left: 20px; right: 20px; color: #fff; text-align: center; background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 12px; font-size: 13px; z-index: 8; backdrop-filter: blur(6px); }
+.story-comments-box { max-height: 90px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: #eee; }
+.story-comment-item { background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 6px; }
+
+/* Modals */
+.modal { position: fixed; inset: 0; z-index: 60; background: var(--bg); display: flex; flex-direction: column; transform: translateY(100%); transition: transform .3s cubic-bezier(.32,1,.23,1); }
+.modal.open { transform: translateY(0); }
+.modalhead { display: flex; align-items: center; justify-content: space-between; padding: max(12px, var(--safe-top)) 16px 12px; border-bottom: 1px solid var(--border); background: var(--panel); }
+.profile-container { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.profile-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; background: var(--card-bg); padding: 20px; border-radius: 18px; border: 1px solid var(--border); }
+.profile-avatar-wrapper { position: relative; cursor: pointer; }
+.profile-avatar-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--blue); }
+.profile-edit-avatar-badge { position: absolute; bottom: 0; right: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-size: 13px; border: 2px solid var(--panel); }
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; margin-top: 10px; }
+.stat-box { background: var(--panel); padding: 8px 4px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
+.stat-box b { display: block; font-size: 14px; color: var(--text); }
+.stat-box span { font-size: 10px; color: var(--muted); }
+
+.setting-group { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.setting-row:last-child { border-bottom: none; }
+.setting-info { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.setting-info i { color: var(--blue); width: 18px; text-align: center; }
+
+/* Switch Slider */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--border); transition: .3s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--blue); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+/* Avatar Presets Grid */
+.avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+.avatar-preset-item { width: 100%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; border: 2px solid transparent; cursor: pointer; transition: transform .2s, border-color .2s; }
+.avatar-preset-item:hover { transform: scale(1.1); border-color: var(--blue); }
+
+/* Bottom Nav */
+.nav { position: absolute; left: 0; right: 0; bottom: 0; height: calc(64px + var(--safe-bottom)); padding-bottom: var(--safe-bottom); z-index: 35; display: flex; align-items: center; justify-content: space-around; border-top: 1px solid var(--border); }
+.navitem { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--muted); cursor: pointer; font-size: 11px; flex: 1; padding: 6px 0; }
+.navitem.active { color: var(--blue); }
+.navitem i { font-size: 18px; }
+
+/* Toast */
+.toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100px); background: rgba(0,0,0,0.88); color: #fff; padding: 12px 22px; border-radius: 20px; font-size: 12px; z-index: 200; backdrop-filter: blur(10px); transition: transform .3s cubic-bezier(0.34, 1.56, 0.64, 1); border: 1px solid rgba(255,255,255,0.18); pointer-events: none; text-align: center; line-height: 1.5; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Auth */
+.auth { position: fixed; inset: 0; z-index: 150; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.authbox { width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--border); border-radius: 22px; padding: 24px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+.authbox .logo { width: 64px; height: 64px; border-radius: 18px; background: var(--blue); color: #fff; display: grid; place-items: center; font-size: 28px; margin: 0 auto 14px; box-shadow: 0 6px 20px var(--blue-glow); }
+.authbox input { width: 100%; padding: 12px 14px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); margin-bottom: 12px; font-size: 13px; }
+
+/* Quick Demo Account Selector */
+.quick-accounts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 16px; }
+.quick-acc-btn { padding: 10px 8px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: all .2s; }
+.quick-acc-btn:hover { border-color: var(--blue); transform: translateY(-2px); }
+.quick-acc-btn img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+.quick-acc-btn b { font-size: 12px; color: var(--text); }
+.quick-acc-btn span { font-size: 10px; color: var(--blue); }
+
+/* Context Menu */
+.ctx { position: fixed; z-index: 120; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 6px; display: none; flex-direction: column; gap: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); min-width: 140px; }
+.ctx button { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; background: transparent; }
+.ctx button:hover { background: rgba(42, 171, 238, 0.15); color: var(--blue); }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<!-- Mobile Phone Authentication Modal -->
+<div id="auth" class="auth">
+  <div class="authbox">
+    <div class="logo"><i class="fa-solid fa-mobile-screen-button"></i></div>
+    
+    <!-- Step 1: Enter Phone Number -->
+    <div id="authStep1">
+      <h2 style="font-size:18px">ورود با شماره موبایل</h2>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6;margin:6px 0 12px">شماره موبایل خود را وارد کنید تا کد تایید برای شما ارسال شود.</p>
+
+      <!-- Quick Test Accounts -->
+      <div class="quick-accounts">
+        <div class="quick-acc-btn" onclick="quickPhoneLogin('09121111111', 'حساب اول (کاربر ۱)')">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150">
+          <b>کاربر ۱</b>
+          <span>۰۹۱۲۱۱۱۱۱۱۱ 📍</span>
+        </div>
+        <div class="quick-acc-btn" onclick="quickPhoneLogin('09122222222', 'حساب دوم (کاربر ۲)')">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150">
+          <b>کاربر ۲</b>
+          <span>۰۹۱۲۲۲۲۲۲۲۲ 📍</span>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin:10px 0 14px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--muted)">یا شماره دلخواه خودتان</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      <input id="authPhoneInput" type="tel" placeholder="۰۹۱۲۳۴۵۶۷۸۹" maxlength="14" style="direction:ltr;text-align:center;font-size:16px;letter-spacing:2px" onkeydown="if(event.key==='Enter')requestOtp()">
+      
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="primary" onclick="requestOtp()"><i class="fa-solid fa-paper-plane"></i> دریافت کد تایید</button>
+        
+        <div style="display:flex;align-items:center;gap:10px;margin:4px 0">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:10px;color:var(--muted)">ورود خودکار با تلگرام</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+
+        <!-- Telegram Instant Profile Login Widget -->
+        <div id="telegramLoginWidgetContainer" style="display:flex;justify-content:center;margin:4px 0">
+          <script async src="https://telegram.org/js/telegram-widget.js?22" 
+                  data-telegram-login="RezaProFx_bot" 
+                  data-size="large" 
+                  data-radius="12" 
+                  data-onauth="onTelegramAuth(user)" 
+                  data-request-access="write"></script>
+        </div>
+
+        <button class="secondary" style="background:rgba(34,158,217,0.15);color:#229ED9;border-color:rgba(34,158,217,0.3)" onclick="openTelegramBot()"><i class="fa-brands fa-telegram"></i> باز کردن ربات تلگرام 🤖</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Enter OTP Code -->
+    <div id="authStep2" style="display:none">
+      <h2 style="font-size:18px">کد تایید ورود</h2>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6;margin:6px 0 12px">
+        کد ۴ رقمی ارسال شده به <b id="authPhoneLabel" style="color:var(--blue);direction:ltr;display:inline-block"></b> را وارد کنید:
+      </p>
+
+      <input id="authOtpInput" type="number" placeholder="کد ۴ رقمی" maxlength="6" style="direction:ltr;text-align:center;font-size:20px;letter-spacing:6px;font-weight:bold" onkeydown="if(event.key==='Enter')confirmOtp()">
+      
+      <div id="authNameGroup" style="margin-top:6px">
+        <input id="authFullNameInput" placeholder="نام و نام خانوادگی شما (اختیاری)">
+      </div>
+
+      <button class="primary" onclick="confirmOtp()"><i class="fa-solid fa-check"></i> تایید و ورود به برنامه</button>
+      
+      <button class="secondary" style="margin-top:8px" onclick="backToStep1()"><i class="fa-solid fa-arrow-right"></i> تغییر شماره موبایل</button>
+      <button class="secondary" style="margin-top:6px;font-size:11px" onclick="openTelegramBot()"><i class="fa-brands fa-telegram" style="color:#229ED9"></i> باز کردن ربات تلگرام</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Fullscreen Map Container -->
+<div id="map"></div>
+
+<!-- Top Bar -->
+<div class="top">
+  <div class="search solid">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input id="searchInput" placeholder="جستجوی شهر یا خیابان..." onkeydown="searchPlace(event)">
+    <button class="icon" onclick="toggleTheme()" title="تغییر حالت شب / روز" style="width:32px;height:32px">
+      <i id="themeIcon" class="fa-solid fa-moon"></i>
+    </button>
+    <span id="peopleBadge" class="badge" onclick="openPeople()">۰ فرد</span>
+  </div>
+  <div id="stories" class="stories"></div>
+</div>
+
+<!-- Map Controls -->
+<div class="controls">
+  <!-- Theme Toggle (Day/Night Map) -->
+  <button class="ctrl solid" onclick="toggleTheme()" title="تغییر نقشه روز و شب">
+    <i id="mapThemeIcon" class="fa-solid fa-sun" style="color:#f39c12"></i>
+  </button>
+
+  <!-- Zoom In / Zoom Out -->
+  <button class="ctrl solid" onclick="zoomIn()" title="بزرگ‌نمایی">
+    <i class="fa-solid fa-plus"></i>
+  </button>
+  <button class="ctrl solid" onclick="zoomOut()" title="کوچک‌نمایی">
+    <i class="fa-solid fa-minus"></i>
+  </button>
+
+  <!-- Radar Radius Slider -->
+  <div class="radius">
+    <span><b id="radiusValue">5</b> km</span>
+    <input id="radius" type="range" min=".5" max="50" step=".5" value="5" oninput="setRadius(this.value)">
+  </div>
+
+  <!-- GPS Locate Me Button -->
+  <button id="locateBtn" class="ctrl solid" title="موقعیت مکانی من">
+    <i class="fa-solid fa-location-crosshairs" style="color:var(--blue)"></i>
+  </button>
+</div>
+
+<!-- Public Chat Drawer -->
+<div id="publicDrawer" class="public-drawer solid">
+  <div class="public-head">
+    <div style="display:flex;align-items:center;gap:8px">
+      <i class="fa-solid fa-comments" style="color:var(--blue);font-size:16px"></i>
+      <b style="font-size:13px">چت عمومی محیطی</b>
+      <span class="badge" style="padding:2px 8px;font-size:10px">زنده</span>
+    </div>
+    <button class="icon" onclick="togglePublic(false)" style="width:30px;height:30px"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div id="feed" class="public-feed"></div>
+  <div class="quick-emojis">
+    <button class="quick-emoji" onclick="addEmoji('❤️')">❤️</button>
+    <button class="quick-emoji" onclick="addEmoji('👋')">👋</button>
+    <button class="quick-emoji" onclick="addEmoji('🔥')">🔥</button>
+    <button class="quick-emoji" onclick="addEmoji('📍')">📍</button>
+    <button class="quick-emoji" onclick="addEmoji('☕')">☕</button>
+  </div>
+  <div class="public-inputline">
+    <input id="publicInput" placeholder="پیام به افراد نزدیک..." onkeydown="if(event.key==='Enter')sendPublic()">
+    <button class="send-btn" onclick="sendPublic()"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<!-- Floating Action Button for Public Chat -->
+<div id="globalFab" class="global-fab">
+  <button class="global-fab-btn" onclick="togglePublic()" title="چت عمومی">
+    <i class="fa-solid fa-comments"></i>
+    <span class="pulse-badge"></span>
+  </button>
+</div>
+
+<!-- Person Card Modal on Map -->
+<div id="personCard" class="card solid">
+  <div class="head">
+    <img id="pcAvatar" class="avatar" src="">
+    <div style="flex:1"><b id="pcName"></b><div id="pcCaption" style="font-size:11px;color:var(--muted)"></div></div>
+    <button class="icon" onclick="closePersonCard()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div id="pcBio" style="margin:8px 0;font-size:12px;color:var(--muted);line-height:1.5"></div>
+  <div style="font-size:11px;color:var(--blue)" id="pcDistance"></div>
+  <div class="actions">
+    <button class="secondary" onclick="openOtherProfile()">پروفایل</button>
+    <button class="primary" onclick="openChat()">چت خصوصی</button>
+  </div>
+</div>
+
+<!-- Direct Chat Sheet -->
+<div id="sheet" class="sheet">
+  <div class="chathead">
+    <div class="userinfo" onclick="openOtherProfile()">
+      <img id="sheetAvatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover">
+      <div>
+        <div id="sheetName" class="name">-</div>
+        <div id="sheetStatus" class="status">-</div>
+      </div>
+    </div>
+    <button class="icon" onclick="closeChat()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  
+  <div id="replyBar" class="replybar">
+    <div id="replyText" style="flex:1"></div>
+    <button class="icon" onclick="cancelReply()" style="width:24px;height:24px"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div id="messages" class="messages"></div>
+
+  <div class="inputbar">
+    <button id="voiceBtn" class="rec-btn" onclick="toggleVoiceRecord()" title="ضبط پیام صوتی"><i class="fa-solid fa-microphone"></i></button>
+    <input id="msgInput" placeholder="نوشتن پیام خصوصی..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}">
+    <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<!-- Fullscreen Story Viewer -->
+<div id="viewer" class="viewer">
+  <div class="storytop">
+    <div id="progresses" class="progresses"></div>
+    <div class="storyhead">
+      <img id="storyAvatar" class="avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover">
+      <div style="flex:1;margin-right:8px"><b id="storyName" style="color:#fff;font-size:13px"></b><div id="storyTime" style="font-size:10px;color:#ccc"></div></div>
+      <button class="icon" style="color:#fff" onclick="closeStory()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+  <button class="storyzone prev" onclick="prevStory(event)"></button>
+  <button class="storyzone next" onclick="nextStory(event)"></button>
+  <div class="media">
+    <img id="storyImg">
+    <video id="storyVideo" playsinline controls style="display:none"></video>
+    <div id="storyCaption" class="story-caption-overlay hidden"></div>
+  </div>
+  <div class="storybottom" onclick="event.stopPropagation()">
+    <div id="storyComments" class="story-comments-box"></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input id="storyComment" class="secondary" style="flex:1;border-radius:20px;padding:8px 14px;background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.3)" placeholder="ارسال پاسخ به این استوری..." onkeydown="if(event.key==='Enter')commentStory(event)">
+      <button id="likeBtn" class="icon" style="color:#fff" onclick="likeStory(event)"><i class="fa-regular fa-heart"></i></button>
+      <button class="send-btn" style="width:34px;height:34px" onclick="commentStory(event)"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- Context Menu -->
+<div id="ctx" class="ctx">
+  <button onclick="ctxReply()"><i class="fa-solid fa-reply"></i> ریپلای</button>
+  <button onclick="ctxCopy()"><i class="fa-solid fa-copy"></i> کپی متن</button>
+  <button id="ctxDelete" onclick="ctxDelete()" style="color:var(--danger)"><i class="fa-solid fa-trash"></i> حذف پیام</button>
+</div>
+
+<!-- Complete Profile Modal -->
+<div id="profileModal" class="modal">
+  <div class="modalhead">
+    <div style="display:flex;align-items:center;gap:8px">
+      <i class="fa-solid fa-user-circle" style="color:var(--blue);font-size:18px"></i>
+      <h3>پروفایل کاربری من</h3>
+    </div>
+    <button class="icon" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  
+  <div class="profile-container">
+    <div class="profile-card">
+      <div class="profile-avatar-wrapper" onclick="openAvatarSelector()">
+        <img id="profileAvatar" class="profile-avatar-img" src="">
+        <div class="profile-edit-avatar-badge" title="تغییر عکس"><i class="fa-solid fa-camera"></i></div>
+      </div>
+      <div>
+        <h3 id="profileName" style="font-size:16px;font-weight:700"></h3>
+        <p id="profilePhone" style="font-size:12px;color:var(--blue);margin-top:2px;direction:ltr"></p>
+        <p id="profileBio" style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5"></p>
+      </div>
+      
+      <div class="stats-row">
+        <div class="stat-box"><b id="statNearby">0</b><span>افراد نزدیک</span></div>
+        <div class="stat-box"><b id="statChats">0</b><span>چت‌ها</span></div>
+        <div class="stat-box"><b id="statStories">0</b><span>استوری‌ها</span></div>
+        <div class="stat-box"><b style="color:var(--green)">GPS</b><span>موقعیت</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:8px">
+        <button class="primary" onclick="openEditProfile()"><i class="fa-solid fa-pen"></i> ویرایش مشخصات</button>
+        <button class="secondary" onclick="openCreateStoryModal()"><i class="fa-solid fa-plus"></i> ثبت استوری</button>
+      </div>
+    </div>
+
+    <!-- Quick Switch User Account for Testing -->
+    <div class="setting-group" style="padding:14px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700">
+          <i class="fa-solid fa-mobile-screen-button" style="color:var(--blue)"></i>
+          <span>سوئیچ سریع شماره موبایل تستی</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="secondary" style="font-size:12px;padding:8px" onclick="quickPhoneLogin('09121111111', 'حساب اول (کاربر ۱)')">
+          <i class="fa-solid fa-phone"></i> ۰۹۱۲۱۱۱۱۱۱۱
+        </button>
+        <button class="secondary" style="font-size:12px;padding:8px" onclick="quickPhoneLogin('09122222222', 'حساب دوم (کاربر ۲)')">
+          <i class="fa-solid fa-phone"></i> ۰۹۱۲۲۲۲۲۲۲۲
+        </button>
+      </div>
+    </div>
+
+    <!-- Server Connection Settings -->
+    <div class="setting-group" style="padding:14px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700">
+          <i class="fa-solid fa-server" style="color:var(--blue)"></i>
+          <span>اتصال به سرور واقعی</span>
+        </div>
+        <span id="serverStatusBadge" class="badge" style="background:rgba(46,204,113,0.18);color:var(--green);border-color:rgba(46,204,113,0.3)">بررسی...</span>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.6">
+        آدرس سرور اصلی برای اجرای برنامه به صورت اپلیکیشن و وب:
+      </p>
+      <div style="display:flex;gap:6px">
+        <input id="serverUrlInput" class="secondary" style="flex:1;padding:8px 12px;font-size:12px;direction:ltr;text-align:left" placeholder="http://your-server-ip:3000">
+        <button class="primary" style="width:auto;padding:8px 14px;font-size:12px" onclick="saveServerConfig()">ذخیره</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-info"><i class="fa-solid fa-moon"></i><span>حالت شب / روز (Dark/Light Map)</span></div>
+        <label class="switch"><input type="checkbox" id="themeSwitch" onchange="toggleTheme()"><span class="slider"></span></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><i class="fa-solid fa-ghost"></i><span>حالت روح (مخفی شدن روی نقشه)</span></div>
+        <label class="switch"><input type="checkbox" id="ghostSwitch" onchange="toggleGhost(this.checked)"><span class="slider"></span></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><i class="fa-solid fa-volume-high"></i><span>صدای اعلانات</span></div>
+        <label class="switch"><input type="checkbox" id="soundSwitch" checked onchange="toggleSound(this.checked)"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-row" style="cursor:pointer" onclick="locateMe()">
+        <div class="setting-info"><i class="fa-solid fa-location-crosshairs"></i><span>بروزرسانی موقعیت مکانی (GPS)</span></div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+      </div>
+      <div class="setting-row" style="cursor:pointer;color:var(--danger)" onclick="logout()">
+        <div class="setting-info"><i class="fa-solid fa-right-from-bracket" style="color:var(--danger)"></i><span>خروج از حساب / تغییر شماره موبایل</span></div>
+        <i class="fa-solid fa-chevron-left" style="font-size:12px"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Story Modal -->
+<div id="createStoryModal" class="modal">
+  <div class="modalhead">
+    <h3>ثبت استوری ۲۴ ساعته جدید</h3>
+    <button class="icon" onclick="$('createStoryModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="padding:16px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px">
+    <div id="storyPreviewBox" style="width:100%;height:220px;border-radius:14px;background:var(--input-bg);border:2px dashed var(--border);display:grid;place-items:center;cursor:pointer;overflow:hidden;position:relative" onclick="$('storyFileInput').click()">
+      <div id="storyPreviewPlaceholder" style="text-align:center;color:var(--muted)">
+        <i class="fa-solid fa-image" style="font-size:32px;margin-bottom:8px;color:var(--blue)"></i>
+        <div>کلیک برای انتخاب تصویر از گالری/دوربین</div>
+      </div>
+      <img id="storyPreviewImg" style="width:100%;height:100%;object-fit:cover;display:none">
+    </div>
+    <input id="storyFileInput" type="file" accept="image/*,video/*" hidden onchange="handleStoryFileSelect(event)">
+    <input id="storyCaptionInput" class="secondary" placeholder="متن یا توضیح استوری (اختیاری)..." style="padding:10px 14px">
+    <button class="primary" onclick="submitNewStory()"><i class="fa-solid fa-paper-plane"></i> انتشار استوری برای افراد نزدیک</button>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal">
+  <div class="modalhead">
+    <h3>ویرایش مشخصات</h3>
+    <button class="icon" onclick="$('editProfileModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="padding:16px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px">
+    <div><label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">نام نمایشی</label><input id="editName" class="secondary" style="text-align:right"></div>
+    <div><label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">بیوگرافی و وضعیت</label><textarea id="editBio" class="secondary" rows="3" style="text-align:right"></textarea></div>
+    <div><label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">شهر</label><input id="editCity" class="secondary" style="text-align:right"></div>
+    <button class="primary" style="margin-top:10px" onclick="saveProfileChanges()">ذخیره تغییرات</button>
+  </div>
+</div>
+
+<!-- Avatar Selector Modal -->
+<div id="avatarSelectorModal" class="modal">
+  <div class="modalhead">
+    <h3>انتخاب تصویر آواتار</h3>
+    <button class="icon" onclick="$('avatarSelectorModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="padding:16px;overflow-y:auto;flex:1">
+    <button class="primary" onclick="$('photoInput').click()" style="margin-bottom:15px"><i class="fa-solid fa-upload"></i> آپلود از گالری گوشی/کامپیوتر</button>
+    <input id="photoInput" type="file" accept="image/*" hidden onchange="uploadPhoto(event)">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">یا یکی از آواتارهای پیش‌فرض را انتخاب کنید:</p>
+    <div id="avatarGrid" class="avatar-grid"></div>
+  </div>
+</div>
+
+<!-- Modals (Chats, People, Other Profile) -->
+<div id="chatsModal" class="modal">
+  <div class="modalhead"><h3>چت‌های خصوصی</h3><button class="icon" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button></div>
+  <div style="padding:10px;background:var(--panel);border-bottom:1px solid var(--border)"><input id="chatSearch" class="secondary" placeholder="جستجوی پیام یا کاربر..." oninput="renderChats(this.value)"></div>
+  <div id="chatList" style="flex:1;overflow-y:auto"></div>
+</div>
+
+<div id="peopleModal" class="modal">
+  <div class="modalhead"><h3>افراد حاضر در نزدیکی (<span id="peopleCount">0</span>)</h3><button class="icon" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button></div>
+  <div style="padding:10px;background:var(--panel);border-bottom:1px solid var(--border)"><input id="peopleSearch" class="secondary" placeholder="جستجوی نام یا شهر..." oninput="renderPeople(this.value)"></div>
+  <div id="peopleList" style="flex:1;overflow-y:auto"></div>
+</div>
+
+<div id="otherModal" class="modal">
+  <div class="modalhead"><h3>پروفایل کاربر</h3><button class="icon" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="profile-container">
+    <div class="profile-card">
+      <img id="otherAvatar" class="profile-avatar-img" src="">
+      <h3 id="otherName"></h3>
+      <p id="otherBio" style="font-size:12px;color:var(--muted)"></p>
+      <div style="display:flex;gap:14px;font-size:11px;color:var(--blue);margin-top:4px">
+        <span id="otherDistance"></span> • <span id="otherStatus"></span>
+      </div>
+      <button class="primary" style="margin-top:12px" onclick="closeModals();openChat()"><i class="fa-solid fa-comments"></i> شروع چت خصوصی</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation Bar -->
+<div class="nav solid">
+  <div class="navitem active" onclick="nav('map', this)"><i class="fa-solid fa-map"></i><span>نقشه</span></div>
+  <div class="navitem" onclick="nav('chats', this)"><i class="fa-solid fa-message"></i><span>پیام‌ها</span></div>
+  <div class="navitem" onclick="nav('profile', this)"><i class="fa-solid fa-user"></i><span>پروفایل</span></div>
+</div>
+
+<script>
+// ----------------------------------------------------
+// Global Server Configuration Helper with Auto-Fallback
+// ----------------------------------------------------
+function getApiBaseUrl() {
+  const saved = localStorage.getItem('geosocial_server_url');
+  if (saved && saved.trim() && !saved.includes('undefined')) {
+    return saved.trim().replace(/\/+$/, '');
+  }
+  // If hosted on GitHub Pages or custom domain, route API requests to the online tunnel/backend server
+  if (window.location && window.location.hostname && (window.location.hostname.includes('github.io') || window.location.hostname.includes('vercel.app'))) {
+    return 'https://0bbef8eb21f588ad-87-58-154-27.serveousercontent.com';
+  }
+  if (window.location && window.location.protocol && window.location.protocol.startsWith('http')) {
+    return window.location.origin;
+  }
+  return 'http://localhost:3000';
+}
+
+function apiUrl(path) {
+  const base = getApiBaseUrl();
+  const cleanPath = path.startsWith('/') ? path : '/' + path;
+  return base + cleanPath;
+}
+
+async function checkServerHealth() {
+  const badge = $('serverStatusBadge');
+  try {
+    const res = await fetch(apiUrl('/api/health'), { cache: 'no-store' });
+    const d = await res.json();
+    if (d.status === 'ok') {
+      if (badge) {
+        badge.textContent = 'متصل به سرور 🟢';
+        badge.style.color = 'var(--green)';
+        badge.style.borderColor = 'rgba(46,204,113,0.3)';
+        badge.style.background = 'rgba(46,204,113,0.18)';
+      }
+      return true;
+    }
+  } catch {
+    if (badge) {
+      badge.textContent = 'عدم اتصال 🔴';
+      badge.style.color = 'var(--danger)';
+      badge.style.borderColor = 'rgba(231,76,60,0.3)';
+      badge.style.background = 'rgba(231,76,60,0.18)';
+    }
+  }
+  return false;
+}
+
+function saveServerConfig() {
+  const input = $('serverUrlInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (val) {
+    localStorage.setItem('geosocial_server_url', val);
+  } else {
+    localStorage.removeItem('geosocial_server_url');
+  }
+  toast('آدرس سرور ذخیره شد. در حال اتصال... 🔄');
+  checkServerHealth().then(ok => {
+    if (ok) {
+      toast('اتصال با سرور برقرار شد! ✅');
+      bootData();
+    } else {
+      toast('خطا: سرور در این آدرس پاسخگو نیست ⚠️');
+    }
+  });
+}
+
+// ----------------------------------------------------
+// State & Constants
+// ----------------------------------------------------
+const CFG = {
+  defaultCoords: { lat: 35.6892, lng: 51.3890 },
+  storyDuration: 5000
+};
+
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+const PRESET_AVATARS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80'
+];
+
+let state = {
+  theme: localStorage.getItem('geosocial_theme') || 'dark',
+  soundEnabled: true,
+  coords: { ...CFG.defaultCoords },
+  radius: 5,
+  user: null,
+  profile: null,
+  pendingPhone: null,
+  pins: [],
+  stories: [],
+  public: [],
+  activePin: null,
+  activeConversation: null,
+  activeMessages: [],
+  selectedMessage: null,
+  reply: null,
+  currentStory: -1,
+  storyTimer: null,
+  newStoryDataUrl: null,
+  mediaRecorder: null,
+  audioChunks: [],
+  isRecording: false
+};
+
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const toast = m => { const e = $('toast'); if (e) { e.innerHTML = m; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 3800); } };
+const dist = (a, b, c, d) => { const R = 6371, p = Math.PI / 180, dl = (c - a) * p, dg = (d - b) * p, x = Math.sin(dl / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin(dg / 2) ** 2; return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
+const online = p => p?.online === true || (p?.last_seen && Date.now() - new Date(p.last_seen).getTime() < 180000);
+
+// Sound FX
+function playBeep(type = 'send') {
+  if (!state.soundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if (type === 'send') {
+      osc.frequency.setValueAtTime(580, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+      osc.start(); osc.stop(ctx.currentTime + 0.08);
+    } else {
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(580, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+      osc.start(); osc.stop(ctx.currentTime + 0.12);
+    }
+  } catch {}
+}
+
+// ----------------------------------------------------
+// Simple Public Day & Night Map Engine
+// ----------------------------------------------------
+let map, myMarker, userLayer, radiusCircleLayer, tileLayer;
+const OSM_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+function initMap() {
+  if (typeof L === 'undefined') {
+    setTimeout(initMap, 200);
+    return;
+  }
+
+  map = L.map('map', {
+    center: [state.coords.lat, state.coords.lng],
+    zoom: 14,
+    zoomControl: false,
+    attributionControl: false
+  });
+
+  tileLayer = L.tileLayer(OSM_TILE_URL, {
+    maxZoom: 19,
+    attribution: ''
+  }).addTo(map);
+
+  userLayer = L.layerGroup().addTo(map);
+
+  drawRadiusCircle();
+  renderMyMarker();
+  renderMarkers();
+}
+
+function updateMapTheme(theme) {
+  const isDark = theme === 'dark';
+  if ($('mapThemeIcon')) {
+    $('mapThemeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    $('mapThemeIcon').style.color = isDark ? '#f39c12' : '#2aabee';
+  }
+}
+
+function drawRadiusCircle() {
+  if (!map) return;
+  if (radiusCircleLayer) map.removeLayer(radiusCircleLayer);
+
+  radiusCircleLayer = L.circle([state.coords.lat, state.coords.lng], {
+    radius: state.radius * 1000,
+    color: '#2aabee',
+    weight: 1.5,
+    opacity: 0.8,
+    fillColor: '#2aabee',
+    fillOpacity: 0.08,
+    dashArray: '4, 4'
+  }).addTo(map);
+}
+
+function setRadius(v) {
+  state.radius = Number(v);
+  $('radiusValue').textContent = String(state.radius).replace('.0', '');
+  drawRadiusCircle();
+  renderMarkers();
+}
+
+function renderMyMarker() {
+  if (!map) return;
+  if (myMarker) map.removeLayer(myMarker);
+  if (state.profile?.ghost) return;
+
+  const myIcon = L.divIcon({
+    className: '',
+    html: `<div class="my-marker"><div class="my-pulse"></div><div class="my-dot"></div></div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16]
+  });
+
+  myMarker = L.marker([state.coords.lat, state.coords.lng], { icon: myIcon, interactive: false }).addTo(map);
+}
+
+function renderMarkers() {
+  if (!map || !userLayer) return;
+  userLayer.clearLayers();
+
+  let count = 0;
+  state.pins.forEach(p => {
+    if (!p?.id || p.id === state.user?.id || !Number.isFinite(Number(p.lat)) || !Number.isFinite(Number(p.lng))) return;
+    const d = dist(state.coords.lat, state.coords.lng, Number(p.lat), Number(p.lng));
+    if (d > state.radius) return;
+    count++;
+
+    const iconHtml = `
+      <div class="user-marker">
+        <div class="pin-body">
+          <img src="${esc(p.avatar || DEFAULT_AVATAR)}" alt="${esc(p.name)}">
+          <i class="led ${online(p) ? 'online' : 'offline'}"></i>
+        </div>
+        <div class="pin-stem"></div>
+        <div class="pin-name">${esc(p.name)}</div>
+      </div>
+    `;
+
+    const icon = L.divIcon({
+      className: '',
+      html: iconHtml,
+      iconSize: [44, 60],
+      iconAnchor: [22, 60]
+    });
+
+    const marker = L.marker([Number(p.lat), Number(p.lng)], { icon: icon });
+    marker.on('click', () => {
+      state.activePin = p;
+      map.flyTo([Number(p.lat), Number(p.lng)], 15);
+      openPersonCard(p);
+    });
+
+    userLayer.addLayer(marker);
+  });
+
+  $('peopleBadge').textContent = `${count} فرد`;
+  if ($('statNearby')) $('statNearby').textContent = count;
+}
+
+function zoomIn() { if (map) map.zoomIn(); }
+function zoomOut() { if (map) map.zoomOut(); }
+
+function locateMe() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(async pos => {
+      state.coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      drawRadiusCircle();
+      renderMyMarker();
+      renderMarkers();
+      if (map) map.flyTo([state.coords.lat, state.coords.lng], 15);
+      await syncUserToServer();
+      toast('موقعیت مکانی شما با موفقیت بروزرسانی شد 🧭');
+    }, () => {
+      drawRadiusCircle();
+      renderMyMarker();
+      if (map) map.flyTo([state.coords.lat, state.coords.lng], 14);
+      toast('موقعیت پیش‌فرض تهران فعال شد 📍');
+    }, { enableHighAccuracy: true, timeout: 6000 });
+  }
+}
+
+// ----------------------------------------------------
+// Theme Engine (Day & Night)
+// ----------------------------------------------------
+function applyTheme(t) {
+  state.theme = t;
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('geosocial_theme', t);
+  if ($('themeSwitch')) $('themeSwitch').checked = (t === 'dark');
+  if ($('themeIcon')) $('themeIcon').className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+  updateMapTheme(t);
+}
+
+function toggleTheme() {
+  applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+  toast(state.theme === 'dark' ? 'نقشه و تم حالت شب فعال شد 🌙' : 'نقشه و تم حالت روز فعال شد ☀️');
+}
+
+function toggleSound(on) {
+  state.soundEnabled = on;
+  toast(on ? 'صدای پیام‌ها فعال شد 🔔' : 'صداها بی‌صدا شدند 🔕');
+}
+
+// ----------------------------------------------------
+// Mobile Phone & OTP Authentication Flow (Auto-Fallback)
+// ----------------------------------------------------
+async function ensureSession() {
+  const localSaved = localStorage.getItem('geosocial_user');
+  if (localSaved) {
+    try {
+      state.user = JSON.parse(localSaved);
+      state.profile = state.user;
+      state.coords = { lat: Number(state.user.lat) || 35.6892, lng: Number(state.user.lng) || 51.3890 };
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+// Handle Direct Telegram Profile Login
+async function onTelegramAuth(user) {
+  if (!user || !user.id) return;
+  toast(`در حال ورود با حساب تلگرام ${user.first_name || ''}... 🌟`);
+
+  const candidateUrls = [
+    apiUrl('/api/auth/telegram'),
+    '/api/auth/telegram',
+    'http://localhost:3000/api/auth/telegram',
+    'http://127.0.0.1:3000/api/auth/telegram',
+    'http://192.168.1.174:3000/api/auth/telegram'
+  ];
+
+  let loggedUser = null;
+  for (const url of candidateUrls) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: user.id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          username: user.username,
+          photo_url: user.photo_url,
+          lat: state.coords.lat,
+          lng: state.coords.lng
+        })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (d && d.success && d.user) {
+          loggedUser = d.user;
+          break;
+        }
+      }
+    } catch (e) {}
+  }
+
+  // Fallback direct user object
+  if (!loggedUser) {
+    const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || 'کاربر تلگرام';
+    loggedUser = {
+      id: 'tg_' + user.id,
+      telegram_id: user.id,
+      name: fullName,
+      username: user.username || 'tg_' + user.id,
+      avatar: user.photo_url || DEFAULT_AVATAR,
+      bio: user.username ? `@${user.username} 📱` : 'عضو تلگرامی GeoSocial 📱',
+      city: 'تهران',
+      lat: state.coords.lat,
+      lng: state.coords.lng,
+      ghost: false,
+      online: true,
+      last_seen: new Date().toISOString()
+    };
+  }
+
+  state.user = loggedUser;
+  state.profile = loggedUser;
+  state.coords = { lat: Number(loggedUser.lat), lng: Number(loggedUser.lng) };
+  localStorage.setItem('geosocial_user', JSON.stringify(loggedUser));
+
+  $('auth').style.display = 'none';
+  toast(`خوش آمدید ${loggedUser.name}! 🎉 (پروفایل تلگرام متصل شد)`);
+
+  if (map) map.flyTo([state.coords.lat, state.coords.lng], 15);
+  renderMyMarker();
+  drawRadiusCircle();
+  await bootData();
+}
+
+// Open Telegram Bot to receive personal OTP code
+function openTelegramBot() {
+  const botUsername = 'RezaProFx_bot';
+  const url = `https://t.me/${botUsername}?start=login`;
+  window.open(url, '_blank');
+  toast('در حال انتقال به ربات تلگرام... پس از زدن دکمه استارت، کد برای شما ارسال می‌شود 🤖');
+}
+
+// Quick login with Demo Phones
+async function quickPhoneLogin(phone, name) {
+  $('authPhoneInput').value = phone;
+  await requestOtp(phone, name);
+  setTimeout(() => {
+    confirmOtp('1234');
+  }, 350);
+}
+
+// Step 1: Request SMS OTP with Multi-Route Auto-Fallback
+async function requestOtp(targetPhone, optName) {
+  const phone = (targetPhone || $('authPhoneInput').value || '').trim();
+  if (!phone || phone.length < 10) return toast('لطفاً شماره موبایل معتبر (مثلاً ۰۹۱۲۳۴۵۶۷۸۹) وارد کنید');
+
+  const candidateUrls = [
+    apiUrl('/api/auth/send_otp'),
+    '/api/auth/send_otp',
+    'http://localhost:3000/api/auth/send_otp',
+    'http://127.0.0.1:3000/api/auth/send_otp',
+    'http://192.168.1.174:3000/api/auth/send_otp'
+  ];
+
+  let successData = null;
+  for (const url of candidateUrls) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (d && d.success) {
+          successData = d;
+          localStorage.setItem('geosocial_server_url', url.startsWith('http') ? new URL(url).origin : window.location.origin);
+          break;
+        }
+      }
+    } catch (e) {}
+  }
+
+  state.pendingPhone = successData ? successData.phone : phone;
+  $('authPhoneLabel').textContent = state.pendingPhone;
+  $('authStep1').style.display = 'none';
+  $('authStep2').style.display = 'block';
+
+  const finalCode = (successData && successData.code) ? successData.code : '1234';
+  $('authOtpInput').value = finalCode;
+  $('authOtpInput').focus();
+
+  if (optName && $('authFullNameInput')) {
+    $('authFullNameInput').value = optName;
+  } else if (successData && successData.user_name && $('authFullNameInput')) {
+    $('authFullNameInput').value = successData.user_name;
+  }
+
+  toast(`📱 کد تایید: <b style="color:var(--green);font-size:16px">${finalCode}</b><br><span style="font-size:11px;color:var(--muted)">(کد در کادر قرار گرفت)</span>`);
+}
+
+function backToStep1() {
+  $('authStep2').style.display = 'none';
+  $('authStep1').style.display = 'block';
+  $('authPhoneInput').focus();
+}
+
+// Step 2: Confirm OTP & Finish Login
+async function confirmOtp(manualCode) {
+  const code = (manualCode || $('authOtpInput').value || '').trim();
+  const name = ($('authFullNameInput')?.value || '').trim();
+  if (!code) return toast('لطفاً کد تایید را وارد کنید');
+  if (!state.pendingPhone) return backToStep1();
+
+  const candidateUrls = [
+    apiUrl('/api/auth/verify_otp'),
+    '/api/auth/verify_otp',
+    'http://localhost:3000/api/auth/verify_otp',
+    'http://127.0.0.1:3000/api/auth/verify_otp',
+    'http://192.168.1.174:3000/api/auth/verify_otp'
+  ];
+
+  let loggedUser = null;
+  for (const url of candidateUrls) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: state.pendingPhone,
+          code: code,
+          name: name,
+          lat: state.coords.lat,
+          lng: state.coords.lng
+        })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (d && d.success && d.user) {
+          loggedUser = d.user;
+          break;
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (!loggedUser) {
+    loggedUser = {
+      id: 'usr_' + state.pendingPhone,
+      phone: state.pendingPhone,
+      name: name || `کاربر ${state.pendingPhone.slice(-4)}`,
+      username: 'user_' + state.pendingPhone.slice(-6),
+      avatar: DEFAULT_AVATAR,
+      bio: 'عضو جدید 📱',
+      city: 'تهران',
+      lat: state.coords.lat,
+      lng: state.coords.lng,
+      ghost: false,
+      online: true,
+      last_seen: new Date().toISOString()
+    };
+  }
+
+  state.user = loggedUser;
+  state.profile = loggedUser;
+  state.coords = { lat: Number(loggedUser.lat), lng: Number(loggedUser.lng) };
+  localStorage.setItem('geosocial_user', JSON.stringify(loggedUser));
+
+  $('auth').style.display = 'none';
+  toast(`خوش آمدید ${loggedUser.name}! 🌟`);
+
+  if (map) map.flyTo([state.coords.lat, state.coords.lng], 15);
+  renderMyMarker();
+  drawRadiusCircle();
+  await bootData();
+}
+
+async function syncUserToServer() {
+  if (!state.user) return;
+  try {
+    const res = await fetch(apiUrl('/api/users/sync'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...state.profile, lat: state.coords.lat, lng: state.coords.lng })
+    });
+    const d = await res.json();
+    if (d.success && d.user) {
+      state.profile = { ...state.profile, ...d.user };
+      localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
+    }
+  } catch {}
+}
+
+function logout() {
+  localStorage.removeItem('geosocial_user');
+  closeModals();
+  $('authStep2').style.display = 'none';
+  $('authStep1').style.display = 'block';
+  $('auth').style.display = 'flex';
+}
+
+function refreshProfile() {
+  const p = state.profile || {};
+  $('profileAvatar').src = p.avatar || DEFAULT_AVATAR;
+  $('profileName').textContent = p.name || 'کاربر';
+  $('profilePhone').textContent = p.phone ? `📱 ${p.phone}` : (p.username ? `@${p.username}` : '');
+  $('profileBio').textContent = p.bio || 'بیوگرافی ثبت نشده است.';
+  if ($('serverUrlInput')) $('serverUrlInput').value = getApiBaseUrl();
+  checkServerHealth();
+  if ($('ghostSwitch')) $('ghostSwitch').checked = !!p.ghost;
+  if ($('themeSwitch')) $('themeSwitch').checked = (state.theme === 'dark');
+  if ($('statNearby')) $('statNearby').textContent = state.pins.length;
+  if ($('statStories')) $('statStories').textContent = state.stories.filter(s => s.user_id === state.user?.id).length;
+}
+
+function openProfile() { refreshProfile(); $('profileModal').classList.add('open'); }
+
+function openEditProfile() {
+  const p = state.profile || {};
+  $('editName').value = p.name || '';
+  $('editBio').value = p.bio || '';
+  $('editCity').value = p.city || '';
+  $('editProfileModal').classList.add('open');
+}
+
+async function saveProfileChanges() {
+  const name = $('editName').value.trim();
+  if (!name) return toast('نام نمی‌تواند خالی باشد');
+  state.profile.name = name;
+  state.profile.bio = $('editBio').value.trim();
+  state.profile.city = $('editCity').value.trim();
+  state.user = { ...state.profile };
+  localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
+  await syncUserToServer();
+  refreshProfile();
+  renderMyMarker();
+  $('editProfileModal').classList.remove('open');
+  toast('مشخصات با موفقیت ذخیره شد ✅');
+}
+
+async function toggleGhost(isGhost) {
+  state.profile.ghost = isGhost;
+  state.user.ghost = isGhost;
+  localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
+  await syncUserToServer();
+  renderMyMarker();
+  drawRadiusCircle();
+  toast(isGhost ? 'حالت روح فعال شد (مخفی شدید) 👻' : 'موقعیت شما روی نقشه نمایش داده می‌شود 📍');
+}
+
+function openAvatarSelector() {
+  const grid = $('avatarGrid');
+  grid.innerHTML = '';
+  PRESET_AVATARS.forEach(url => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.className = 'avatar-preset-item';
+    img.onclick = async () => {
+      state.profile.avatar = url;
+      state.user.avatar = url;
+      localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
+      await syncUserToServer();
+      refreshProfile();
+      renderMyMarker();
+      $('avatarSelectorModal').classList.remove('open');
+      toast('عکس پروفایل تغییر یافت ✨');
+    };
+    grid.appendChild(img);
+  });
+  $('avatarSelectorModal').classList.add('open');
+}
+
+function uploadPhoto(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const img = new Image();
+    img.onload = async () => {
+      const canvas = document.createElement('canvas');
+      const maxDim = 300;
+      let w = img.width, h = img.height;
+      if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+      else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+      state.profile.avatar = compressedDataUrl;
+      state.user.avatar = compressedDataUrl;
+      localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
+      await syncUserToServer();
+      refreshProfile();
+      renderMyMarker();
+      $('avatarSelectorModal').classList.remove('open');
+      toast('عکس پروفایل با موفقیت آپلود شد ✅');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ----------------------------------------------------
+// Stories Feature
+// ----------------------------------------------------
+function openCreateStoryModal() {
+  $('createStoryModal').classList.add('open');
+  $('storyPreviewPlaceholder').style.display = 'block';
+  $('storyPreviewImg').style.display = 'none';
+  $('storyCaptionInput').value = '';
+  state.newStoryDataUrl = null;
+}
+
+function handleStoryFileSelect(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const maxDim = 1080;
+      let w = img.width, h = img.height;
+      if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+      else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      state.newStoryDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      $('storyPreviewImg').src = state.newStoryDataUrl;
+      $('storyPreviewImg').style.display = 'block';
+      $('storyPreviewPlaceholder').style.display = 'none';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitNewStory() {
+  if (!state.newStoryDataUrl) return toast('لطفاً یک تصویر برای استوری انتخاب کنید');
+  const caption = $('storyCaptionInput').value.trim();
+  
+  try {
+    const res = await fetch(apiUrl('/api/stories'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: state.user.id,
+        user_name: state.profile?.name || 'من',
+        user_avatar: state.profile?.avatar || DEFAULT_AVATAR,
+        media_url: state.newStoryDataUrl,
+        media_type: 'image',
+        caption: caption
+      })
+    });
+    const d = await res.json();
+    if (d.success) {
+      $('createStoryModal').classList.remove('open');
+      toast('استوری شما با موفقیت به سرور ارسال و منتشر شد 🚀');
+      await loadStories();
+    } else {
+      toast('خطا در ارسال استوری');
+    }
+  } catch {
+    toast('خطا در ارتباط با سرور');
+  }
+}
+
+async function loadStories() {
+  try {
+    const res = await fetch(apiUrl('/api/stories'));
+    const d = await res.json();
+    if (d.success) state.stories = d.stories || [];
+    renderStories();
+  } catch {}
+}
+
+function renderStories() {
+  const box = $('stories');
+  box.innerHTML = '';
+  
+  const own = document.createElement('div');
+  own.className = 'story';
+  own.innerHTML = `
+    <div class="ring"><img src="${esc(state.profile?.avatar || DEFAULT_AVATAR)}"><span class="add">+</span></div>
+    <span>استوری شما</span>
+  `;
+  own.onclick = openCreateStoryModal;
+  box.appendChild(own);
+
+  state.stories.forEach((s, i) => {
+    const e = document.createElement('div');
+    e.className = 'story';
+    e.innerHTML = `
+      <div class="ring"><img src="${esc(s.user_avatar || DEFAULT_AVATAR)}"></div>
+      <span>${esc(s.user_name)}</span>
+    `;
+    e.onclick = () => openStory(i);
+    box.appendChild(e);
+  });
+}
+
+function openStory(i) {
+  const s = state.stories[i];
+  if (!s) return;
+  state.currentStory = i;
+  clearTimeout(state.storyTimer);
+
+  $('storyAvatar').src = s.user_avatar || DEFAULT_AVATAR;
+  $('storyName').textContent = s.user_name;
+  $('storyTime').textContent = new Date(s.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+
+  $('storyImg').src = s.media_url;
+  if (s.caption) {
+    $('storyCaption').textContent = s.caption;
+    $('storyCaption').classList.remove('hidden');
+  } else {
+    $('storyCaption').classList.add('hidden');
+  }
+
+  const liked = s.likes?.includes(state.user?.id);
+  $('likeBtn').innerHTML = liked ? '<i class="fa-solid fa-heart" style="color:var(--danger)"></i>' : '<i class="fa-regular fa-heart"></i>';
+
+  const cBox = $('storyComments');
+  cBox.innerHTML = (s.comments || []).map(c => `<div class="story-comment-item"><b>${esc(c.user_name)}:</b> ${esc(c.text)}</div>`).join('');
+
+  renderProgress();
+  $('viewer').classList.add('active');
+  state.storyTimer = setTimeout(nextStory, CFG.storyDuration);
+}
+
+function renderProgress() {
+  const b = $('progresses');
+  b.innerHTML = state.stories.map((_, i) => `<div class="progress"><div class="fill" style="width:${i < state.currentStory ? '100%' : 0}"></div></div>`).join('');
+  const f = b.children[state.currentStory]?.firstElementChild;
+  if (f) {
+    requestAnimationFrame(() => {
+      f.style.transition = `width ${CFG.storyDuration}ms linear`;
+      f.style.width = '100%';
+    });
+  }
+}
+
+function closeStory() {
+  clearTimeout(state.storyTimer);
+  $('viewer').classList.remove('active');
+  state.currentStory = -1;
+}
+
+function nextStory(e) {
+  e?.stopPropagation();
+  if (state.currentStory < 0) return;
+  if (state.currentStory >= state.stories.length - 1) return closeStory();
+  openStory(state.currentStory + 1);
+}
+
+function prevStory(e) {
+  e?.stopPropagation();
+  if (state.currentStory <= 0) return openStory(0);
+  openStory(state.currentStory - 1);
+}
+
+async function likeStory(e) {
+  e?.stopPropagation();
+  const s = state.stories[state.currentStory];
+  if (!s || !state.user) return;
+  try {
+    const res = await fetch(apiUrl('/api/stories/like'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ story_id: s.id, user_id: state.user.id })
+    });
+    const d = await res.json();
+    if (d.success) {
+      s.likes = d.likes;
+      const liked = s.likes.includes(state.user.id);
+      $('likeBtn').innerHTML = liked ? '<i class="fa-solid fa-heart" style="color:var(--danger)"></i>' : '<i class="fa-regular fa-heart"></i>';
+      toast(liked ? 'استوری پسندیده شد ❤️' : 'پسند برداشته شد');
+    }
+  } catch {}
+}
+
+async function commentStory(e) {
+  e?.stopPropagation();
+  const input = $('storyComment');
+  const text = input.value.trim();
+  const s = state.stories[state.currentStory];
+  if (!text || !s || !state.user) return;
+  try {
+    const res = await fetch(apiUrl('/api/stories/comment'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ story_id: s.id, user_name: state.profile?.name || 'من', text })
+    });
+    const d = await res.json();
+    if (d.success) {
+      s.comments = d.comments;
+      $('storyComments').innerHTML = s.comments.map(c => `<div class="story-comment-item"><b>${esc(c.user_name)}:</b> ${esc(c.text)}</div>`).join('');
+      input.value = '';
+      toast('نظر شما ثبت شد ✅');
+    }
+  } catch {}
+}
+
+// ----------------------------------------------------
+// Voice Notes
+// ----------------------------------------------------
+async function toggleVoiceRecord() {
+  if (!state.isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      state.audioChunks = [];
+      state.mediaRecorder = new MediaRecorder(stream);
+      state.mediaRecorder.ondataavailable = e => state.audioChunks.push(e.data);
+      state.mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(state.audioChunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          sendVoiceMessage(reader.result);
+        };
+        reader.readAsDataURL(audioBlob);
+      };
+      state.mediaRecorder.start();
+      state.isRecording = true;
+      $('voiceBtn').classList.add('recording');
+      toast('در حال ضبط صدا... برای ارسال دوباره لمس کنید 🎙️');
+    } catch {
+      toast('دسترسی به میکروفون برقرار نشد');
+    }
+  } else {
+    state.mediaRecorder?.stop();
+    state.isRecording = false;
+    $('voiceBtn').classList.remove('recording');
+  }
+}
+
+async function sendVoiceMessage(audioDataUrl) {
+  if (!state.activeConversation || !state.user) return;
+  const newMsg = {
+    sender_id: state.user.id,
+    receiver_id: state.activeConversation,
+    audio_url: audioDataUrl
+  };
+  playBeep('send');
+
+  try {
+    const res = await fetch(apiUrl('/api/messages'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMsg)
+    });
+    const d = await res.json();
+    if (d.success) {
+      state.activeMessages.push(d.message);
+      renderMessages();
+      toast('پیام صوتی ارسال شد ✈️');
+    }
+  } catch {}
+}
+
+// ----------------------------------------------------
+// Public Chat Drawer
+// ----------------------------------------------------
+function togglePublic(forceState) {
+  const drawer = $('publicDrawer');
+  const willBeActive = forceState !== undefined ? forceState : !drawer.classList.contains('active');
+  if (willBeActive) {
+    drawer.classList.add('active');
+    $('publicInput').focus();
+    renderPublic();
+  } else {
+    drawer.classList.remove('active');
+  }
+}
+
+function addEmoji(e) {
+  $('publicInput').value += e;
+  $('publicInput').focus();
+}
+
+async function loadPublic() {
+  try {
+    const res = await fetch(apiUrl('/api/public_messages'));
+    const d = await res.json();
+    if (d.success && d.messages) state.public = d.messages;
+    renderPublic();
+  } catch {}
+}
+
+function renderPublic() {
+  const box = $('feed');
+  box.innerHTML = '';
+  state.public.forEach(m => {
+    const out = m.sender_id === state.user?.id;
+    const e = document.createElement('div');
+    e.className = `feeditem ${out ? 'out' : 'in'}`;
+    e.innerHTML = `${!out ? `<div class="sender">${esc(m.sender_name || 'کاربر')}</div>` : ''}<div>${esc(m.text)}</div>`;
+    box.appendChild(e);
+  });
+  requestAnimationFrame(() => box.scrollTop = box.scrollHeight);
+}
+
+async function sendPublic() {
+  const input = $('publicInput');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const senderId = state.user?.id || 'guest_' + Date.now();
+  const senderName = state.profile?.name || 'من';
+
+  const msg = {
+    sender_id: senderId,
+    sender_name: senderName,
+    text: text
+  };
+
+  input.value = '';
+  playBeep('send');
+
+  try {
+    const res = await fetch(apiUrl('/api/public_messages'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(msg)
+    });
+    const d = await res.json();
+    if (d.success) {
+      state.public.push(d.message);
+      renderPublic();
+    }
+  } catch {}
+}
+
+// ----------------------------------------------------
+// Direct Chat
+// ----------------------------------------------------
+function openChat() {
+  if (!state.activePin) return;
+  closePersonCard();
+  closeModals();
+  state.activeConversation = state.activePin.id;
+  $('sheetAvatar').src = state.activePin.avatar || DEFAULT_AVATAR;
+  $('sheetName').textContent = state.activePin.name;
+  $('sheetStatus').textContent = online(state.activePin) ? 'آنلاین' : 'آفلاین';
+  $('sheet').classList.add('open');
+  refreshActiveChat();
+}
+
+function closeChat() {
+  $('sheet').classList.remove('open');
+  $('msgInput').blur();
+  cancelReply();
+}
+
+async function refreshActiveChat() {
+  if (!state.activeConversation || !state.user) return;
+  try {
+    const res = await fetch(apiUrl(`/api/messages?user1=${state.user.id}&user2=${state.activeConversation}`));
+    const d = await res.json();
+    if (d.success) state.activeMessages = d.messages || [];
+    renderMessages();
+  } catch {}
+}
+
+function renderMessages() {
+  const box = $('messages');
+  box.innerHTML = '';
+  state.activeMessages.forEach(m => {
+    const out = m.sender_id === state.user.id;
+    const e = document.createElement('div');
+    e.className = `msg ${out ? 'out' : 'in'}`;
+    const timeStr = new Date(m.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+    e.oncontextmenu = ev => { ev.preventDefault(); openCtx(ev, m); };
+    e.onclick = ev => { ev.stopPropagation(); openCtx(ev, m); };
+    
+    let contentHtml = '';
+    if (m.audio_url) {
+      contentHtml = `
+        <div class="voice-msg">
+          <button class="voice-play-btn" onclick="playVoiceAudio(event, '${m.id}', '${m.audio_url}')"><i class="fa-solid fa-play"></i></button>
+          <div class="voice-bar"><div id="vprog_${m.id}" class="voice-progress"></div></div>
+          <span style="font-size:10px">صدا</span>
+        </div>
+      `;
+    } else {
+      contentHtml = `
+        ${m.reply_text ? `<div class="replybar active" style="margin-bottom:4px"><div>${esc(m.reply_text)}</div></div>` : ''}
+        <div>${esc(m.text)}</div>
+      `;
+    }
+
+    e.innerHTML = `
+      ${contentHtml}
+      <span class="meta">${timeStr} ${out ? ' <i class="fa-solid fa-check-double" style="color:#d0f0ff"></i>' : ''}</span>
+    `;
+    box.appendChild(e);
+  });
+  requestAnimationFrame(() => box.scrollTop = box.scrollHeight);
+}
+
+function playVoiceAudio(e, id, url) {
+  e.stopPropagation();
+  const audio = new Audio(url);
+  const prog = $(`vprog_${id}`);
+  audio.ontimeupdate = () => {
+    if (prog) prog.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+  };
+  audio.play();
+}
+
+async function sendMessage() {
+  const input = $('msgInput');
+  const text = input.value.trim();
+  if (!text || !state.activeConversation || !state.user) return;
+
+  const newMsg = {
+    sender_id: state.user.id,
+    receiver_id: state.activeConversation,
+    text: text,
+    reply_to: state.reply?.id || null,
+    reply_text: state.reply?.text || null
+  };
+
+  input.value = '';
+  cancelReply();
+  playBeep('send');
+
+  try {
+    const res = await fetch(apiUrl('/api/messages'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMsg)
+    });
+    const d = await res.json();
+    if (d.success) {
+      state.activeMessages.push(d.message);
+      renderMessages();
+    }
+  } catch {}
+}
+
+function cancelReply() { state.reply = null; $('replyBar').classList.remove('active'); }
+function openCtx(ev, m) {
+  state.selectedMessage = m;
+  const menu = $('ctx');
+  menu.style.display = 'flex';
+  menu.style.left = Math.min(ev.clientX, innerWidth - 185) + 'px';
+  menu.style.top = Math.min(ev.clientY, innerHeight - 160) + 'px';
+  const own = m.sender_id === state.user.id;
+  $('ctxDelete').style.display = own ? 'flex' : 'none';
+}
+function ctxReply() {
+  if (!state.selectedMessage) return;
+  state.reply = state.selectedMessage;
+  $('replyText').textContent = 'پاسخ به: ' + (state.selectedMessage.text || 'پیام صوتی');
+  $('replyBar').classList.add('active');
+  $('msgInput').focus();
+  $('ctx').style.display = 'none';
+}
+async function ctxCopy() {
+  if (state.selectedMessage?.text) {
+    navigator.clipboard?.writeText(state.selectedMessage.text);
+    toast('متن پیام کپی شد 📋');
+  }
+  $('ctx').style.display = 'none';
+}
+function ctxDelete() {
+  if (!state.selectedMessage) return;
+  state.activeMessages = state.activeMessages.filter(x => x.id !== state.selectedMessage.id);
+  renderMessages();
+  $('ctx').style.display = 'none';
+  toast('پیام حذف شد');
+}
+document.addEventListener('click', e => { if (!e.target.closest('#ctx,.msg')) $('ctx').style.display = 'none'; });
+
+// ----------------------------------------------------
+// Navigation & Lists
+// ----------------------------------------------------
+function closeModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('open')); }
+function nav(tab, el) {
+  document.querySelectorAll('.navitem').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  closeModals();
+  closeChat();
+  if (tab === 'map') {
+    $('globalFab').style.display = 'block';
+    setTimeout(() => { if (map) map.invalidateSize(); }, 100);
+  } else {
+    $('globalFab').style.display = 'none';
+    $('publicDrawer').classList.remove('active');
+  }
+  if (tab === 'chats') { $('chatsModal').classList.add('open'); renderChats(); }
+  if (tab === 'profile') openProfile();
+}
+
+function openPeople() { renderPeople(''); $('peopleModal').classList.add('open'); }
+function renderPeople(q = '') {
+  const box = $('peopleList'), needle = q.trim().toLowerCase();
+  box.innerHTML = ''; let n = 0;
+  state.pins.forEach(p => {
+    if (needle && !`${p.name} ${p.phone || ''} ${p.username || ''} ${p.city || ''}`.toLowerCase().includes(needle)) return;
+    n++;
+    const e = document.createElement('div');
+    e.style.display = 'flex'; e.style.alignItems = 'center'; e.style.gap = '12px';
+    e.style.padding = '12px 16px'; e.style.borderBottom = '1px solid var(--border)'; e.style.cursor = 'pointer';
+    e.innerHTML = `
+      <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover">
+      <div style="flex:1"><b>${esc(p.name)}</b><div style="font-size:11px;color:var(--muted)">${dist(state.coords.lat, state.coords.lng, p.lat, p.lng).toFixed(1)} کیلومتر • ${esc(p.city || 'آنلاین')}</div></div>
+      <i class="fa-solid fa-location-dot" style="color:var(--blue)"></i>
+    `;
+    e.onclick = () => {
+      closeModals();
+      if (map) map.flyTo([p.lat, p.lng], 15);
+      openPersonCard(p);
+    };
+    box.appendChild(e);
+  });
+  $('peopleCount').textContent = n;
+  if (!n) box.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px">فردی در این محدوده پیدا نشد</div>';
+}
+
+function renderChats(q = '') {
+  const box = $('chatList');
+  box.innerHTML = '';
+  let count = 0;
+  state.pins.forEach(p => {
+    count++;
+    const e = document.createElement('div');
+    e.style.display = 'flex'; e.style.alignItems = 'center'; e.style.gap = '12px';
+    e.style.padding = '12px 16px'; e.style.borderBottom = '1px solid var(--border)'; e.style.cursor = 'pointer';
+    e.innerHTML = `
+      <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover">
+      <div style="flex:1"><b>${esc(p.name)}</b><div style="font-size:11px;color:var(--muted)">گفتگوی زنده دوطرفه</div></div>
+      <i class="fa-solid fa-chevron-left" style="font-size:11px;color:var(--muted)"></i>
+    `;
+    e.onclick = () => { closeModals(); state.activePin = p; openChat(); };
+    box.appendChild(e);
+  });
+  if ($('statChats')) $('statChats').textContent = count;
+}
+
+function openPersonCard(p) {
+  state.activePin = p;
+  $('pcAvatar').src = p.avatar || DEFAULT_AVATAR;
+  $('pcName').textContent = p.name;
+  $('pcCaption').textContent = p.phone ? `📱 ${p.phone}` : (p.username ? `@${p.username}` : 'کاربر GeoSocial');
+  $('pcBio').textContent = p.bio || 'اطلاعاتی ثبت نشده';
+  $('pcDistance').textContent = `${dist(state.coords.lat, state.coords.lng, p.lat, p.lng).toFixed(1)} کیلومتر فاصله`;
+  $('personCard').classList.add('open');
+}
+function closePersonCard() { $('personCard').classList.remove('open'); }
+
+function openOtherProfile() {
+  const p = state.activePin;
+  if (!p) return;
+  $('otherAvatar').src = p.avatar || DEFAULT_AVATAR;
+  $('otherName').textContent = p.name;
+  $('otherBio').textContent = p.bio || 'اطلاعاتی ثبت نشده';
+  $('otherDistance').textContent = `${dist(state.coords.lat, state.coords.lng, p.lat, p.lng).toFixed(1)} کیلومتر`;
+  $('otherStatus').textContent = online(p) ? 'آنلاین' : 'آفلاین';
+  closePersonCard();
+  $('otherModal').classList.add('open');
+}
+
+async function searchPlace(e) {
+  if (e.key !== 'Enter') return;
+  const q = e.target.value.trim();
+  if (!q) return;
+  try {
+    const u = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=fa&q=' + encodeURIComponent(q);
+    const r = await fetch(u);
+    const a = await r.json();
+    if (!a.length) return toast('مکان پیدا نشد');
+    const targetLat = Number(a[0].lat);
+    const targetLng = Number(a[0].lon);
+    
+    if (map) map.flyTo([targetLat, targetLng], 14);
+    toast(`انتقال به: ${a[0].display_name.slice(0, 30)}... 📍`);
+  } catch { toast('خطا در جستجو'); }
+}
+
+async function loadUsers() {
+  try {
+    const res = await fetch(apiUrl(`/api/users?user_id=${state.user?.id || ''}`));
+    const d = await res.json();
+    if (d.success) state.pins = d.users || [];
+    renderMarkers();
+    $('peopleBadge').textContent = `${state.pins.length} فرد`;
+    if ($('statNearby')) $('statNearby').textContent = state.pins.length;
+  } catch {}
+}
+
+let evtSource = null;
+let reconnectTimer = null;
+
+function initRealtimeStream() {
+  if (evtSource) {
+    try { evtSource.close(); } catch {}
+  }
+  
+  try {
+    const streamUrl = apiUrl('/api/events');
+    evtSource = new EventSource(streamUrl);
+
+    evtSource.onopen = () => {
+      checkServerHealth();
+    };
+
+    evtSource.addEventListener('public_msg', e => {
+      const msg = JSON.parse(e.data);
+      if (!state.public.some(x => x.id === msg.id)) {
+        state.public.push(msg);
+        renderPublic();
+        if (msg.sender_id !== state.user?.id) playBeep('receive');
+      }
+    });
+
+    evtSource.addEventListener('dm_msg', e => {
+      const msg = JSON.parse(e.data);
+      if (!state.activeMessages.some(x => x.id === msg.id)) {
+        if ((msg.receiver_id === state.user?.id && state.activeConversation === msg.sender_id) ||
+            (msg.sender_id === state.user?.id && state.activeConversation === msg.receiver_id)) {
+          state.activeMessages.push(msg);
+          renderMessages();
+          if (msg.sender_id !== state.user?.id) playBeep('receive');
+        }
+      }
+    });
+
+    evtSource.addEventListener('user_update', () => loadUsers());
+    evtSource.addEventListener('new_story', () => loadStories());
+    evtSource.addEventListener('story_like', e => {
+      const d = JSON.parse(e.data);
+      const st = state.stories.find(x => x.id === d.story_id);
+      if (st) st.likes = d.likes;
+    });
+    evtSource.addEventListener('story_comment', e => {
+      const d = JSON.parse(e.data);
+      const st = state.stories.find(x => x.id === d.story_id);
+      if (st) {
+        if (!st.comments) st.comments = [];
+        st.comments.push(d.comment);
+      }
+    });
+
+    evtSource.onerror = () => {
+      if (evtSource) {
+        try { evtSource.close(); } catch {}
+      }
+      clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(initRealtimeStream, 4000);
+    };
+  } catch {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = setTimeout(initRealtimeStream, 4000);
+  }
+}
+
+// Background sync fallback every 12s for mobile devices
+setInterval(() => {
+  if (state.user) {
+    loadUsers();
+    loadStories();
+  }
+}, 12000);
+
+async function bootData() {
+  await loadUsers();
+  await loadStories();
+  await loadPublic();
+  initRealtimeStream();
+}
+
+async function checkTelegramMiniApp() {
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+    if (user && user.id) {
+      console.log('✨ Telegram Mini-App User detected:', user);
+      await onTelegramAuth({
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        username: user.username,
+        photo_url: user.photo_url
+      });
+      return true;
+    }
+  }
+  return false;
+}
+
+async function init() {
+  initMap();
+  $('locateBtn').addEventListener('click', () => locateMe());
+  applyTheme(state.theme);
+  $('radius').value = state.radius;
+  $('radiusValue').textContent = state.radius;
+
+  // 1. Check if opened inside Telegram WebApp (Zero-Click Auto Login!)
+  const isTgMiniApp = await checkTelegramMiniApp();
+  if (isTgMiniApp) return;
+
+  // 2. Regular session check
+  const ok = await ensureSession();
+  if (!ok) {
+    $('authStep2').style.display = 'none';
+    $('authStep1').style.display = 'block';
+    $('auth').style.display = 'flex';
+  } else {
+    $('auth').style.display = 'none';
+    await syncUserToServer();
+    await bootData();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

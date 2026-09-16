@@ -1,0 +1,15 @@
+{
+  "name": "geosocial-server",
+  "version": "1.0.0",
+  "description": "GeoSocial Server and Web Client",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}
+
