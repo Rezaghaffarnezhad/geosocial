@@ -1010,6 +1010,7 @@ input, textarea { direction: rtl; }
 }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+
 /* Switch Controls */
 .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -1017,6 +1018,417 @@ input, textarea { direction: rtl; }
 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s; }
 input:checked + .slider { background: var(--green); }
 input:checked + .slider:before { transform: translateX(20px); }
+
+/* Context Menu Fix */
+.ctx-menu.open { display: flex; }
+
+/* =============================================
+   Chat Date Dividers (Telegram style)
+   ============================================= */
+.chat-date-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  margin: 8px 0;
+  text-align: center;
+  flex-shrink: 0;
+}
+.chat-date-divider::before, .chat-date-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* =============================================
+   Typing Indicator (Telegram style)
+   ============================================= */
+.typing-indicator {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px;
+  color: var(--muted);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.typing-indicator.show { display: flex; }
+.typing-dots { display: flex; align-items: center; gap: 3px; }
+.typing-dots span {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  animation: typingBounce 1.3s infinite ease-in-out;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* =============================================
+   Message Reactions (Telegram style)
+   ============================================= */
+.msg-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+.reaction-bubble {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2px 7px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 600;
+}
+.reaction-bubble:hover { transform: scale(1.15); }
+.reaction-bubble.mine { background: rgba(42,171,238,0.18); border-color: var(--blue); color: var(--blue); }
+
+/* Reaction picker floating bar (Instagram/Telegram style) */
+.reaction-picker {
+  position: fixed;
+  z-index: 130;
+  background: var(--panel-glass-heavy);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 8px 12px;
+  display: none;
+  gap: 4px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  animation: reactionPickerIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.reaction-picker.open { display: flex; }
+@keyframes reactionPickerIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.reaction-picker button { font-size: 24px; background: transparent; padding: 4px 6px; border-radius: 10px; transition: transform 0.15s; }
+.reaction-picker button:hover { transform: scale(1.35) translateY(-4px); }
+
+/* =============================================
+   Navigation Badges (Unread count)
+   ============================================= */
+.nav-item { position: relative; }
+.nav-badge {
+  position: absolute;
+  top: 3px;
+  right: calc(50% - 20px);
+  background: var(--danger);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  border-radius: 8px;
+  padding: 1px 5px;
+  min-width: 16px;
+  text-align: center;
+  border: 1.5px solid var(--panel);
+}
+
+/* =============================================
+   Map Cluster Markers (Google Maps style)
+   ============================================= */
+.cluster-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 16px var(--blue-glow);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.cluster-marker:hover { transform: scale(1.15); }
+.cluster-marker.large { width: 56px; height: 56px; font-size: 16px; background: var(--danger); }
+
+/* =============================================
+   Story Viewer Enhancements (Instagram style)
+   ============================================= */
+.story-more-menu {
+  position: absolute;
+  top: calc(72px + var(--safe-top));
+  right: 12px;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  display: none;
+  flex-direction: column;
+  z-index: 20;
+  padding: 6px;
+  min-width: 190px;
+  animation: dropIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.story-more-menu.open { display: flex; }
+@keyframes dropIn { from { transform: translateY(-10px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+.story-more-menu button {
+  color: #fff;
+  padding: 10px 14px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+  text-align: right;
+  direction: rtl;
+}
+.story-more-menu button:hover { background: rgba(255,255,255,0.1); }
+.story-viewer-count {
+  position: absolute;
+  top: calc(26px + var(--safe-top));
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.5);
+  color: rgba(255,255,255,0.9);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  z-index: 11;
+  pointer-events: none;
+}
+
+/* =============================================
+   Story Creator Text Overlay (Instagram style)
+   ============================================= */
+.studio-text-overlay-display {
+  position: absolute;
+  z-index: 8;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 800;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 82%;
+  text-align: center;
+  word-break: break-word;
+  direction: rtl;
+  pointer-events: none;
+}
+.studio-text-input-overlay {
+  position: absolute;
+  z-index: 9;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 78%;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  border-radius: 14px;
+  padding: 10px 16px;
+  font-size: 17px;
+  font-weight: 700;
+  text-align: center;
+  display: none;
+  backdrop-filter: blur(10px);
+  direction: rtl;
+}
+
+/* =============================================
+   Instagram-style Profile Grid
+   ============================================= */
+.insta-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+.insta-grid-item {
+  aspect-ratio: 1;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  background: var(--card-bg);
+}
+.insta-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s;
+}
+.insta-grid-item:hover img { opacity: 0.82; }
+.insta-grid-item .play-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #fff;
+  font-size: 16px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+/* =============================================
+   Forward Message Modal (Telegram style)
+   ============================================= */
+.forward-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  background: rgba(0,0,0,0.75);
+  display: none;
+  align-items: flex-end;
+}
+.forward-modal-overlay.open { display: flex; }
+.forward-modal-sheet {
+  width: 100%;
+  background: var(--panel);
+  border-radius: 20px 20px 0 0;
+  padding: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+}
+.forward-user-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: opacity 0.15s;
+}
+.forward-user-item:hover { opacity: 0.8; }
+
+/* =============================================
+   Call Modal Enhancements (Telegram style)
+   ============================================= */
+.call-signal-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+.call-signal-bar {
+  width: 4px;
+  border-radius: 2px;
+  background: var(--green);
+  transition: height 0.3s ease;
+}
+.call-quality-label {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+/* =============================================
+   People list enhancements
+   ============================================= */
+.people-item-distance {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(42,171,238,0.12);
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(42,171,238,0.2);
+}
+
+/* =============================================
+   Story Tray - Pulse for live stories
+   ============================================= */
+.story-ring.live-story {
+  background: linear-gradient(45deg, #e74c3c, #ff6b6b, #e74c3c);
+  background-size: 200%;
+  box-shadow: 0 4px 14px rgba(231, 76, 60, 0.55);
+  animation: liveStoryPulse 2s infinite;
+}
+@keyframes liveStoryPulse {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* =============================================
+   Enhanced Chat Bubble - Tail indicator
+   ============================================= */
+.msg-bubble.out::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  right: -8px;
+  border-width: 6px 0 0 8px;
+  border-style: solid;
+  border-color: transparent transparent transparent var(--chat-out);
+}
+.msg-bubble.in::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: -8px;
+  border-width: 6px 8px 0 0;
+  border-style: solid;
+  border-color: transparent var(--chat-in) transparent transparent;
+}
+
+/* =============================================
+   Send button animation
+   ============================================= */
+@keyframes sendPulse { 0% { transform: scale(1); } 50% { transform: scale(0.9); } 100% { transform: scale(1); } }
+.send-animate { animation: sendPulse 0.15s ease; }
+
+/* =============================================
+   Map Navigation Enhancements (Google Maps)
+   ============================================= */
+.nav-route-hud .eta-badge {
+  background: rgba(42,171,238,0.15);
+  border: 1px solid rgba(42,171,238,0.3);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+/* =============================================
+   Empty States
+   ============================================= */
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.empty-state i { font-size: 48px; opacity: 0.35; }
+.empty-state h4 { font-size: 16px; font-weight: 700; opacity: 0.7; }
+.empty-state p { font-size: 12px; max-width: 220px; line-height: 1.6; opacity: 0.55; }
+
+/* =============================================
+   Loading Skeleton
+   ============================================= */
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.skeleton {
+  background: linear-gradient(90deg, var(--card-bg) 25%, var(--border) 50%, var(--card-bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
 </style>
 </head>
 <body>
@@ -1159,6 +1571,15 @@ input:checked + .slider:before { transform: translateX(20px); }
     <!-- Messages loaded dynamically -->
   </div>
 
+  <!-- Telegram Typing Indicator -->
+  <div id="typingIndicator" class="typing-indicator">
+    <img id="typingAvatar" src="" style="width:24px;height:24px;border-radius:50%;object-fit:cover">
+    <div class="typing-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <span id="typingName" style="font-size:11px;color:var(--muted)">در حال نوشتن...</span>
+  </div>
+
   <!-- Scroll-to-Bottom FAB -->
   <button id="scrollBottomFab" class="scroll-bottom-fab" onclick="scrollChatToBottom()"><i class="fa-solid fa-chevron-down"></i></button>
 
@@ -1242,7 +1663,7 @@ input:checked + .slider:before { transform: translateX(20px); }
       <input id="chatDocumentInput" type="file" hidden accept=".pdf,.doc,.docx,.zip,.rar,.txt" onchange="handleDocumentAttachment(event)">
       <input id="chatAudioInput" type="file" hidden accept="audio/*" onchange="handleAudioAttachment(event)">
       
-      <input id="chatMsgInput" class="composer-input" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendDirectMessage()">
+      <input id="chatMsgInput" class="composer-input" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendDirectMessage()" oninput="broadcastTyping()">
       
       <button id="voiceRecordBtn" class="composer-icon-btn voice-record-btn" onclick="toggleVoiceRecording()" title="ضبط صدا"><i class="fa-solid fa-microphone"></i></button>
       <button class="btn-primary" style="width:40px;height:40px;border-radius:50%;padding:0" onclick="sendDirectMessage()"><i class="fa-solid fa-paper-plane"></i></button>
@@ -1286,7 +1707,10 @@ input:checked + .slider:before { transform: translateX(20px); }
         <div id="storyViewerTime" style="font-size:10px;opacity:0.8"></div>
       </div>
     </div>
-    <button class="composer-icon-btn" style="color:#fff" onclick="closeStoryViewer()"><i class="fa-solid fa-xmark" style="font-size:22px"></i></button>
+    <div style="display:flex;gap:6px">
+      <button class="composer-icon-btn" style="color:#fff" onclick="toggleStoryMoreMenu()"><i class="fa-solid fa-ellipsis-vertical" style="font-size:18px"></i></button>
+      <button class="composer-icon-btn" style="color:#fff" onclick="closeStoryViewer()"><i class="fa-solid fa-xmark" style="font-size:22px"></i></button>
+    </div>
   </div>
 
   <!-- Story Media Content -->
@@ -1302,6 +1726,13 @@ input:checked + .slider:before { transform: translateX(20px); }
     <input id="storyReplyInput" class="story-reply-input" placeholder="ارسال پیام به استوری..." onkeypress="if(event.key==='Enter')submitStoryReply()">
     <button class="story-action-btn" id="storyLikeBtn" onclick="likeCurrentStory(event)"><i class="fa-regular fa-heart"></i></button>
     <button class="story-action-btn" onclick="submitStoryReply()"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+
+  <!-- Story More Options Menu -->
+  <div id="storyMoreMenu" class="story-more-menu">
+    <button onclick="shareCurrentStory()"><i class="fa-solid fa-share-nodes"></i> اشتراکگذاری</button>
+    <button onclick="downloadCurrentStory()"><i class="fa-solid fa-download"></i> ذخیره استوری</button>
+    <button onclick="reportCurrentStory()" style="color:var(--danger)"><i class="fa-solid fa-flag"></i> گزارش</button>
   </div>
 </div>
 
@@ -1326,10 +1757,13 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div class="studio-canvas-container">
     <img id="studioBaseImg" style="width:100%;height:100%;object-fit:cover;display:none">
     <canvas id="studioDrawingCanvas"></canvas>
+    <div id="studioTextLayer" class="studio-text-overlay-display"></div>
+    <input id="studioTextInput" class="studio-text-input-overlay" placeholder="متن روی استوری را بنویسید..." oninput="updateStoryText(this.value)">
   </div>
 
   <div class="studio-tools-bottom">
     <button class="btn-secondary" style="width:auto;padding:8px 14px;border-radius:20px" onclick="$('studioFileInput').click()"><i class="fa-solid fa-image"></i> عکس</button>
+    <button class="btn-secondary" style="width:auto;padding:8px 14px;border-radius:20px" onclick="toggleStoryTextInput()"><i class="fa-solid fa-font"></i> متن</button>
     <input id="studioFileInput" type="file" hidden accept="image/*" onchange="handleStudioFileSelect(event)">
     <label style="display:flex;align-items:center;gap:6px;color:#2ecc71;font-size:11px;font-weight:700">
       <input type="checkbox" id="studioCloseFriendsCheck"> کلوز فرندز 🟢
@@ -1473,6 +1907,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 <!-- Message Context Menu -->
 <div id="msgContextMenu" class="ctx-menu">
   <button onclick="ctxActionReply()"><i class="fa-solid fa-reply"></i> پاسخ (Reply)</button>
+  <button onclick="openReactionPicker(event, state.selectedMessage?.id)"><i class="fa-regular fa-face-smile"></i> واکنش (Reaction)</button>
+  <button onclick="openForwardModal(state.selectedMessage)"><i class="fa-solid fa-share"></i> فوروارد (Forward)</button>
   <button onclick="ctxActionCopy()"><i class="fa-solid fa-copy"></i> کپی متن</button>
   <button id="ctxDeleteBtn" onclick="ctxActionDelete()" style="color:var(--danger)"><i class="fa-solid fa-trash"></i> حذف پیام</button>
 </div>
@@ -1506,8 +1942,37 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 </div>
 
+<!-- Message Context Menu - Enhanced with reactions and forward -->
+<!-- Reaction Picker (Instagram/Telegram style) -->
+<div id="reactionPicker" class="reaction-picker">
+  <button onclick="addReactionToMessage('❤️')">❤️</button>
+  <button onclick="addReactionToMessage('👍')">👍</button>
+  <button onclick="addReactionToMessage('😂')">😂</button>
+  <button onclick="addReactionToMessage('😮')">😮</button>
+  <button onclick="addReactionToMessage('😢')">😢</button>
+  <button onclick="addReactionToMessage('🔥')">🔥</button>
+  <button onclick="addReactionToMessage('🎉')">🎉</button>
+  <button onclick="addReactionToMessage('👎')">👎</button>
+</div>
+
+<!-- Forward Message Modal (Telegram style) -->
+<div id="forwardModal" class="forward-modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="forward-modal-sheet">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700"><i class="fa-solid fa-share" style="color:var(--blue)"></i> فوروارد پیام به...</div>
+      <button class="composer-icon-btn" onclick="$('forwardModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="forwardUsersList"></div>
+    <div id="forwardEmptyState" class="empty-state" style="padding:20px 0">
+      <i class="fa-solid fa-user-group"></i>
+      <p>هیچ کاربری برای فوروارد یافت نشد</p>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Notification -->
 <div id="toast" class="toast"></div>
+
 
 <!-- Authentication Overlay Screen -->
 <div id="authScreen" class="modal-overlay" style="z-index:250;background:var(--bg)">
@@ -1732,29 +2197,78 @@ function renderMarkers() {
   $('peopleBadge').textContent = `${activeUsers.length} فرد نزدیک`;
   $('statNearbyCount').textContent = activeUsers.length;
 
-  activeUsers.forEach(p => {
-    const userStory = state.stories.find(s => s.user_id === p.id);
-    const hasStory = !!userStory;
-    const isCloseFriends = userStory?.audience === 'close_friends';
+  const currentZoom = map.getZoom();
 
-    let storyClass = '';
-    if (hasStory) storyClass = isCloseFriends ? 'has-cf-story' : 'has-story';
+  // Google Maps LOD Clustering: When zoomed out (< 11) and dense, group into clusters
+  if (currentZoom < 11 && activeUsers.length > 2) {
+    const gridSize = currentZoom < 8 ? 1.2 : (currentZoom < 10 ? 0.45 : 0.2);
+    const clusters = {};
 
-    let iconHtml = `
-      <div class="user-marker">
-        <div class="pin-body ${storyClass}">
-          <img src="${esc(p.avatar || DEFAULT_AVATAR)}">
-          <i class="led ${online(p) ? 'online' : 'offline'}"></i>
-        </div>
-        <div class="pin-stem"></div>
-        <div class="pin-name">${esc(p.name)}</div>
+    activeUsers.forEach(p => {
+      const cellX = Math.floor(Number(p.lat) / gridSize);
+      const cellY = Math.floor(Number(p.lng) / gridSize);
+      const key = `${cellX}_${cellY}`;
+      if (!clusters[key]) clusters[key] = { latSum: 0, lngSum: 0, users: [] };
+      clusters[key].latSum += Number(p.lat);
+      clusters[key].lngSum += Number(p.lng);
+      clusters[key].users.push(p);
+    });
+
+    Object.values(clusters).forEach(c => {
+      const count = c.users.length;
+      const avgLat = c.latSum / count;
+      const avgLng = c.lngSum / count;
+
+      if (count === 1) {
+        renderSingleUserMarker(c.users[0], currentZoom);
+      } else {
+        const isLarge = count >= 10;
+        const iconHtml = `<div class="cluster-marker ${isLarge ? 'large' : ''}">${count >= 100 ? '99+' : count}</div>`;
+        const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [48, 48], iconAnchor: [24, 24] });
+        const marker = L.marker([avgLat, avgLng], { icon });
+        marker.on('click', () => {
+          map.flyTo([avgLat, avgLng], Math.min(15, currentZoom + 3));
+          playHapticSound('pop');
+        });
+        userLayer.addLayer(marker);
+      }
+    });
+  } else {
+    // Zoom >= 11: Render individual markers with zoom-adaptive detail
+    activeUsers.forEach(p => renderSingleUserMarker(p, currentZoom));
+  }
+}
+
+function renderSingleUserMarker(p, zoom) {
+  const userStory = state.stories.find(s => s.user_id === p.id);
+  const hasStory = !!userStory;
+  const isCloseFriends = userStory?.audience === 'close_friends';
+
+  let storyClass = '';
+  if (hasStory) storyClass = isCloseFriends ? 'has-cf-story' : 'has-story';
+
+  // Zoom-adaptive: at zoom < 14, hide the pin-name to prevent map clutter
+  const showName = zoom >= 14;
+  const pinSize = zoom < 13 ? 36 : 44;
+
+  let iconHtml = `
+    <div class="user-marker">
+      <div class="pin-body ${storyClass}" style="width:${pinSize}px;height:${pinSize}px">
+        <img src="${esc(p.avatar || DEFAULT_AVATAR)}">
+        <i class="led ${online(p) ? 'online' : 'offline'}"></i>
       </div>
-    `;
-    const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [44, 60], iconAnchor: [22, 60] });
-    const marker = L.marker([Number(p.lat), Number(p.lng)], { icon });
-    marker.on('click', () => openOtherUserProfile(p));
-    userLayer.addLayer(marker);
+      ${showName ? `<div class="pin-stem"></div><div class="pin-name">${esc(p.name)}</div>` : ''}
+    </div>
+  `;
+  const icon = L.divIcon({
+    className: '',
+    html: iconHtml,
+    iconSize: [pinSize, showName ? 60 : pinSize],
+    iconAnchor: [pinSize / 2, showName ? 60 : pinSize / 2]
   });
+  const marker = L.marker([Number(p.lat), Number(p.lng)], { icon });
+  marker.on('click', () => openOtherUserProfile(p));
+  userLayer.addLayer(marker);
 }
 
 function setFilterRadius(km, btn) {
@@ -2104,6 +2618,22 @@ async function publishStudioStory() {
   const drawCanvas = $('studioDrawingCanvas');
   ctx.drawImage(drawCanvas, 0, 0, 720, 1280);
 
+  // Render text overlay onto canvas
+  const storyText = $('studioTextInput')?.value.trim();
+  if (storyText) {
+    ctx.save();
+    ctx.font = 'bold 44px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Vazirmatn", sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+    ctx.shadowBlur = 14;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 4;
+    ctx.fillText(storyText, 360, 640);
+    ctx.restore();
+  }
+
   const isCF = $('studioCloseFriendsCheck')?.checked;
   const newStory = {
     id: 'st_' + Date.now(),
@@ -2115,6 +2645,11 @@ async function publishStudioStory() {
     audience: isCF ? 'close_friends' : 'all',
     created_at: new Date().toISOString()
   };
+
+  // Reset text inputs
+  if ($('studioTextInput')) { $('studioTextInput').value = ''; $('studioTextInput').style.display = 'none'; }
+  if ($('studioTextLayer')) { $('studioTextLayer').textContent = ''; $('studioTextLayer').style.display = 'none'; }
+  if ($('studioCaptionInput')) $('studioCaptionInput').value = '';
 
   state.stories.unshift(newStory);
   renderStoriesTray();
@@ -2402,17 +2937,54 @@ function handleAudioAttachment(e) {
 function renderDirectMessages() {
   const box = $('chatMessagesScroll');
   box.innerHTML = '';
+  let lastDateLabel = '';
+
+  if (!state.activeMessages || state.activeMessages.length === 0) {
+    box.innerHTML = `
+      <div class="empty-state" style="flex:1;justify-content:center">
+        <i class="fa-solid fa-comments"></i>
+        <h4>هنوز پیامی نیست</h4>
+        <p>اولین پیام را برای ${esc(state.activeConversationUser?.name || 'این کاربر')} بفرستید</p>
+      </div>
+    `;
+    return;
+  }
 
   state.activeMessages.forEach(m => {
     const isOut = m.sender_id === state.user?.id;
+    const dateLabel = getDateLabel ? getDateLabel(m.created_at) : '';
+
+    // Date divider (Telegram style)
+    if (dateLabel && dateLabel !== lastDateLabel) {
+      lastDateLabel = dateLabel;
+      const divider = document.createElement('div');
+      divider.className = 'chat-date-divider';
+      divider.textContent = dateLabel;
+      box.appendChild(divider);
+    }
+
     const bubble = document.createElement('div');
     bubble.className = `msg-bubble ${isOut ? 'out' : 'in'}`;
     const timeStr = new Date(m.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
 
+    // Reactions HTML
+    const reactions = m.reactions || {};
+    const reactHtml = Object.entries(reactions).filter(([,users]) => users.length > 0).map(([emoji, users]) => {
+      const mine = state.user && users.includes(state.user.id);
+      return `<span class="reaction-bubble ${mine ? 'mine' : ''}" onclick="addReactionToMessage('${emoji}')" title="${users.length} واکنش">${emoji} ${users.length}</span>`;
+    }).join('');
+
     let contentHtml = '';
+
+    // Forward indicator
+    if (m.forward_from) {
+      contentHtml += `<div style="font-size:11px;color:var(--blue);margin-bottom:5px;display:flex;align-items:center;gap:4px;opacity:0.9"><i class="fa-solid fa-share"></i> فوروارد از ${esc(m.forward_from.name)}</div>`;
+    }
+
     if (m.media_url) {
       contentHtml += `<img class="msg-image-attachment" src="${esc(m.media_url)}" onclick="openImageLightbox('${esc(m.media_url)}')">`;
     }
+
     if (m.poll) {
       // Calculate total votes and % per option
       const totalVotes = m.poll.options.reduce((sum, opt) => sum + (opt.votes ? opt.votes.length : 0), 0);
@@ -2489,9 +3061,14 @@ function renderDirectMessages() {
         <span>${timeStr}</span>
         ${isOut ? '<i class="fa-solid fa-check-double" style="color:#2aabee"></i>' : ''}
       </div>
+      ${reactHtml ? `<div class="msg-reactions">${reactHtml}</div>` : ''}
     `;
 
     bubble.oncontextmenu = e => { e.preventDefault(); openMessageCtx(e, m); };
+    // Long-press for mobile reaction picker
+    let mPressTimer;
+    bubble.addEventListener('touchstart', () => { mPressTimer = setTimeout(() => openReactionPicker({ preventDefault:()=>{}, stopPropagation:()=>{}, target:bubble, clientX: bubble.getBoundingClientRect().left + 40, clientY: bubble.getBoundingClientRect().top }, m.id), 600); }, { passive: true });
+    bubble.addEventListener('touchend', () => clearTimeout(mPressTimer));
     box.appendChild(bubble);
   });
   scrollChatToBottom();
@@ -2509,30 +3086,37 @@ function closeImageLightbox() {
 function openMessageCtx(e, msg) {
   state.selectedMessage = msg;
   const menu = $('msgContextMenu');
-  menu.style.top = `${Math.min(e.clientY, window.innerHeight - 150)}px`;
-  menu.style.left = `${Math.min(e.clientX, window.innerWidth - 180)}px`;
+  const x = Math.min(e.clientX, window.innerWidth - 200);
+  const y = Math.min(e.clientY, window.innerHeight - 200);
+  menu.style.top = `${y}px`;
+  menu.style.left = `${x}px`;
   menu.classList.add('open');
   const deleteBtn = $('ctxDeleteBtn');
   if (deleteBtn) deleteBtn.style.display = msg.sender_id === state.user?.id ? 'flex' : 'none';
+  playHapticSound('pop');
 }
 
-document.addEventListener('click', () => {
-  $('msgContextMenu')?.classList.remove('open');
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#msgContextMenu')) $('msgContextMenu')?.classList.remove('open');
+  if (!e.target.closest('#reactionPicker')) $('reactionPicker')?.classList.remove('open');
 });
 
 function ctxActionReply() {
   if (!state.selectedMessage) return;
   state.replyMessage = state.selectedMessage;
-  $('chatReplyBar').style.display = 'flex';
-  $('chatReplyText').textContent = state.selectedMessage.text || 'رسانه پیوست شده';
-  $('chatMsgInput').focus();
+  // Support both old and new element IDs
+  const bar = $('replyBanner') || $('chatReplyBar');
+  if (bar) { bar.style.display = 'flex'; bar.classList.add('active'); }
+  const textEl = $('replyBannerText') || $('chatReplyText');
+  if (textEl) textEl.textContent = state.selectedMessage.text || 'رسانه پیوست شده';
+  $('chatMsgInput')?.focus();
   playHapticSound('pop');
 }
 
 function cancelReply() {
   state.replyMessage = null;
-  const bar = $('chatReplyBar');
-  if (bar) bar.style.display = 'none';
+  const bar = $('replyBanner') || $('chatReplyBar');
+  if (bar) { bar.style.display = 'none'; bar.classList.remove('active'); }
 }
 
 function ctxActionCopy() {
@@ -2555,6 +3139,254 @@ function ctxActionDelete() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ user1: state.user.id, user2: state.activeConversationUser.id })
   }).catch(() => {});
+}
+
+// =============================================
+// Date Label Helper
+// =============================================
+function getDateLabel(dateStr) {
+  try {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 86400000);
+    const msgDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    if (msgDay.getTime() === today.getTime()) return 'امروز';
+    if (msgDay.getTime() === yesterday.getTime()) return 'دیروز';
+    return d.toLocaleDateString('fa-IR', { weekday: 'long', month: 'long', day: 'numeric' });
+  } catch { return 'قبلاً'; }
+}
+
+// =============================================
+// Typing Indicator (Telegram style)
+// =============================================
+let typingTimeout = null;
+function showTypingIndicator(userData) {
+  const el = $('typingIndicator');
+  if (!el) return;
+  const avatarEl = $('typingAvatar');
+  const nameEl = $('typingName');
+  if (avatarEl) avatarEl.src = userData.user_avatar || DEFAULT_AVATAR;
+  if (nameEl) nameEl.textContent = `${userData.user_name || 'کاربر'} در حال تایپ...`;
+  el.classList.add('show');
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+let typingBroadcastThrottle = null;
+function broadcastTyping() {
+  if (!state.activeConversationUser || !state.user) return;
+  if (typingBroadcastThrottle) return;
+  typingBroadcastThrottle = setTimeout(() => { typingBroadcastThrottle = null; }, 1500);
+  if (mqttClient && mqttClient.connected) {
+    try {
+      mqttClient.publish(`${MQTT_TOPIC_PREFIX}/typing`, JSON.stringify({
+        user_id: state.user.id,
+        user_name: state.profile?.name || state.user.name,
+        user_avatar: state.profile?.avatar || DEFAULT_AVATAR,
+        to_user_id: state.activeConversationUser.id
+      }));
+    } catch {}
+  }
+}
+
+// =============================================
+// Message Reactions (Telegram/Instagram style)
+// =============================================
+function openReactionPicker(e, msgId) {
+  if (e?.preventDefault) e.preventDefault();
+  if (e?.stopPropagation) e.stopPropagation();
+  state.selectedMessage = state.activeMessages.find(m => m.id === msgId) || state.selectedMessage;
+  const picker = $('reactionPicker');
+  if (!picker) return;
+  const x = Math.min((e.clientX || 100), window.innerWidth - 300);
+  const y = Math.max(80, (e.clientY || 200) - 70);
+  picker.style.top = `${y}px`;
+  picker.style.left = `${x}px`;
+  picker.classList.add('open');
+  playHapticSound('pop');
+}
+
+function addReactionToMessage(emoji) {
+  if (!state.selectedMessage || !state.user) return;
+  const msg = state.activeMessages.find(m => m.id === state.selectedMessage.id);
+  if (!msg) return;
+
+  if (!msg.reactions) msg.reactions = {};
+  const uid = state.user.id;
+
+  // Toggle: remove from all first
+  Object.keys(msg.reactions).forEach(e => {
+    msg.reactions[e] = (msg.reactions[e] || []).filter(id => id !== uid);
+    if (msg.reactions[e].length === 0) delete msg.reactions[e];
+  });
+
+  // Add to the clicked emoji (unless we just removed it)
+  if (!msg.reactions[emoji] || !msg.reactions[emoji].includes(uid)) {
+    msg.reactions[emoji] = [...(msg.reactions[emoji] || []), uid];
+  }
+
+  $('reactionPicker')?.classList.remove('open');
+  renderDirectMessages();
+  playHapticSound('pop');
+
+  // Broadcast via MQTT
+  if (mqttClient?.connected && state.activeConversationUser) {
+    try {
+      mqttClient.publish(`${MQTT_TOPIC_PREFIX}/reaction`, JSON.stringify({
+        msg_id: msg.id, emoji, user_id: uid
+      }));
+    } catch {}
+  }
+}
+
+// =============================================
+// Forward Message (Telegram style)
+// =============================================
+function openForwardModal(msg) {
+  if (msg) state.selectedMessage = msg;
+  const list = $('forwardUsersList');
+  const emptyEl = $('forwardEmptyState');
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (state.pins.length === 0) {
+    if (emptyEl) emptyEl.style.display = 'flex';
+    $('forwardModal').classList.add('open');
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  state.pins.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'forward-user-item';
+    item.innerHTML = `
+      <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
+      <div style="flex:1">
+        <b style="font-size:14px">${esc(p.name)}</b>
+        <div style="font-size:11px;color:var(--muted)">${p.username ? '@' + esc(p.username) : esc(formatLastSeen(p.last_seen, online(p)))}</div>
+      </div>
+      <button class="badge" style="background:var(--blue);color:#fff;border:0" onclick="forwardMessageTo('${p.id}')">ارسال</button>
+    `;
+    list.appendChild(item);
+  });
+  $('forwardModal').classList.add('open');
+}
+
+function forwardMessageTo(toUserId) {
+  if (!state.selectedMessage || !state.user) return;
+  const m = state.selectedMessage;
+  const targetUser = state.pins.find(p => p.id === toUserId);
+  if (!targetUser) return;
+
+  const fwdMsg = {
+    id: 'dm_' + Date.now() + '_fwd',
+    sender_id: state.user.id,
+    receiver_id: toUserId,
+    text: m.text || null,
+    media_url: m.media_url || null,
+    audio_url: m.audio_url || null,
+    forward_from: { name: state.profile?.name || 'من', id: state.user.id },
+    created_at: new Date().toISOString()
+  };
+
+  $('forwardModal').classList.remove('open');
+  toast(`پیام به ${targetUser.name} فوروارد شد ✈️`);
+  playHapticSound('sent');
+
+  fetch('/api/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fwdMsg)
+  }).catch(() => {});
+}
+
+// =============================================
+// Story More Menu (Instagram style)
+// =============================================
+function toggleStoryMoreMenu() {
+  $('storyMoreMenu')?.classList.toggle('open');
+}
+
+function shareCurrentStory() {
+  const s = state.stories[state.currentStoryIndex];
+  if (!s) return;
+  if (navigator.share) {
+    navigator.share({ title: `استوری از ${s.user_name}`, text: s.caption || '', url: window.location.href }).catch(() => {});
+  } else {
+    navigator.clipboard?.writeText(window.location.href).catch(() => {});
+    toast('لینک استوری کپی شد 📋');
+  }
+  $('storyMoreMenu')?.classList.remove('open');
+}
+
+function downloadCurrentStory() {
+  const s = state.stories[state.currentStoryIndex];
+  if (!s?.media_url) return;
+  const a = document.createElement('a');
+  a.href = s.media_url;
+  a.download = `story_${s.id}.jpg`;
+  a.click();
+  $('storyMoreMenu')?.classList.remove('open');
+  toast('استوری در حال ذخیره... 📥');
+}
+
+function reportCurrentStory() {
+  toast('استوری گزارش شد 🚩');
+  $('storyMoreMenu')?.classList.remove('open');
+}
+
+// =============================================
+// Story Text Overlay (Instagram style)
+// =============================================
+function toggleStoryTextInput() {
+  const input = $('studioTextInput');
+  if (!input) return;
+  const isHidden = input.style.display === 'none' || !input.style.display;
+  input.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) {
+    input.focus();
+    playHapticSound('pop');
+  }
+}
+
+function updateStoryText(text) {
+  const overlay = $('studioTextLayer');
+  if (!overlay) return;
+  overlay.textContent = text;
+  overlay.style.display = text ? 'block' : 'none';
+}
+
+// =============================================
+// SSE Realtime (Server-Sent Events)
+// =============================================
+let sseConn = null;
+function initSSE() {
+  if (!state.user) return;
+  if (sseConn) { try { sseConn.close(); } catch {} }
+  try {
+    sseConn = new EventSource(`/api/sse?user_id=${state.user.id}`);
+    sseConn.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (!data) return;
+        if (data.type === 'dm_msg') handleIncomingDM(data.payload || data);
+        else if (data.type === 'user_sync') registerOrUpdateUser(data.payload || data);
+        else if (data.type === 'new_story') {
+          if (!state.stories.some(s => s.id === (data.payload || data).id)) {
+            state.stories.unshift(data.payload || data);
+            renderStoriesTray();
+          }
+        } else if (data.type === 'typing') {
+          const p = data.payload || data;
+          if (p.to_user_id === state.user?.id && state.activeConversationUser?.id === p.user_id) {
+            showTypingIndicator(p);
+          }
+        }
+      } catch {}
+    };
+    sseConn.onerror = () => setTimeout(initSSE, 5000);
+  } catch {}
 }
 
 function seekVoiceAudio(e, id) {
@@ -2967,11 +3799,13 @@ function completeLogin(user) {
   renderMyMarker();
   syncUserToServer();
   initCloudSync();
+  initSSE();
   loadData();
 }
 
 function logout() {
   localStorage.removeItem('geosocial_user');
+  if (sseConn) { try { sseConn.close(); } catch {} }
   state.user = null;
   state.profile = null;
   closeAllModals();
