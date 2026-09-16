@@ -268,34 +268,174 @@ input, textarea { direction: rtl; }
 .story-item span { max-width: 66px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 600; }
 .story-add-badge { position: absolute; right: -1px; bottom: -1px; width: 20px; height: 20px; border-radius: 50%; background: var(--blue); display: grid; place-items: center; font-size: 11px; color: #fff; border: 2px solid var(--bg); font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
 
-/* Google Maps Filter Pills */
-.filter-pills-row { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; pointer-events: auto; padding: 2px 2px; }
-.filter-pills-row::-webkit-scrollbar { display: none; }
-.filter-pill {
-  background: var(--panel-glass);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 5px 12px;
-  border-radius: 18px;
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* Online Indicator Pill & Live Green Dot */
+.online-indicator-pill {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  background: rgba(46, 204, 113, 0.14);
+  border: 1px solid rgba(46, 204, 113, 0.4);
+  color: var(--green);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.filter-pill:hover, .filter-pill.active {
+.online-indicator-pill:hover {
+  background: rgba(46, 204, 113, 0.25);
+  transform: scale(1.05);
+}
+.online-led-glow {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ecc71;
+  box-shadow: 0 0 8px rgba(46, 204, 113, 0.9);
+  animation: onlineGlowPulse 1.8s infinite ease-in-out;
+}
+@keyframes onlineGlowPulse {
+  0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.8); transform: scale(0.95); }
+  70% { box-shadow: 0 0 0 6px rgba(46, 204, 113, 0); transform: scale(1.1); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); transform: scale(0.95); }
+}
+
+/* Mode/Theme Toggle Button next to online count */
+.top-theme-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.top-theme-btn:hover {
   background: var(--blue);
   color: #fff;
   border-color: var(--blue);
-  box-shadow: 0 4px 14px var(--blue-glow);
-  transform: translateY(-1px);
+  transform: scale(1.1);
 }
 
-/* Floating Controls (GPS, Public Feed, Theme) */
+/* Radius Adjustment Lever & Circle Control Bar */
+.radius-control-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel-glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  pointer-events: auto;
+  transition: all 0.2s;
+}
+.radius-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.radius-title {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.radius-value {
+  font-size: 12px;
+  color: var(--blue);
+  font-weight: 800;
+  min-width: 65px;
+  display: inline-block;
+}
+.radius-lever-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+}
+.radius-slider-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.radius-slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 10px var(--blue-glow);
+  cursor: pointer;
+  border: 2px solid #fff;
+  transition: transform 0.15s;
+}
+.radius-slider-input::-webkit-slider-thumb:hover,
+.radius-slider-input::-webkit-slider-thumb:active {
+  transform: scale(1.25);
+  background: #fff;
+  border-color: var(--blue);
+}
+.radius-slider-input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 10px var(--blue-glow);
+  cursor: pointer;
+  border: 2px solid #fff;
+  transition: transform 0.15s;
+}
+.radius-all-btn {
+  background: rgba(42, 171, 238, 0.12);
+  border: 1px solid rgba(42, 171, 238, 0.3);
+  color: var(--blue);
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.radius-all-btn.active, .radius-all-btn:hover {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+
+/* Floating Controls (GPS at Bottom-Right, Public Feed at Bottom-Left) */
+.map-locate-fab {
+  position: absolute;
+  bottom: calc(75px + var(--safe-bottom));
+  right: 14px;
+  z-index: 20;
+  color: var(--blue);
+}
+.map-locate-fab:hover {
+  background: var(--blue);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 18px var(--blue-glow);
+}
 .map-controls-group {
   position: absolute;
   bottom: calc(75px + var(--safe-bottom));
@@ -1565,13 +1705,23 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 </div>
 
-<!-- 4. Top Header: Search Bar, Instagram Stories Tray & Filter Pills -->
+<!-- 4. Top Header: Search Bar, Instagram Stories Tray & Radius Slider Control -->
 <div class="top-container">
-  <!-- Search -->
+  <!-- Search Bar with Online People & Mode Toggle -->
   <div class="search-bar solid">
-    <i class="fa-solid fa-magnifying-glass"></i>
+    <i class="fa-solid fa-magnifying-glass" style="font-size:13px;flex-shrink:0"></i>
     <input id="searchInput" placeholder="جستجوی شهر، خیابان یا کاربران..." onkeypress="searchPlace(event)">
-    <span id="peopleBadge" class="badge" onclick="nav('people', this)">0 فرد نزدیک</span>
+    
+    <!-- Online People Indicator (چراغ سبز و عدد افراد) -->
+    <div id="peopleBadge" class="online-indicator-pill" onclick="nav('people', this)" title="افراد آنلاین و حاضر در محدوده">
+      <span class="online-led-glow"></span>
+      <span id="peopleBadgeCount">0</span>
+    </div>
+
+    <!-- Mode Toggle (تغییر مود کنار افراد آنلاین) -->
+    <button id="themeToggleBtn" class="top-theme-btn" title="تغییر حالت شب/روز" onclick="toggleTheme()">
+      <i id="mapThemeIcon" class="fa-solid fa-moon"></i>
+    </button>
   </div>
 
   <!-- Instagram Stories Tray -->
@@ -1579,22 +1729,24 @@ input:checked + .slider:before { transform: translateX(20px); }
     <!-- Generated dynamically via JS -->
   </div>
 
-  <!-- Google Maps Filter Radius Pills -->
-  <div class="filter-pills-row">
-    <button class="filter-pill active" onclick="setFilterRadius(500, this)"><i class="fa-solid fa-earth-americas"></i> سراسری</button>
-    <button class="filter-pill" onclick="setFilterRadius(100, this)">۱۰۰ کیلومتر</button>
-    <button class="filter-pill" onclick="setFilterRadius(50, this)">۵۰ کیلومتر</button>
-    <button class="filter-pill" onclick="setFilterRadius(25, this)">۲۵ کیلومتر</button>
-    <button class="filter-pill" onclick="setFilterRadius(10, this)">۱۰ کیلومتر</button>
-    <button class="filter-pill" onclick="setFilterRadius(5, this)">۵ کیلومتر</button>
-    <button class="filter-pill" onclick="setFilterRadius(1, this)">۱ کیلومتر</button>
+  <!-- Radius Circle Adjustment Lever (دایره شعاع با اهرم تنظیم) -->
+  <div id="radiusControlBar" class="radius-control-bar">
+    <div class="radius-info">
+      <i class="fa-solid fa-circle-notch" style="color:var(--blue);font-size:13px"></i>
+      <span class="radius-title">شعاع:</span>
+      <b id="radiusDisplayLabel" class="radius-value">۲۵ کیلومتر</b>
+    </div>
+    <div class="radius-lever-container">
+      <input type="range" id="radiusRangeSlider" min="1" max="150" value="25" class="radius-slider-input" oninput="onRadiusSliderInput(this.value)" onchange="onRadiusSliderChange(this.value)" title="اهرم تنظیم دایره شعاع">
+    </div>
+    <button id="radiusAllBtn" class="radius-all-btn" onclick="toggleRadiusAll()" title="نمایش سراسری (بدون محدودیت شعاع)">سراسری</button>
   </div>
 </div>
 
-<!-- 5. Floating Map Controls (GPS, Public Feed, Theme) -->
+<!-- 5. Floating Map Controls (GPS at Bottom-Right, Public Feed at Bottom-Left) -->
+<button id="locateBtn" class="fab-btn map-locate-fab" title="بروزرسانی موقعیت مکانی من (GPS)"><i class="fa-solid fa-location-crosshairs"></i></button>
+
 <div class="map-controls-group">
-  <button id="locateBtn" class="fab-btn" title="موقعیت مکانی من (GPS)"><i class="fa-solid fa-location-crosshairs"></i></button>
-  <button id="themeToggleBtn" class="fab-btn" title="تغییر حالت شب/روز" onclick="toggleTheme()"><i id="mapThemeIcon" class="fa-solid fa-moon"></i></button>
   <button id="publicChatFab" class="fab-btn" title="چت عمومی منطقه" onclick="togglePublicDrawer()"><i class="fa-solid fa-bullhorn" style="color:var(--blue)"></i></button>
 </div>
 
@@ -2187,7 +2339,7 @@ let state = {
   theme: localStorage.getItem('geosocial_theme') || 'dark',
   soundEnabled: true,
   coords: { ...CFG.defaultCoords },
-  radius: 500,
+  radius: 25,
   user: null,
   profile: null,
   pendingPhone: null,
@@ -2333,7 +2485,7 @@ function registerOrUpdateUser(u) {
 // ----------------------------------------------------
 // Leaflet Map & Navigation Engine
 // ----------------------------------------------------
-let map, myMarker, userLayer;
+let map, myMarker, userLayer, radiusCircle;
 
 function initMap() {
   if (typeof L === 'undefined') { setTimeout(initMap, 200); return; }
@@ -2343,13 +2495,34 @@ function initMap() {
 
   map.on('zoomend moveend', () => renderMarkers());
   renderMyMarker();
+  renderRadiusCircle();
   renderMarkers();
   setupLocateButton();
+}
+
+function renderRadiusCircle() {
+  if (!map) return;
+  if (radiusCircle) {
+    map.removeLayer(radiusCircle);
+    radiusCircle = null;
+  }
+  if (state.radius >= 500 || state.profile?.ghost) return;
+
+  radiusCircle = L.circle([state.coords.lat, state.coords.lng], {
+    radius: state.radius * 1000,
+    color: '#2aabee',
+    fillColor: '#2aabee',
+    fillOpacity: 0.08,
+    weight: 2,
+    dashArray: '6, 6',
+    interactive: false
+  }).addTo(map);
 }
 
 function renderMyMarker() {
   if (!map) return;
   if (myMarker) map.removeLayer(myMarker);
+  renderRadiusCircle();
   if (state.profile?.ghost) return;
 
   const myIcon = L.divIcon({
@@ -2373,7 +2546,12 @@ function renderMarkers() {
     return state.radius >= 500 || d <= state.radius;
   });
 
-  $('peopleBadge').textContent = `${activeUsers.length} فرد نزدیک`;
+  const pCountEl = $('peopleBadgeCount');
+  if (pCountEl) {
+    pCountEl.textContent = activeUsers.length;
+  } else if ($('peopleBadge')) {
+    $('peopleBadge').innerHTML = `<span class="online-led-glow"></span><span>${activeUsers.length}</span>`;
+  }
   $('statNearbyCount').textContent = activeUsers.length;
 
   const currentZoom = map.getZoom();
@@ -2450,15 +2628,59 @@ function renderSingleUserMarker(p, zoom) {
   userLayer.addLayer(marker);
 }
 
-function setFilterRadius(km, btn) {
-  document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+function onRadiusSliderInput(val) {
+  const km = Number(val);
   state.radius = km;
-  playHapticSound('pop');
+  const labelEl = $('radiusDisplayLabel');
+  if (labelEl) labelEl.textContent = `${km} کیلومتر`;
+  $('radiusAllBtn')?.classList.remove('active');
+
+  if (radiusCircle && map) {
+    radiusCircle.setRadius(km * 1000);
+  } else {
+    renderRadiusCircle();
+  }
   renderMarkers();
-  if (map) {
-    if (km < 500) map.flyTo([state.coords.lat, state.coords.lng], km <= 5 ? 15 : (km <= 25 ? 13 : 11));
-    else map.flyTo([state.coords.lat, state.coords.lng], 9);
+}
+
+function onRadiusSliderChange(val) {
+  const km = Number(val);
+  playHapticSound('pop');
+  if (map && radiusCircle) {
+    map.fitBounds(radiusCircle.getBounds(), { padding: [40, 40], maxZoom: 16 });
+  }
+}
+
+function toggleRadiusAll() {
+  const btn = $('radiusAllBtn');
+  if (state.radius >= 500) {
+    const slider = $('radiusRangeSlider');
+    const val = slider ? Number(slider.value) : 25;
+    onRadiusSliderInput(val);
+    if (map && radiusCircle) map.fitBounds(radiusCircle.getBounds(), { padding: [40, 40], maxZoom: 16 });
+  } else {
+    state.radius = 500;
+    btn?.classList.add('active');
+    const labelEl = $('radiusDisplayLabel');
+    if (labelEl) labelEl.textContent = 'سراسری';
+    if (radiusCircle && map) {
+      map.removeLayer(radiusCircle);
+      radiusCircle = null;
+    }
+    renderMarkers();
+    if (map) map.flyTo([state.coords.lat, state.coords.lng], 9);
+    playHapticSound('pop');
+  }
+}
+
+function setFilterRadius(km, btn) {
+  if (km >= 500) {
+    toggleRadiusAll();
+  } else {
+    const slider = $('radiusRangeSlider');
+    if (slider) slider.value = km;
+    onRadiusSliderInput(km);
+    onRadiusSliderChange(km);
   }
 }
 
