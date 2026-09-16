@@ -773,8 +773,8 @@ app.get('/api/messages', (req, res) => {
 });
 
 app.post('/api/messages', (req, res) => {
-  const { sender_id, receiver_id, text, audio_url, media_url, media_type, location, reply_to, reply_text, forward_from } = req.body || {};
-  if (!sender_id || !receiver_id || (!text && !audio_url && !media_url && !location)) {
+  const { sender_id, receiver_id, text, audio_url, media_url, media_type, location, poll, contact, file_info, reply_to, reply_text, forward_from } = req.body || {};
+  if (!sender_id || !receiver_id || (!text && !audio_url && !media_url && !location && !poll && !contact && !file_info)) {
     return res.status(400).json({ success: false, error: 'Missing parameters' });
   }
   
@@ -790,6 +790,9 @@ app.post('/api/messages', (req, res) => {
     media_url: media_url || null,
     media_type: media_type || null,
     location: location || null,
+    poll: poll || null,
+    contact: contact || null,
+    file_info: file_info || null,
     reply_to: reply_to || null,
     reply_text: reply_text || null,
     forward_from: forward_from || null,
@@ -802,6 +805,36 @@ app.post('/api/messages', (req, res) => {
   persistDB();
   broadcastSSE('dm_msg', msg);
   res.json({ success: true, message: msg });
+});
+
+app.post('/api/messages/poll_vote', (req, res) => {
+  const { user1, user2, msg_id, option_index, user_id } = req.body;
+  if (!user1 || !user2 || !msg_id || option_index === undefined || !user_id) {
+    return res.status(400).json({ success: false, error: 'Missing parameters' });
+  }
+
+  const key = [user1, user2].sort().join('_');
+  const msgList = directMessages[key];
+  if (!msgList) return res.status(404).json({ success: false, error: 'Chat not found' });
+
+  const msg = msgList.find(m => m.id === msg_id);
+  if (!msg || !msg.poll) return res.status(404).json({ success: false, error: 'Poll not found' });
+
+  // Remove existing vote by user across all options
+  msg.poll.options.forEach(opt => {
+    if (!opt.votes) opt.votes = [];
+    opt.votes = opt.votes.filter(u => u !== user_id);
+  });
+
+  const selectedOpt = msg.poll.options[option_index];
+  if (selectedOpt) {
+    if (!selectedOpt.votes) selectedOpt.votes = [];
+    selectedOpt.votes.push(user_id);
+  }
+
+  persistDB();
+  broadcastSSE('dm_poll_vote', { msg_id, poll: msg.poll, key });
+  res.json({ success: true, poll: msg.poll });
 });
 
 app.post('/api/messages/reaction', (req, res) => {

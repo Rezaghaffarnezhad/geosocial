@@ -697,6 +697,115 @@ input, textarea { direction: rtl; }
 .emoji-btn { font-size: 22px; background: transparent; padding: 4px; border-radius: 8px; transition: transform 0.1s; }
 .emoji-btn:hover { transform: scale(1.25); }
 
+/* Telegram Add Element Bottom Sheet */
+.elements-drawer {
+  background: var(--panel-glass-heavy);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 14px 16px;
+  display: none;
+  animation: slideUpElements 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.elements-drawer.open { display: block; }
+@keyframes slideUpElements { 0% { transform: translateY(100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+.elements-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  text-align: center;
+}
+.element-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.element-tile:active { transform: scale(0.92); }
+.element-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.element-tile:hover .element-icon-circle { transform: translateY(-2px); }
+.element-tile span { font-size: 11px; font-weight: 600; color: var(--text); }
+
+/* In-Chat Interactive Poll Bubble */
+.inchat-poll-box {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-width: 210px;
+}
+.inchat-poll-title { font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+.inchat-poll-option {
+  position: relative;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.inchat-poll-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(42, 171, 238, 0.35);
+  z-index: 1;
+  transition: width 0.3s ease;
+}
+.inchat-poll-text { position: relative; z-index: 2; font-weight: 600; }
+.inchat-poll-percent { position: relative; z-index: 2; font-size: 11px; opacity: 0.85; }
+
+/* In-Chat Contact Card Bubble */
+.inchat-contact-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 8px 10px;
+  border-radius: 10px;
+  border-right: 3px solid var(--blue);
+  min-width: 190px;
+}
+.inchat-contact-box img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+
+/* In-Chat File Document Bubble */
+.inchat-file-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 8px 10px;
+  border-radius: 10px;
+  min-width: 190px;
+}
+.inchat-file-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
 /* Chat Composer Bar */
 .chat-composer {
   background: var(--panel);
@@ -1073,6 +1182,45 @@ input:checked + .slider:before { transform: translateX(20px); }
     <button class="emoji-btn" onclick="insertEmoji('🎉')">🎉</button>
   </div>
 
+  <!-- Telegram Add Element Bottom Sheet -->
+  <div id="elementsDrawer" class="elements-drawer">
+    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;text-align:right">افزودن المنت به چت</div>
+    <div class="elements-grid">
+      <div class="element-tile" onclick="selectChatElement('photo')">
+        <div class="element-icon-circle" style="background:linear-gradient(135deg,#3498db,#2980b9)"><i class="fa-solid fa-image"></i></div>
+        <span>عکس و فیلم</span>
+      </div>
+      <div class="element-tile" onclick="selectChatElement('location')">
+        <div class="element-icon-circle" style="background:linear-gradient(135deg,#2ecc71,#27ae60)"><i class="fa-solid fa-location-dot"></i></div>
+        <span>موقعیت مکانی</span>
+      </div>
+      <div class="element-tile" onclick="selectChatElement('poll')">
+        <div class="element-icon-circle" style="background:linear-gradient(135deg,#f39c12,#e67e22)"><i class="fa-solid fa-square-poll-vertical"></i></div>
+        <span>نظرسنجی</span>
+      </div>
+      <div class="element-tile" onclick="selectChatElement('contact')">
+        <div class="element-icon-circle" style="background:linear-gradient(135deg,#9b59b6,#8e44ad)"><i class="fa-solid fa-address-card"></i></div>
+        <span>کارت مخاطب</span>
+      </div>
+      <div class="element-tile" onclick="selectChatElement('file')">
+        <div class="element-icon-circle" style="background:linear-gradient(135deg,#1abc9c,#16a085)"><i class="fa-solid fa-file-lines"></i></div>
+        <span>سند و فایل</span>
+      </div>
+      <div class="element-tile" onclick="selectChatElement('voice')">
+        <div class="element-icon-circle" style="background:linear-gradient(135deg,#e74c3c,#c0392b)"><i class="fa-solid fa-microphone"></i></div>
+        <span>پیام صوتی</span>
+      </div>
+      <div class="element-tile" onclick="selectChatElement('audio')">
+        <div class="element-icon-circle" style="background:linear-gradient(135deg,#e67e22,#d35400)"><i class="fa-solid fa-music"></i></div>
+        <span>صوت و موزیک</span>
+      </div>
+      <div class="element-tile" onclick="selectChatElement('camera')">
+        <div class="element-icon-circle" style="background:linear-gradient(135deg,#34495e,#2c3e50)"><i class="fa-solid fa-camera"></i></div>
+        <span>دوربین سریع</span>
+      </div>
+    </div>
+  </div>
+
   <div class="chat-composer">
     <!-- Reply Banner -->
     <div id="replyBanner" class="reply-banner">
@@ -1085,16 +1233,40 @@ input:checked + .slider:before { transform: translateX(20px); }
 
     <!-- Main Input Row -->
     <div class="composer-row">
+      <button class="composer-icon-btn" onclick="toggleElementsDrawer()" title="افزودن المنت به چت" style="color:var(--blue);font-size:20px"><i class="fa-solid fa-plus"></i></button>
       <button class="composer-icon-btn" onclick="toggleEmojiDrawer()" title="ایموجی‌ها"><i class="fa-regular fa-face-smile"></i></button>
-      <button class="composer-icon-btn" onclick="$('chatAttachmentInput').click()" title="ارسال فایل/عکس"><i class="fa-solid fa-paperclip"></i></button>
+      
       <input id="chatAttachmentInput" type="file" hidden accept="image/*,video/*" onchange="handleChatAttachment(event)">
-      <button class="composer-icon-btn" onclick="shareMyLocationInChat()" title="ارسال موقعیت مکانی"><i class="fa-solid fa-location-dot"></i></button>
+      <input id="chatDocumentInput" type="file" hidden accept=".pdf,.doc,.docx,.zip,.rar,.txt" onchange="handleDocumentAttachment(event)">
+      <input id="chatAudioInput" type="file" hidden accept="audio/*" onchange="handleAudioAttachment(event)">
       
       <input id="chatMsgInput" class="composer-input" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendDirectMessage()">
       
       <button id="voiceRecordBtn" class="composer-icon-btn voice-record-btn" onclick="toggleVoiceRecording()" title="ضبط صدا"><i class="fa-solid fa-microphone"></i></button>
       <button class="btn-primary" style="width:40px;height:40px;border-radius:50%;padding:0" onclick="sendDirectMessage()"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
+  </div>
+</div>
+
+<!-- In-Chat Poll Creator Modal -->
+<div id="pollModal" class="modal-overlay" style="z-index:90">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-square-poll-vertical" style="color:var(--blue)"></i> ساخت نظرسنجی جدید در چت</h3>
+    <button class="composer-icon-btn" onclick="closePollCreator()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="padding:16px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px">
+    <div>
+      <label style="font-size:12px;color:var(--muted);margin-bottom:6px;display:block">سوال نظرسنجی</label>
+      <input id="pollQuestionInput" class="btn-secondary" placeholder="سوال خود را بنویسید..." style="text-align:right">
+    </div>
+    <div>
+      <label style="font-size:12px;color:var(--muted);margin-bottom:6px;display:block">گزینه‌های نظرسنجی</label>
+      <input id="pollOpt1Input" class="btn-secondary" placeholder="گزینه ۱" style="text-align:right;margin-bottom:8px">
+      <input id="pollOpt2Input" class="btn-secondary" placeholder="گزینه ۲" style="text-align:right;margin-bottom:8px">
+      <input id="pollOpt3Input" class="btn-secondary" placeholder="گزینه ۳ (اختیاری)" style="text-align:right;margin-bottom:8px">
+      <input id="pollOpt4Input" class="btn-secondary" placeholder="گزینه ۴ (اختیاری)" style="text-align:right">
+    </div>
+    <button class="btn-primary" style="margin-top:10px" onclick="submitInChatPoll()"><i class="fa-solid fa-paper-plane"></i> ارسال نظرسنجی به چت</button>
   </div>
 </div>
 
@@ -2007,6 +2179,195 @@ async function loadDirectMessages() {
   renderDirectMessages();
 }
 
+function toggleElementsDrawer(force) {
+  const drawer = $('elementsDrawer');
+  if (force === false || drawer.classList.contains('open')) {
+    drawer.classList.remove('open');
+  } else {
+    drawer.classList.add('open');
+    $('emojiDrawer').classList.remove('open');
+    playHapticSound('pop');
+  }
+}
+
+function selectChatElement(type) {
+  toggleElementsDrawer(false);
+  if (type === 'photo') {
+    $('chatAttachmentInput').click();
+  } else if (type === 'location') {
+    shareMyLocationInChat();
+  } else if (type === 'poll') {
+    openPollCreator();
+  } else if (type === 'contact') {
+    shareMyContactInChat();
+  } else if (type === 'file') {
+    $('chatDocumentInput').click();
+  } else if (type === 'voice') {
+    toggleVoiceRecording();
+  } else if (type === 'audio') {
+    $('chatAudioInput').click();
+  } else if (type === 'camera') {
+    $('chatAttachmentInput').click();
+  }
+}
+
+function openPollCreator() {
+  $('pollQuestionInput').value = '';
+  $('pollOpt1Input').value = '';
+  $('pollOpt2Input').value = '';
+  $('pollOpt3Input').value = '';
+  $('pollOpt4Input').value = '';
+  $('pollModal').classList.add('open');
+  playHapticSound('pop');
+}
+function closePollCreator() {
+  $('pollModal').classList.remove('open');
+}
+
+function submitInChatPoll() {
+  const question = $('pollQuestionInput').value.trim();
+  const opt1 = $('pollOpt1Input').value.trim();
+  const opt2 = $('pollOpt2Input').value.trim();
+  const opt3 = $('pollOpt3Input').value.trim();
+  const opt4 = $('pollOpt4Input').value.trim();
+
+  if (!question || !opt1 || !opt2) {
+    return toast('لطفاً سوال و حداقل دو گزینه برای نظرسنجی وارد کنید');
+  }
+
+  const rawOptions = [opt1, opt2, opt3, opt4].filter(Boolean);
+  const options = rawOptions.map(t => ({ text: t, votes: [] }));
+
+  const newMsg = {
+    id: 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+    sender_id: state.user.id,
+    receiver_id: state.activeConversationUser.id,
+    poll: { question, options },
+    created_at: new Date().toISOString()
+  };
+
+  closePollCreator();
+  state.activeMessages.push(newMsg);
+  renderDirectMessages();
+  playHapticSound('sent');
+  toast('نظرسنجی به چت ارسال شد 📊');
+
+  fetch('/api/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newMsg)
+  }).catch(() => {});
+}
+
+async function voteInChatPoll(msgId, optIndex) {
+  if (!state.user || !state.activeConversationUser) return;
+  const msg = state.activeMessages.find(m => m.id === msgId);
+  if (!msg || !msg.poll) return;
+
+  msg.poll.options.forEach(opt => {
+    if (!opt.votes) opt.votes = [];
+    opt.votes = opt.votes.filter(u => u !== state.user.id);
+  });
+
+  if (msg.poll.options[optIndex]) {
+    if (!msg.poll.options[optIndex].votes) msg.poll.options[optIndex].votes = [];
+    msg.poll.options[optIndex].votes.push(state.user.id);
+  }
+
+  renderDirectMessages();
+  playHapticSound('pop');
+
+  fetch('/api/messages/poll_vote', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user1: state.user.id,
+      user2: state.activeConversationUser.id,
+      msg_id: msgId,
+      option_index: optIndex,
+      user_id: state.user.id
+    })
+  }).catch(() => {});
+}
+
+function shareMyContactInChat() {
+  if (!state.user || !state.activeConversationUser) return;
+  const newMsg = {
+    id: 'dm_' + Date.now(),
+    sender_id: state.user.id,
+    receiver_id: state.activeConversationUser.id,
+    contact: {
+      id: state.user.id,
+      name: state.profile?.name || state.user.name,
+      username: state.profile?.username || state.user.username,
+      avatar: state.profile?.avatar || DEFAULT_AVATAR,
+      phone: state.user.phone || ''
+    },
+    created_at: new Date().toISOString()
+  };
+
+  state.activeMessages.push(newMsg);
+  renderDirectMessages();
+  playHapticSound('sent');
+  toast('کارت پروفایل شما در چت ارسال شد 👤');
+
+  fetch('/api/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newMsg)
+  }).catch(() => {});
+}
+
+function handleDocumentAttachment(e) {
+  const file = e.target.files?.[0];
+  if (!file || !state.activeConversationUser || !state.user) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const sizeStr = file.size > 1048576 ? `${(file.size / 1048576).toFixed(1)} MB` : `${Math.round(file.size / 1024)} KB`;
+    const newMsg = {
+      id: 'dm_' + Date.now(),
+      sender_id: state.user.id,
+      receiver_id: state.activeConversationUser.id,
+      file_info: { name: file.name, size: sizeStr, data: ev.target.result },
+      created_at: new Date().toISOString()
+    };
+    state.activeMessages.push(newMsg);
+    renderDirectMessages();
+    playHapticSound('sent');
+    toast(`فایل ${file.name} ارسال شد 📁`);
+    fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMsg)
+    }).catch(() => {});
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleAudioAttachment(e) {
+  const file = e.target.files?.[0];
+  if (!file || !state.activeConversationUser || !state.user) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const newMsg = {
+      id: 'dm_' + Date.now(),
+      sender_id: state.user.id,
+      receiver_id: state.activeConversationUser.id,
+      audio_url: ev.target.result,
+      created_at: new Date().toISOString()
+    };
+    state.activeMessages.push(newMsg);
+    renderDirectMessages();
+    playHapticSound('sent');
+    fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMsg)
+    }).catch(() => {});
+  };
+  reader.readAsDataURL(file);
+}
+
 function renderDirectMessages() {
   const box = $('chatMessagesScroll');
   box.innerHTML = '';
@@ -2021,11 +2382,54 @@ function renderDirectMessages() {
     if (m.media_url) {
       contentHtml = `<img class="msg-image-attachment" src="${esc(m.media_url)}" onclick="openImageLightbox('${esc(m.media_url)}')">`;
     }
-    if (m.audio_url) {
+    if (m.poll) {
+      // Calculate total votes and % per option
+      const totalVotes = m.poll.options.reduce((sum, opt) => sum + (opt.votes ? opt.votes.length : 0), 0);
+      contentHtml += `
+        <div class="inchat-poll-box">
+          <div class="inchat-poll-title">📊 ${esc(m.poll.question)}</div>
+          ${m.poll.options.map((opt, optIdx) => {
+            const votesCount = opt.votes ? opt.votes.length : 0;
+            const pct = totalVotes > 0 ? Math.round((votesCount / totalVotes) * 100) : 0;
+            const hasVotedThis = opt.votes && opt.votes.includes(state.user?.id);
+            return `
+              <div class="inchat-poll-option" onclick="voteInChatPoll('${m.id}', ${optIdx})">
+                <div class="inchat-poll-fill" style="width:${pct}%"></div>
+                <div class="inchat-poll-text">${hasVotedThis ? '✅ ' : ''}${esc(opt.text)}</div>
+                <div class="inchat-poll-percent">${pct}% (${votesCount})</div>
+              </div>
+            `;
+          }).join('')}
+          <div style="font-size:10px;opacity:0.75;text-align:left;margin-top:4px">${totalVotes} رأی ثبت شده</div>
+        </div>
+      `;
+    } else if (m.contact) {
+      contentHtml += `
+        <div class="inchat-contact-box" onclick="openOtherUserProfile({id:'${m.contact.id}', name:'${esc(m.contact.name)}', avatar:'${esc(m.contact.avatar)}', username:'${esc(m.contact.username)}'})">
+          <img src="${esc(m.contact.avatar || DEFAULT_AVATAR)}">
+          <div style="flex:1">
+            <b style="font-size:13px">${esc(m.contact.name)}</b>
+            <div style="font-size:11px;color:var(--blue);direction:ltr;text-align:right">${m.contact.username ? '@' + esc(m.contact.username) : esc(m.contact.phone || '')}</div>
+          </div>
+          <i class="fa-solid fa-user-check" style="color:var(--blue)"></i>
+        </div>
+      `;
+    } else if (m.file_info) {
+      contentHtml += `
+        <div class="inchat-file-box">
+          <div class="inchat-file-icon"><i class="fa-solid fa-file"></i></div>
+          <div style="flex:1">
+            <b style="font-size:12px">${esc(m.file_info.name)}</b>
+            <div style="font-size:10px;opacity:0.8">${esc(m.file_info.size)}</div>
+          </div>
+          <a href="${m.file_info.data}" download="${esc(m.file_info.name)}" style="color:inherit"><i class="fa-solid fa-download"></i></a>
+        </div>
+      `;
+    } else if (m.audio_url) {
       contentHtml += `
         <div class="voice-msg-player" id="voiceMsg_${m.id}">
           <button class="voice-play-btn" onclick="playVoiceAudio(event, '${m.id}', '${m.audio_url}')"><i class="fa-solid fa-play"></i></button>
-          <div class="waveform-bars" onclick="seekVoiceAudio(event, '${m.id}')">
+          <div class="waveform-bars">
             <span class="waveform-bar" style="height:6px"></span>
             <span class="waveform-bar" style="height:14px"></span>
             <span class="waveform-bar" style="height:20px"></span>
@@ -2039,6 +2443,7 @@ function renderDirectMessages() {
       contentHtml += `
         <div style="font-weight:700;margin-bottom:4px"><i class="fa-solid fa-location-dot" style="color:var(--danger)"></i> موقعیت مکانی زنده</div>
         <div style="font-size:11px">${m.location.lat.toFixed(4)}, ${m.location.lng.toFixed(4)}</div>
+        <button class="badge" style="margin-top:6px;background:var(--blue);color:#fff;border:0" onclick="startNavigationToUser({name:'موقعیت ارسالی', lat:${m.location.lat}, lng:${m.location.lng}})">مسیریابی رو نقشه 🧭</button>
       `;
     } else if (m.text) {
       contentHtml += `
@@ -2076,6 +2481,7 @@ function scrollChatToBottom() {
 
 function toggleEmojiDrawer() {
   $('emojiDrawer').classList.toggle('open');
+  $('elementsDrawer').classList.remove('open');
   playHapticSound('pop');
 }
 function insertEmoji(e) {
