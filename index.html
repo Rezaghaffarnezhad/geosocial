@@ -1396,6 +1396,13 @@ async function confirmOtp(manualCode) {
     };
   }
 
+  // Set slight random offset if coordinates are identical to default so users don't overlap completely
+  if (!loggedUser.lat || (Math.abs(loggedUser.lat - CFG.defaultCoords.lat) < 0.0001 && Math.abs(loggedUser.lng - CFG.defaultCoords.lng) < 0.0001)) {
+    const offsetIndex = (loggedUser.id.charCodeAt(loggedUser.id.length - 1) % 5) + 1;
+    loggedUser.lat = CFG.defaultCoords.lat + (Math.sin(offsetIndex) * 0.008);
+    loggedUser.lng = CFG.defaultCoords.lng + (Math.cos(offsetIndex) * 0.008);
+  }
+
   state.user = loggedUser;
   state.profile = loggedUser;
   state.coords = { lat: Number(loggedUser.lat), lng: Number(loggedUser.lng) };
@@ -1404,9 +1411,10 @@ async function confirmOtp(manualCode) {
   $('auth').style.display = 'none';
   toast(`خوش آمدید ${loggedUser.name}! 🌟`);
 
-  if (map) map.flyTo([state.coords.lat, state.coords.lng], 15);
+  if (map) map.flyTo([state.coords.lat, state.coords.lng], 14);
   renderMyMarker();
   drawRadiusCircle();
+  await syncUserToServer();
   await bootData();
 }
 
@@ -1416,7 +1424,15 @@ async function syncUserToServer() {
     const res = await fetch(apiUrl('/api/users/sync'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...state.profile, lat: state.coords.lat, lng: state.coords.lng })
+      body: JSON.stringify({ 
+        ...state.profile, 
+        id: state.user.id,
+        name: state.profile?.name || state.user.name,
+        avatar: state.profile?.avatar || state.user.avatar,
+        lat: state.coords.lat, 
+        lng: state.coords.lng,
+        online: true
+      })
     });
     const d = await res.json();
     if (d.success && d.user) {
