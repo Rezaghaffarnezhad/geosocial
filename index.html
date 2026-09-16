@@ -1091,9 +1091,14 @@ function renderMarkers() {
 
   let count = 0;
   state.pins.forEach(p => {
-    if (!p?.id || p.id === state.user?.id || !Number.isFinite(Number(p.lat)) || !Number.isFinite(Number(p.lng))) return;
-    const d = dist(state.coords.lat, state.coords.lng, Number(p.lat), Number(p.lng));
-    if (d > state.radius) return;
+    if (!p?.id || p.id === state.user?.id) return;
+    const pLat = Number(p.lat);
+    const pLng = Number(p.lng);
+    if (!Number.isFinite(pLat) || !Number.isFinite(pLng)) return;
+
+    // Calculate distance
+    const d = dist(state.coords.lat, state.coords.lng, pLat, pLng);
+    if (d > (state.radius || 50)) return;
     count++;
 
     const iconHtml = `
@@ -1114,10 +1119,10 @@ function renderMarkers() {
       iconAnchor: [22, 60]
     });
 
-    const marker = L.marker([Number(p.lat), Number(p.lng)], { icon: icon });
+    const marker = L.marker([pLat, pLng], { icon: icon });
     marker.on('click', () => {
       state.activePin = p;
-      map.flyTo([Number(p.lat), Number(p.lng)], 15);
+      map.flyTo([pLat, pLng], 15);
       openPersonCard(p);
     });
 
