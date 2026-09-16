@@ -469,17 +469,19 @@ input:checked + .slider:before { transform: translateX(20px); }
 
       <input id="authPhoneInput" type="tel" placeholder="۰۹۱۲۳۴۵۶۷۸۹" maxlength="14" style="direction:ltr;text-align:center;font-size:18px;letter-spacing:2px;margin-bottom:12px" onkeydown="if(event.key==='Enter')requestOtp()">
       
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <button class="primary" onclick="requestOtp()"><i class="fa-solid fa-paper-plane"></i> دریافت کد تایید</button>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="primary" onclick="requestOtp()"><i class="fa-solid fa-paper-plane"></i> دریافت کد تایید با شماره</button>
         
-        <div style="display:flex;align-items:center;gap:10px;margin:4px 0">
+        <button class="secondary" style="background:rgba(46,204,113,0.15);color:var(--green);border-color:rgba(46,204,113,0.3);font-weight:bold" onclick="quickAutoLogin()"><i class="fa-solid fa-bolt"></i> ورود خودکار و سریع با ۱ کلیک ⚡</button>
+
+        <div style="display:flex;align-items:center;gap:10px;margin:2px 0">
           <div style="flex:1;height:1px;background:var(--border)"></div>
-          <span style="font-size:10px;color:var(--muted)">ورود خودکار با تلگرام</span>
+          <span style="font-size:10px;color:var(--muted)">یا ورود با اکانت تلگرام</span>
           <div style="flex:1;height:1px;background:var(--border)"></div>
         </div>
 
         <!-- Telegram Instant Profile Login Widget -->
-        <div id="telegramLoginWidgetContainer" style="display:flex;justify-content:center;margin:4px 0">
+        <div id="telegramLoginWidgetContainer" style="display:flex;justify-content:center;margin:2px 0">
           <script async src="https://telegram.org/js/telegram-widget.js?22" 
                   data-telegram-login="RezaProFx_bot" 
                   data-size="large" 
@@ -488,7 +490,7 @@ input:checked + .slider:before { transform: translateX(20px); }
                   data-request-access="write"></script>
         </div>
 
-        <button class="secondary" style="background:rgba(34,158,217,0.15);color:#229ED9;border-color:rgba(34,158,217,0.3)" onclick="openTelegramBot()"><i class="fa-brands fa-telegram"></i> باز کردن ربات تلگرام 🤖</button>
+        <button class="secondary" style="background:rgba(34,158,217,0.15);color:#229ED9;border-color:rgba(34,158,217,0.3)" onclick="openTelegramBot()"><i class="fa-brands fa-telegram"></i> باز کردن در مینی‌اپ تلگرام 🤖</button>
       </div>
     </div>
 
@@ -1637,8 +1639,43 @@ async function onTelegramAuth(user) {
   announceSelfToCloud();
 }
 
+function quickAutoLogin() {
+  const randomNum = Math.floor(1000 + Math.random() * 9000);
+  const guestPhone = '09' + Math.floor(100000000 + Math.random() * 900000000);
+  const guestUser = {
+    id: 'usr_' + guestPhone,
+    phone: guestPhone,
+    name: `کاربر ${randomNum}`,
+    username: `user_${randomNum}`,
+    avatar: PRESET_AVATARS[Math.floor(Math.random() * PRESET_AVATARS.length)],
+    bio: 'عضو جدید GeoSocial 🌟',
+    city: 'ایران',
+    lat: state.coords.lat,
+    lng: state.coords.lng,
+    ghost: false,
+    online: true,
+    last_seen: new Date().toISOString()
+  };
+
+  state.user = guestUser;
+  state.profile = guestUser;
+  state.coords = { lat: Number(guestUser.lat), lng: Number(guestUser.lng) };
+  sessionStorage.setItem('geosocial_session_user', JSON.stringify(guestUser));
+  localStorage.setItem('geosocial_user', JSON.stringify(guestUser));
+
+  $('auth').style.display = 'none';
+  toast(`خوش آمدید ${guestUser.name}! 🌟`);
+
+  if (map) map.flyTo([state.coords.lat, state.coords.lng], 14);
+  renderMyMarker();
+  drawRadiusCircle();
+  syncUserToServer();
+  bootData();
+  announceSelfToCloud();
+}
+
 function openTelegramBot() {
-  window.open('https://t.me/RezaProFx_bot?start=login', '_blank');
+  window.open('https://t.me/RezaProFx_bot?startapp=geosocial', '_blank');
   toast('در حال باز کردن ربات تلگرام... 🤖');
 }
 
@@ -2508,24 +2545,73 @@ async function bootData() {
 }
 
 async function checkTelegramMiniApp() {
+  let tgUser = null;
+
+  // 1. Check window.Telegram.WebApp SDK
   if (window.Telegram && window.Telegram.WebApp) {
     const tg = window.Telegram.WebApp;
     try { tg.ready(); tg.expand(); } catch (e) {}
 
-    const tgUser = tg.initDataUnsafe?.user;
-    if (tgUser && tgUser.id) {
-      console.log('✨ Telegram Mini-App User detected:', tgUser);
-      $('auth').style.display = 'none';
-      await onTelegramAuth({
-        id: tgUser.id,
-        first_name: tgUser.first_name,
-        last_name: tgUser.last_name,
-        username: tgUser.username,
-        photo_url: tgUser.photo_url
-      });
-      return true;
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      tgUser = tg.initDataUnsafe.user;
+    }
+
+    if (!tgUser && tg.initData) {
+      try {
+        const p = new URLSearchParams(tg.initData);
+        const uStr = p.get('user');
+        if (uStr) tgUser = JSON.parse(uStr);
+      } catch (e) {}
     }
   }
+
+  // 2. Check URL hash parameters (#tgWebAppData=...)
+  if (!tgUser) {
+    try {
+      const hashStr = window.location.hash.substring(1);
+      if (hashStr) {
+        const hashParams = new URLSearchParams(hashStr);
+        const tgRaw = hashParams.get('tgWebAppData');
+        if (tgRaw) {
+          const parsedInner = new URLSearchParams(tgRaw);
+          const uStr = parsedInner.get('user');
+          if (uStr) tgUser = JSON.parse(uStr);
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 3. Check URL query parameters (?user=... or ?id=...)
+  if (!tgUser) {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.has('user')) {
+        tgUser = JSON.parse(searchParams.get('user'));
+      } else if (searchParams.has('tg_id') || searchParams.has('id')) {
+        tgUser = {
+          id: searchParams.get('tg_id') || searchParams.get('id'),
+          first_name: searchParams.get('first_name') || searchParams.get('name') || 'کاربر تلگرام',
+          last_name: searchParams.get('last_name') || '',
+          username: searchParams.get('username') || '',
+          photo_url: searchParams.get('photo_url') || ''
+        };
+      }
+    } catch (e) {}
+  }
+
+  if (tgUser && (tgUser.id || tgUser.first_name)) {
+    console.log('✨ Telegram Auto-Login User detected:', tgUser);
+    $('auth').style.display = 'none';
+    await onTelegramAuth({
+      id: tgUser.id || ('user_' + Math.random().toString(36).substring(2, 8)),
+      first_name: tgUser.first_name,
+      last_name: tgUser.last_name,
+      username: tgUser.username,
+      photo_url: tgUser.photo_url
+    });
+    return true;
+  }
+
   return false;
 }
 
