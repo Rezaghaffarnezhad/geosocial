@@ -1719,11 +1719,6 @@ function logout() {
   $('authStep1').style.display = 'block';
   $('auth').style.display = 'flex';
 }
-  closeModals();
-  $('authStep2').style.display = 'none';
-  $('authStep1').style.display = 'block';
-  $('auth').style.display = 'flex';
-}
 
 function refreshProfile() {
   const p = state.profile || {};
