@@ -136,6 +136,132 @@ input, textarea { direction: rtl; }
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
+/* Compact Marker for Mid Zoom (10-12) */
+.user-marker-compact {
+  cursor: pointer;
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--blue);
+  background: var(--panel);
+  box-shadow: 0 0 10px var(--blue-glow), 0 4px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.user-marker-compact:hover {
+  transform: scale(1.22);
+  z-index: 1000 !important;
+}
+.user-marker-compact img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.user-marker-compact .led {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--panel);
+}
+
+/* Cluster Marker for Far Zoom (<10) */
+.user-cluster-marker {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(42, 171, 238, 0.95), rgba(34, 158, 217, 0.95));
+  color: #fff;
+  border-radius: 24px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 16px var(--blue-glow), 0 4px 12px rgba(0,0,0,0.4);
+  border: 2px solid #ffffff;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+  gap: 6px;
+}
+.user-cluster-marker:hover {
+  transform: scale(1.15);
+  z-index: 1000 !important;
+}
+.user-cluster-avatars {
+  display: flex;
+  align-items: center;
+  margin-left: -4px;
+}
+.user-cluster-avatar-mini {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+  object-fit: cover;
+  margin-right: -8px;
+}
+
+/* Manual Location Picker Floating Bar */
+.manual-location-bar {
+  position: absolute;
+  bottom: calc(78px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: var(--panel-glass);
+  backdrop-filter: blur(16px);
+  border: 1.5px solid var(--blue);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.5), 0 0 20px var(--blue-glow);
+  padding: 10px 16px;
+  border-radius: 16px;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 92%;
+}
+.manual-location-bar.active {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.temp-pin {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #e74c3c;
+  animation: bouncePin 0.8s infinite alternate ease-in-out;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+@keyframes bouncePin {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+.typing-indicator {
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 600;
+  animation: typingPulse 1.5s infinite;
+}
+@keyframes typingPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 .my-marker {
   position: relative;
   width: 32px;
@@ -540,29 +666,28 @@ input:checked + .slider:before { transform: translateX(20px); }
     <i id="mapThemeIcon" class="fa-solid fa-sun" style="color:#f39c12"></i>
   </button>
 
-  <!-- Fit All Users on Map -->
-  <button class="ctrl solid" onclick="fitAllUsers()" title="نمایش تمام کاربران ایران روی نقشه">
-    <i class="fa-solid fa-users" style="color:var(--green)"></i>
-  </button>
-
-  <!-- Zoom In / Zoom Out -->
-  <button class="ctrl solid" onclick="zoomIn()" title="بزرگ‌نمایی">
-    <i class="fa-solid fa-plus"></i>
-  </button>
-  <button class="ctrl solid" onclick="zoomOut()" title="کوچک‌نمایی">
-    <i class="fa-solid fa-minus"></i>
-  </button>
-
   <!-- Radar Radius Slider -->
   <div class="radius">
     <span><b id="radiusValue">سراسری</b></span>
     <input id="radius" type="range" min="1" max="500" step="5" value="500" oninput="setRadius(this.value)">
   </div>
 
-  <!-- GPS Locate Me Button -->
-  <button id="locateBtn" class="ctrl solid" title="موقعیت مکانی من">
+  <!-- GPS Locate Me / Manual Pin Picker Button -->
+  <button id="locateBtn" class="ctrl solid" title="لمس کوتاه: مکان‌یابی GPS | نگه‌داشتن: انتخاب دستی موقعیت">
     <i class="fa-solid fa-location-crosshairs" style="color:var(--blue)"></i>
   </button>
+</div>
+
+<!-- Manual Location Selection Floating Bar -->
+<div id="manualLocationBar" class="manual-location-bar">
+  <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600">
+    <i class="fa-solid fa-location-dot" style="color:var(--blue);font-size:16px"></i>
+    <span>مکان دلخواه را روی نقشه انتخاب کنید</span>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="primary" style="padding:6px 14px;font-size:11px;width:auto;border-radius:8px" onclick="confirmManualLocation()"><i class="fa-solid fa-check"></i> ثبت</button>
+    <button class="secondary" style="padding:6px 12px;font-size:11px;width:auto;border-radius:8px" onclick="cancelManualLocation()"><i class="fa-solid fa-xmark"></i> لغو</button>
+  </div>
 </div>
 
 <!-- Public Chat Drawer -->
@@ -887,14 +1012,35 @@ let state = {
   newStoryDataUrl: null,
   mediaRecorder: null,
   audioChunks: [],
-  isRecording: false
+  isRecording: false,
+  isPickingLocation: false,
+  tempPickMarker: null,
+  tempCoords: null,
+  typingTimeout: null
 };
 
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const toast = m => { const e = $('toast'); if (e) { e.innerHTML = m; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 3800); } };
 const dist = (a, b, c, d) => { const R = 6371, p = Math.PI / 180, dl = (c - a) * p, dg = (d - b) * p, x = Math.sin(dl / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin(dg / 2) ** 2; return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
-const online = p => p?.online === true || (p?.last_seen && Date.now() - new Date(p.last_seen).getTime() < 300000);
+const online = p => p?.online === true || (p?.last_seen && Date.now() - new Date(p.last_seen).getTime() < 180000);
+
+function formatLastSeen(lastSeen, isOnline) {
+  if (isOnline) return 'آنلاین 🟢';
+  if (!lastSeen) return 'آفلاین ⚪';
+  try {
+    const diff = Math.floor((Date.now() - new Date(lastSeen).getTime()) / 1000);
+    if (diff < 180) return 'آنلاین 🟢'; // within 3 minutes
+    if (diff < 3600) return `آخرین بازدید ${Math.floor(diff / 60)} دقیقه پیش`;
+    if (diff < 86400) return `آخرین بازدید ${Math.floor(diff / 3600)} ساعت پیش`;
+    const days = Math.floor(diff / 86400);
+    if (days === 1) return 'آخرین بازدید دیروز';
+    if (days < 30) return `آخرین بازدید ${days} روز پیش`;
+    return 'آخرین بازدید خیلی وقت پیش';
+  } catch {
+    return 'آفلاین ⚪';
+  }
+}
 
 function registerOrUpdateUser(userObj) {
   if (!userObj || !userObj.id) return;
@@ -987,9 +1133,15 @@ function initCloudSync() {
               }
             }
           }
+        } else if (topic.endsWith('/typing')) {
+          if (data.sender_id === state.activeConversation && data.receiver_id === state.user?.id) {
+            showTypingIndicator();
+          }
         } else if (topic.endsWith('/public_msg')) {
           if (!state.public.some(m => m.id === data.id)) {
+            state.public.push(m => m.id === data.id ? null : data);
             state.public.push(data);
+            if (state.public.length > 50) state.public = state.public.slice(-50);
             renderPublic();
             if (data.sender_id !== state.user?.id) playBeep('receive');
           }
@@ -1043,6 +1195,10 @@ try {
 
     if (type === 'USER_SYNC') {
       registerOrUpdateUser(data);
+    } else if (type === 'TYPING') {
+      if (data.sender_id === state.activeConversation && data.receiver_id === state.user?.id) {
+        showTypingIndicator();
+      }
     } else if (type === 'NEW_DM') {
       if ((data.receiver_id === state.user?.id && state.activeConversation === data.sender_id) ||
           (data.sender_id === state.user?.id && state.activeConversation === data.receiver_id)) {
@@ -1060,6 +1216,7 @@ try {
     } else if (type === 'PUBLIC_MSG') {
       if (!state.public.some(m => m.id === data.id)) {
         state.public.push(data);
+        if (state.public.length > 50) state.public = state.public.slice(-50);
         renderPublic();
         if (data.sender_id !== state.user?.id) playBeep('receive');
       }
@@ -1071,6 +1228,32 @@ function broadcastLocalEvent(type, data) {
   if (syncBus) {
     try { syncBus.postMessage({ type, data }); } catch {}
   }
+}
+
+let lastTypingSent = 0;
+function onMsgInputTyping() {
+  if (!state.activeConversation || !state.user) return;
+  const now = Date.now();
+  if (now - lastTypingSent > 2000) {
+    lastTypingSent = now;
+    const typingPayload = { sender_id: state.user.id, receiver_id: state.activeConversation };
+    broadcastLocalEvent('TYPING', typingPayload);
+    if (mqttClient && mqttClient.connected) {
+      try { mqttClient.publish(`${MQTT_TOPIC_PREFIX}/typing`, JSON.stringify(typingPayload)); } catch {}
+    }
+  }
+}
+
+function showTypingIndicator() {
+  const el = $('sheetStatus');
+  if (!el) return;
+  el.innerHTML = '<span class="typing-indicator">در حال نوشتن... ✍️</span>';
+  clearTimeout(state.typingTimeout);
+  state.typingTimeout = setTimeout(() => {
+    if (state.activePin) {
+      el.textContent = formatLastSeen(state.activePin.last_seen, online(state.activePin));
+    }
+  }, 2800);
 }
 
 // ----------------------------------------------------
@@ -1228,9 +1411,14 @@ function initMap() {
 
   userLayer = L.layerGroup().addTo(map);
 
+  // Dynamic reactive LOD on zoom or map pan
+  map.on('zoomend', () => renderMarkers());
+  map.on('moveend', () => renderMarkers());
+
   drawRadiusCircle();
   renderMyMarker();
   renderMarkers();
+  setupLocateButton();
 }
 
 function updateMapTheme(theme) {
@@ -1280,26 +1468,96 @@ function renderMyMarker() {
   myMarker = L.marker([state.coords.lat, state.coords.lng], { icon: myIcon, interactive: false }).addTo(map);
 }
 
-// Render all users on Map with intelligent cluster / overlapping offsets
+// ----------------------------------------------------
+// Zoom-Adaptive LOD & Spatial Clustering Marker Renderer
+// ----------------------------------------------------
 function renderMarkers() {
   if (!map || !userLayer) return;
   userLayer.clearLayers();
 
-  let count = 0;
-  const coordsUsage = {};
-
-  state.pins.forEach((p, idx) => {
-    if (!p?.id || p.id === state.user?.id) return;
+  const zoom = map.getZoom();
+  const activeUsers = state.pins.filter(p => {
+    if (!p?.id || p.id === state.user?.id) return false;
     const pLat = Number(p.lat);
     const pLng = Number(p.lng);
-    if (!Number.isFinite(pLat) || !Number.isFinite(pLng)) return;
-
-    // Filter distance only if radius is strictly local (< 500 km)
+    if (!Number.isFinite(pLat) || !Number.isFinite(pLng)) return false;
     const d = dist(state.coords.lat, state.coords.lng, pLat, pLng);
-    if (state.radius < 500 && d > state.radius) return;
-    count++;
+    if (state.radius < 500 && d > state.radius) return false;
+    return true;
+  });
 
-    // Calculate circular jitter offset if multiple users are on the exact same spot
+  $('peopleBadge').textContent = `${activeUsers.length} فرد`;
+  if ($('statNearby')) $('statNearby').textContent = activeUsers.length;
+
+  // 1. Far Zoom (< 10): Group into Dynamic Spatial Clusters
+  if (zoom < 10) {
+    const gridSize = zoom <= 5 ? 2.5 : (zoom <= 7 ? 1.4 : 0.6);
+    const clusters = {};
+    activeUsers.forEach(p => {
+      const pLat = Number(p.lat);
+      const pLng = Number(p.lng);
+      const key = `${Math.floor(pLat / gridSize)}_${Math.floor(pLng / gridSize)}`;
+      if (!clusters[key]) clusters[key] = [];
+      clusters[key].push(p);
+    });
+
+    Object.values(clusters).forEach(group => {
+      if (group.length === 1) {
+        const p = group[0];
+        const iconHtml = `
+          <div class="user-marker-compact">
+            <img src="${esc(p.avatar || DEFAULT_AVATAR)}" alt="${esc(p.name)}">
+            <i class="led ${online(p) ? 'online' : 'offline'}"></i>
+          </div>
+        `;
+        const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] });
+        const marker = L.marker([Number(p.lat), Number(p.lng)], { icon });
+        marker.on('click', () => {
+          state.activePin = p;
+          map.flyTo([Number(p.lat), Number(p.lng)], 14);
+          openPersonCard(p);
+        });
+        userLayer.addLayer(marker);
+      } else {
+        // Multi-user cluster bubble
+        let sumLat = 0, sumLng = 0;
+        group.forEach(u => { sumLat += Number(u.lat); sumLng += Number(u.lng); });
+        const cLat = sumLat / group.length;
+        const cLng = sumLng / group.length;
+        const sampleAvatars = group.slice(0, 3);
+        const cityName = group[0].city || 'ایران';
+
+        const iconHtml = `
+          <div class="user-cluster-marker">
+            <div class="user-cluster-avatars">
+              ${sampleAvatars.map(u => `<img class="user-cluster-avatar-mini" src="${esc(u.avatar || DEFAULT_AVATAR)}" alt="${esc(u.name)}">`).join('')}
+            </div>
+            <span>${group.length} 👥 ${esc(cityName)}</span>
+          </div>
+        `;
+
+        const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [100, 36], iconAnchor: [50, 18] });
+        const marker = L.marker([cLat, cLng], { icon });
+        marker.on('click', () => {
+          const points = group.map(u => [Number(u.lat), Number(u.lng)]);
+          if (points.length > 1) {
+            map.fitBounds(points, { padding: [70, 70], maxZoom: 14 });
+          } else {
+            map.flyTo([cLat, cLng], 14);
+          }
+        });
+        userLayer.addLayer(marker);
+      }
+    });
+    return;
+  }
+
+  // 2. Mid Zoom (10 <= zoom < 13): Compact Markers
+  // 3. High Zoom (zoom >= 13): Full Detailed Markers
+  const coordsUsage = {};
+  activeUsers.forEach(p => {
+    const pLat = Number(p.lat);
+    const pLng = Number(p.lng);
     const coordKey = `${pLat.toFixed(3)}_${pLng.toFixed(3)}`;
     coordsUsage[coordKey] = (coordsUsage[coordKey] || 0) + 1;
     const countAtPos = coordsUsage[coordKey];
@@ -1313,25 +1571,33 @@ function renderMarkers() {
       drawLng = pLng + (offsetDistance * Math.sin(angle));
     }
 
-    const iconHtml = `
-      <div class="user-marker">
-        <div class="pin-body">
+    let iconHtml, iconSize, iconAnchor;
+    if (zoom < 13) {
+      iconHtml = `
+        <div class="user-marker-compact">
           <img src="${esc(p.avatar || DEFAULT_AVATAR)}" alt="${esc(p.name)}">
           <i class="led ${online(p) ? 'online' : 'offline'}"></i>
         </div>
-        <div class="pin-stem"></div>
-        <div class="pin-name">${esc(p.name)}</div>
-      </div>
-    `;
+      `;
+      iconSize = [36, 36];
+      iconAnchor = [18, 18];
+    } else {
+      iconHtml = `
+        <div class="user-marker">
+          <div class="pin-body">
+            <img src="${esc(p.avatar || DEFAULT_AVATAR)}" alt="${esc(p.name)}">
+            <i class="led ${online(p) ? 'online' : 'offline'}"></i>
+          </div>
+          <div class="pin-stem"></div>
+          <div class="pin-name">${esc(p.name)}</div>
+        </div>
+      `;
+      iconSize = [44, 60];
+      iconAnchor = [22, 60];
+    }
 
-    const icon = L.divIcon({
-      className: '',
-      html: iconHtml,
-      iconSize: [44, 60],
-      iconAnchor: [22, 60]
-    });
-
-    const marker = L.marker([drawLat, drawLng], { icon: icon });
+    const icon = L.divIcon({ className: '', html: iconHtml, iconSize, iconAnchor });
+    const marker = L.marker([drawLat, drawLng], { icon });
     marker.on('click', () => {
       state.activePin = p;
       map.flyTo([drawLat, drawLng], 15);
@@ -1340,32 +1606,113 @@ function renderMarkers() {
 
     userLayer.addLayer(marker);
   });
-
-  $('peopleBadge').textContent = `${count} فرد`;
-  if ($('statNearby')) $('statNearby').textContent = count;
 }
 
-// Fit map to show all active users across Iran
-function fitAllUsers() {
-  if (!map) return;
-  const allPoints = [[state.coords.lat, state.coords.lng]];
-  state.pins.forEach(p => {
-    if (Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng))) {
-      allPoints.push([Number(p.lat), Number(p.lng)]);
+// ----------------------------------------------------
+// GPS & Manual Location Picking System
+// ----------------------------------------------------
+let locatePressTimer = null;
+let isLongPress = false;
+
+function setupLocateButton() {
+  const btn = $('locateBtn');
+  if (!btn) return;
+
+  const startPress = () => {
+    isLongPress = false;
+    clearTimeout(locatePressTimer);
+    locatePressTimer = setTimeout(() => {
+      isLongPress = true;
+      if (navigator.vibrate) try { navigator.vibrate(50); } catch {}
+      startManualLocationPick();
+    }, 500);
+  };
+
+  const endPress = () => {
+    clearTimeout(locatePressTimer);
+    if (!isLongPress && !state.isPickingLocation) {
+      locateMe();
     }
+  };
+
+  btn.addEventListener('mousedown', startPress);
+  btn.addEventListener('touchstart', startPress, { passive: true });
+  btn.addEventListener('mouseup', endPress);
+  btn.addEventListener('mouseleave', () => clearTimeout(locatePressTimer));
+  btn.addEventListener('touchend', endPress);
+}
+
+function startManualLocationPick() {
+  state.isPickingLocation = true;
+  $('manualLocationBar').classList.add('active');
+  toast('📍 حالت انتخاب دستی موقعیت فعال شد! نقطه مورد نظر را روی نقشه لمس کنید');
+
+  if (state.tempPickMarker && map) map.removeLayer(state.tempPickMarker);
+  state.tempCoords = { lat: state.coords.lat, lng: state.coords.lng };
+
+  const tempIcon = L.divIcon({
+    className: '',
+    html: '<div class="temp-pin"><i class="fa-solid fa-location-dot"></i></div>',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
   });
 
-  if (allPoints.length === 1) {
-    map.flyTo([state.coords.lat, state.coords.lng], 14);
-    return;
-  }
+  state.tempPickMarker = L.marker([state.coords.lat, state.coords.lng], {
+    icon: tempIcon,
+    draggable: true
+  }).addTo(map);
 
-  map.fitBounds(allPoints, { padding: [60, 60], maxZoom: 15 });
-  toast('نقشه برای نمایش تمام افراد فعال تنظیم شد 🗺️');
+  state.tempPickMarker.on('dragend', e => {
+    const pos = e.target.getLatLng();
+    state.tempCoords = { lat: pos.lat, lng: pos.lng };
+  });
+
+  map.on('click', onMapClickForManualPick);
 }
 
-function zoomIn() { if (map) map.zoomIn(); }
-function zoomOut() { if (map) map.zoomOut(); }
+function onMapClickForManualPick(e) {
+  if (!state.isPickingLocation) return;
+  state.tempCoords = { lat: e.latlng.lat, lng: e.latlng.lng };
+  if (state.tempPickMarker) {
+    state.tempPickMarker.setLatLng(e.latlng);
+  }
+}
+
+async function confirmManualLocation() {
+  if (!state.tempCoords) return;
+  state.coords = { ...state.tempCoords };
+  if (state.profile) {
+    state.profile.lat = state.coords.lat;
+    state.profile.lng = state.coords.lng;
+  }
+  if (state.user) {
+    state.user.lat = state.coords.lat;
+    state.user.lng = state.coords.lng;
+  }
+  const savedObj = state.profile || state.user;
+  if (savedObj) {
+    localStorage.setItem('geosocial_user', JSON.stringify(savedObj));
+    sessionStorage.setItem('geosocial_session_user', JSON.stringify(savedObj));
+  }
+
+  cancelManualLocation(false);
+  renderMyMarker();
+  drawRadiusCircle();
+  renderMarkers();
+  await syncUserToServer();
+  toast('موقعیت مکانی شما با موفقیت ذخیره و بروزرسانی شد ✅');
+}
+
+function cancelManualLocation(showToast = true) {
+  state.isPickingLocation = false;
+  $('manualLocationBar').classList.remove('active');
+  if (state.tempPickMarker && map) {
+    map.removeLayer(state.tempPickMarker);
+    state.tempPickMarker = null;
+  }
+  if (map) map.off('click', onMapClickForManualPick);
+  if (showToast) toast('انتخاب دستی موقعیت لغو شد');
+}
 
 function locateMe() {
   if (navigator.geolocation) {
@@ -2174,7 +2521,7 @@ function openChat() {
   state.activeConversation = state.activePin.id;
   $('sheetAvatar').src = state.activePin.avatar || DEFAULT_AVATAR;
   $('sheetName').textContent = state.activePin.name;
-  $('sheetStatus').textContent = online(state.activePin) ? 'آنلاین' : 'آفلاین';
+  $('sheetStatus').textContent = formatLastSeen(state.activePin.last_seen, online(state.activePin));
   $('sheet').classList.add('open');
   refreshActiveChat();
 }
@@ -2340,6 +2687,7 @@ function renderPeople(q = '') {
     const pLat = Number(p.lat) || state.coords.lat;
     const pLng = Number(p.lng) || state.coords.lng;
     const distanceKm = dist(state.coords.lat, state.coords.lng, pLat, pLng).toFixed(1);
+    const statusLabel = formatLastSeen(p.last_seen, online(p));
 
     const e = document.createElement('div');
     e.style.display = 'flex'; e.style.alignItems = 'center'; e.style.gap = '12px';
@@ -2348,7 +2696,7 @@ function renderPeople(q = '') {
       <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover">
       <div style="flex:1">
         <b>${esc(p.name)}</b>
-        <div style="font-size:11px;color:var(--muted)">${distanceKm} کیلومتر • ${esc(p.city || 'آنلاین')}</div>
+        <div style="font-size:11px;color:var(--muted)">${distanceKm} کیلومتر • ${esc(statusLabel)}</div>
       </div>
       <i class="fa-solid fa-location-dot" style="color:var(--blue)"></i>
     `;
@@ -2369,12 +2717,13 @@ function renderChats(q = '') {
   let count = 0;
   state.pins.forEach(p => {
     count++;
+    const statusLabel = formatLastSeen(p.last_seen, online(p));
     const e = document.createElement('div');
     e.style.display = 'flex'; e.style.alignItems = 'center'; e.style.gap = '12px';
     e.style.padding = '12px 16px'; e.style.borderBottom = '1px solid var(--border)'; e.style.cursor = 'pointer';
     e.innerHTML = `
       <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover">
-      <div style="flex:1"><b>${esc(p.name)}</b><div style="font-size:11px;color:var(--muted)">گفتگوی زنده دوطرفه</div></div>
+      <div style="flex:1"><b>${esc(p.name)}</b><div style="font-size:11px;color:var(--muted)">${esc(statusLabel)}</div></div>
       <i class="fa-solid fa-chevron-left" style="font-size:11px;color:var(--muted)"></i>
     `;
     e.onclick = () => { closeModals(); state.activePin = p; openChat(); };
@@ -2389,9 +2738,10 @@ function openPersonCard(p) {
   const pLng = Number(p.lng) || state.coords.lng;
   $('pcAvatar').src = p.avatar || DEFAULT_AVATAR;
   $('pcName').textContent = p.name;
-  $('pcCaption').textContent = p.phone ? `📱 ${p.phone}` : (p.username ? `@${p.username}` : 'کاربر GeoSocial');
+  const statusLabel = formatLastSeen(p.last_seen, online(p));
+  $('pcCaption').textContent = `${statusLabel} • ${esc(p.city || 'ایران')}`;
   $('pcBio').textContent = p.bio || 'اطلاعاتی ثبت نشده';
-  $('pcDistance').textContent = `${dist(state.coords.lat, state.coords.lng, pLat, pLng).toFixed(1)} کیلومتر فاصله (${esc(p.city || 'ایران')})`;
+  $('pcDistance').textContent = `${dist(state.coords.lat, state.coords.lng, pLat, pLng).toFixed(1)} کیلومتر فاصله`;
   $('personCard').classList.add('open');
 }
 function closePersonCard() { $('personCard').classList.remove('open'); }
@@ -2405,7 +2755,7 @@ function openOtherProfile() {
   $('otherName').textContent = p.name;
   $('otherBio').textContent = p.bio || 'اطلاعاتی ثبت نشده';
   $('otherDistance').textContent = `${dist(state.coords.lat, state.coords.lng, pLat, pLng).toFixed(1)} کیلومتر (${esc(p.city || 'ایران')})`;
-  $('otherStatus').textContent = online(p) ? 'آنلاین' : 'آفلاین';
+  $('otherStatus').textContent = formatLastSeen(p.last_seen, online(p));
   closePersonCard();
   $('otherModal').classList.add('open');
 }
@@ -2476,6 +2826,7 @@ function initRealtimeStream() {
       const msg = JSON.parse(e.data);
       if (!state.public.some(x => x.id === msg.id)) {
         state.public.push(msg);
+        if (state.public.length > 50) state.public = state.public.slice(-50);
         renderPublic();
         if (msg.sender_id !== state.user?.id) playBeep('receive');
       }
@@ -2613,10 +2964,12 @@ async function checkTelegramMiniApp() {
 async function init() {
   initMap();
   initCloudSync();
-  $('locateBtn').addEventListener('click', () => locateMe());
   applyTheme(state.theme);
   $('radius').value = state.radius;
   $('radiusValue').textContent = state.radius >= 500 ? 'سراسری' : `${state.radius} km`;
+
+  // Attach typing event listener
+  $('msgInput')?.addEventListener('input', onMsgInputTyping);
 
   // 1. Check if opened inside Telegram WebApp
   const isTgMiniApp = await checkTelegramMiniApp();
