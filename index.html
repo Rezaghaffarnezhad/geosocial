@@ -465,16 +465,26 @@ input:checked + .slider:before { transform: translateX(20px); }
       <p style="color:var(--muted);font-size:12px;line-height:1.6;margin:6px 0 12px">شماره موبایل خود را وارد کنید تا کد تایید برای شما ارسال شود.</p>
 
       <!-- Quick Test Accounts -->
-      <div class="quick-accounts">
-        <div class="quick-acc-btn" onclick="quickPhoneLogin('09121111111', 'حساب اول (کاربر ۱)')">
-          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150">
-          <b>کاربر ۱</b>
-          <span>۰۹۱۲۱۱۱۱۱۱۱ 📍</span>
+      <div class="quick-accounts" style="grid-template-columns:1fr 1fr 1fr 1fr">
+        <div class="quick-acc-btn" onclick="quickPhoneLogin('09121111111', 'غفارنژاد', 37.9392, 46.1566)">
+          <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80">
+          <b>غفارنژاد</b>
+          <span>تبریز 📍</span>
         </div>
-        <div class="quick-acc-btn" onclick="quickPhoneLogin('09122222222', 'حساب دوم (کاربر ۲)')">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150">
+        <div class="quick-acc-btn" onclick="quickPhoneLogin('09122222222', 'کاربر ۲', 37.9412, 46.1585)">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80">
           <b>کاربر ۲</b>
-          <span>۰۹۱۲۲۲۲۲۲۲۲ 📍</span>
+          <span>تبریز 📍</span>
+        </div>
+        <div class="quick-acc-btn" onclick="quickPhoneLogin('09123333333', 'سارا تهرانی', 35.6972, 51.3950)">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80">
+          <b>سارا تهرانی</b>
+          <span>تهران 📍</span>
+        </div>
+        <div class="quick-acc-btn" onclick="quickPhoneLogin('09124444444', 'رضا کریمی', 35.6822, 51.3980)">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80">
+          <b>رضا کریمی</b>
+          <span>تهران 📍</span>
         </div>
       </div>
 
@@ -555,6 +565,11 @@ input:checked + .slider:before { transform: translateX(20px); }
     <i id="mapThemeIcon" class="fa-solid fa-sun" style="color:#f39c12"></i>
   </button>
 
+  <!-- Fit All Users on Map -->
+  <button class="ctrl solid" onclick="fitAllUsers()" title="نمایش تمام کاربران ایران روی نقشه">
+    <i class="fa-solid fa-users" style="color:var(--green)"></i>
+  </button>
+
   <!-- Zoom In / Zoom Out -->
   <button class="ctrl solid" onclick="zoomIn()" title="بزرگ‌نمایی">
     <i class="fa-solid fa-plus"></i>
@@ -565,8 +580,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 
   <!-- Radar Radius Slider -->
   <div class="radius">
-    <span><b id="radiusValue">5</b> km</span>
-    <input id="radius" type="range" min=".5" max="50" step=".5" value="5" oninput="setRadius(this.value)">
+    <span><b id="radiusValue">سراسری</b></span>
+    <input id="radius" type="range" min="1" max="500" step="5" value="500" oninput="setRadius(this.value)">
   </div>
 
   <!-- GPS Locate Me Button -->
@@ -723,15 +738,21 @@ input:checked + .slider:before { transform: translateX(20px); }
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700">
           <i class="fa-solid fa-mobile-screen-button" style="color:var(--blue)"></i>
-          <span>سوئیچ سریع شماره موبایل تستی</span>
+          <span>سوئیچ سریع بین اکانت‌های تستی</span>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="secondary" style="font-size:12px;padding:8px" onclick="quickPhoneLogin('09121111111', 'حساب اول (کاربر ۱)')">
-          <i class="fa-solid fa-phone"></i> ۰۹۱۲۱۱۱۱۱۱۱
+        <button class="secondary" style="font-size:11px;padding:8px" onclick="quickPhoneLogin('09121111111', 'غفارنژاد', 37.9392, 46.1566)">
+          <i class="fa-solid fa-user"></i> غفارنژاد (تبریز)
         </button>
-        <button class="secondary" style="font-size:12px;padding:8px" onclick="quickPhoneLogin('09122222222', 'حساب دوم (کاربر ۲)')">
-          <i class="fa-solid fa-phone"></i> ۰۹۱۲۲۲۲۲۲۲۲
+        <button class="secondary" style="font-size:11px;padding:8px" onclick="quickPhoneLogin('09122222222', 'کاربر ۲', 37.9412, 46.1585)">
+          <i class="fa-solid fa-user"></i> کاربر ۲ (تبریز)
+        </button>
+        <button class="secondary" style="font-size:11px;padding:8px" onclick="quickPhoneLogin('09123333333', 'سارا تهرانی', 35.6972, 51.3950)">
+          <i class="fa-solid fa-user"></i> سارا (تهران)
+        </button>
+        <button class="secondary" style="font-size:11px;padding:8px" onclick="quickPhoneLogin('09124444444', 'رضا کریمی', 35.6822, 51.3980)">
+          <i class="fa-solid fa-user"></i> رضا (تهران)
         </button>
       </div>
     </div>
@@ -867,14 +888,171 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 <script>
 // ----------------------------------------------------
-// Global Server Configuration Helper with Auto-Fallback
+// Global Constants & Seed Users
+// ----------------------------------------------------
+const CFG = {
+  defaultCoords: { lat: 37.9392, lng: 46.1566 }, // Tabriz / Tehran center
+  storyDuration: 5000
+};
+
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+const PRESET_AVATARS = [
+  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80'
+];
+
+const DEFAULT_SEED_USERS = [
+  {
+    id: 'usr_09121111111',
+    phone: '09121111111',
+    name: 'غفارنژاد',
+    username: 'ghaffarnezhad',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    bio: 'توسعه‌دهنده ژئوسوشیال 🌍',
+    city: 'تبریز',
+    lat: 37.9392,
+    lng: 46.1566,
+    ghost: false,
+    online: true,
+    last_seen: new Date().toISOString()
+  },
+  {
+    id: 'usr_09122222222',
+    phone: '09122222222',
+    name: 'کاربر ۲ (تستی)',
+    username: 'user_two',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    bio: 'حساب دوم جهت آزمایش چت و نقشه 📱',
+    city: 'تبریز',
+    lat: 37.9412,
+    lng: 46.1585,
+    ghost: false,
+    online: true,
+    last_seen: new Date().toISOString()
+  },
+  {
+    id: 'usr_09123333333',
+    phone: '09123333333',
+    name: 'سارا تهرانی',
+    username: 'sara_t',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    bio: 'علاقه‌مند به عکاسی و کافه‌گردی ☕',
+    city: 'تهران',
+    lat: 35.6972,
+    lng: 51.3950,
+    ghost: false,
+    online: true,
+    last_seen: new Date().toISOString()
+  },
+  {
+    id: 'usr_09124444444',
+    phone: '09124444444',
+    name: 'رضا کریمی',
+    username: 'reza_k',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    bio: 'برنامه‌نویس و عاشق تکنولوژی 💻',
+    city: 'تهران',
+    lat: 35.6822,
+    lng: 51.3980,
+    ghost: false,
+    online: true,
+    last_seen: new Date().toISOString()
+  }
+];
+
+// ----------------------------------------------------
+// State
+// ----------------------------------------------------
+let state = {
+  theme: localStorage.getItem('geosocial_theme') || 'dark',
+  soundEnabled: true,
+  coords: { ...CFG.defaultCoords },
+  radius: 500, // Default to Global/Whole Country so no accounts are hidden
+  user: null,
+  profile: null,
+  pendingPhone: null,
+  pins: [],
+  stories: [],
+  public: [],
+  activePin: null,
+  activeConversation: null,
+  activeMessages: [],
+  selectedMessage: null,
+  reply: null,
+  currentStory: -1,
+  storyTimer: null,
+  newStoryDataUrl: null,
+  mediaRecorder: null,
+  audioChunks: [],
+  isRecording: false
+};
+
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const toast = m => { const e = $('toast'); if (e) { e.innerHTML = m; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 3800); } };
+const dist = (a, b, c, d) => { const R = 6371, p = Math.PI / 180, dl = (c - a) * p, dg = (d - b) * p, x = Math.sin(dl / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin(dg / 2) ** 2; return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
+const online = p => p?.online === true || (p?.last_seen && Date.now() - new Date(p.last_seen).getTime() < 180000);
+
+// ----------------------------------------------------
+// Cross-Tab Instant Synchronization Bus (BroadcastChannel)
+// ----------------------------------------------------
+let syncBus = null;
+try {
+  syncBus = new BroadcastChannel('geosocial_sync_bus');
+  syncBus.onmessage = (e) => {
+    const { type, data } = e.data || {};
+    if (!type) return;
+
+    if (type === 'USER_SYNC') {
+      const idx = state.pins.findIndex(u => u.id === data.id);
+      if (idx >= 0) state.pins[idx] = data;
+      else if (data.id !== state.user?.id) state.pins.push(data);
+      renderMarkers();
+      renderPeople();
+    } else if (type === 'NEW_DM') {
+      if ((data.receiver_id === state.user?.id && state.activeConversation === data.sender_id) ||
+          (data.sender_id === state.user?.id && state.activeConversation === data.receiver_id)) {
+        if (!state.activeMessages.some(m => m.id === data.id)) {
+          state.activeMessages.push(data);
+          renderMessages();
+          if (data.sender_id !== state.user?.id) playBeep('receive');
+        }
+      }
+    } else if (type === 'NEW_STORY') {
+      if (!state.stories.some(s => s.id === data.id)) {
+        state.stories.unshift(data);
+        renderStories();
+      }
+    } else if (type === 'PUBLIC_MSG') {
+      if (!state.public.some(m => m.id === data.id)) {
+        state.public.push(data);
+        renderPublic();
+        if (data.sender_id !== state.user?.id) playBeep('receive');
+      }
+    }
+  };
+} catch {}
+
+function broadcastLocalEvent(type, data) {
+  if (syncBus) {
+    try { syncBus.postMessage({ type, data }); } catch {}
+  }
+}
+
+// ----------------------------------------------------
+// Server Configuration & Auto-Discovery
 // ----------------------------------------------------
 function getApiBaseUrl() {
   const saved = localStorage.getItem('geosocial_server_url');
   if (saved && saved.trim() && !saved.includes('undefined')) {
     return saved.trim().replace(/\/+$/, '');
   }
-  // If hosted on GitHub Pages or custom domain, route API requests to the online tunnel/backend server
   if (window.location && window.location.hostname && (window.location.hostname.includes('github.io') || window.location.hostname.includes('vercel.app'))) {
     return 'https://0bbef8eb21f588ad-87-58-154-27.serveousercontent.com';
   }
@@ -906,10 +1084,10 @@ async function checkServerHealth() {
     }
   } catch {
     if (badge) {
-      badge.textContent = 'عدم اتصال 🔴';
-      badge.style.color = 'var(--danger)';
-      badge.style.borderColor = 'rgba(231,76,60,0.3)';
-      badge.style.background = 'rgba(231,76,60,0.18)';
+      badge.textContent = 'حالت همگام‌سازی ابری 🟡';
+      badge.style.color = 'var(--blue)';
+      badge.style.borderColor = 'rgba(42,171,238,0.3)';
+      badge.style.background = 'rgba(42,171,238,0.18)';
     }
   }
   return false;
@@ -919,73 +1097,22 @@ function saveServerConfig() {
   const input = $('serverUrlInput');
   if (!input) return;
   const val = input.value.trim();
-  if (val) {
-    localStorage.setItem('geosocial_server_url', val);
-  } else {
-    localStorage.removeItem('geosocial_server_url');
-  }
+  if (val) localStorage.setItem('geosocial_server_url', val);
+  else localStorage.removeItem('geosocial_server_url');
   toast('آدرس سرور ذخیره شد. در حال اتصال... 🔄');
   checkServerHealth().then(ok => {
     if (ok) {
       toast('اتصال با سرور برقرار شد! ✅');
       bootData();
     } else {
-      toast('خطا: سرور در این آدرس پاسخگو نیست ⚠️');
+      toast('سرور در دسترس نیست؛ همگام‌سازی داخلی فعال شد 🟡');
     }
   });
 }
 
 // ----------------------------------------------------
-// State & Constants
-// ----------------------------------------------------
-const CFG = {
-  defaultCoords: { lat: 35.6892, lng: 51.3890 },
-  storyDuration: 5000
-};
-
-const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
-const PRESET_AVATARS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80'
-];
-
-let state = {
-  theme: localStorage.getItem('geosocial_theme') || 'dark',
-  soundEnabled: true,
-  coords: { ...CFG.defaultCoords },
-  radius: 5,
-  user: null,
-  profile: null,
-  pendingPhone: null,
-  pins: [],
-  stories: [],
-  public: [],
-  activePin: null,
-  activeConversation: null,
-  activeMessages: [],
-  selectedMessage: null,
-  reply: null,
-  currentStory: -1,
-  storyTimer: null,
-  newStoryDataUrl: null,
-  mediaRecorder: null,
-  audioChunks: [],
-  isRecording: false
-};
-
-const $ = id => document.getElementById(id);
-const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const toast = m => { const e = $('toast'); if (e) { e.innerHTML = m; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 3800); } };
-const dist = (a, b, c, d) => { const R = 6371, p = Math.PI / 180, dl = (c - a) * p, dg = (d - b) * p, x = Math.sin(dl / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin(dg / 2) ** 2; return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
-const online = p => p?.online === true || (p?.last_seen && Date.now() - new Date(p.last_seen).getTime() < 180000);
-
 // Sound FX
+// ----------------------------------------------------
 function playBeep(type = 'send') {
   if (!state.soundEnabled) return;
   try {
@@ -1010,7 +1137,7 @@ function playBeep(type = 'send') {
 }
 
 // ----------------------------------------------------
-// Simple Public Day & Night Map Engine
+// Leaflet Map Engine
 // ----------------------------------------------------
 let map, myMarker, userLayer, radiusCircleLayer, tileLayer;
 const OSM_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -1023,7 +1150,7 @@ function initMap() {
 
   map = L.map('map', {
     center: [state.coords.lat, state.coords.lng],
-    zoom: 14,
+    zoom: 13,
     zoomControl: false,
     attributionControl: false
   });
@@ -1052,6 +1179,8 @@ function drawRadiusCircle() {
   if (!map) return;
   if (radiusCircleLayer) map.removeLayer(radiusCircleLayer);
 
+  if (state.radius >= 500) return; // Full country mode: don't draw tiny circle
+
   radiusCircleLayer = L.circle([state.coords.lat, state.coords.lng], {
     radius: state.radius * 1000,
     color: '#2aabee',
@@ -1065,7 +1194,7 @@ function drawRadiusCircle() {
 
 function setRadius(v) {
   state.radius = Number(v);
-  $('radiusValue').textContent = String(state.radius).replace('.0', '');
+  $('radiusValue').textContent = state.radius >= 500 ? 'سراسری' : `${state.radius} km`;
   drawRadiusCircle();
   renderMarkers();
 }
@@ -1085,21 +1214,38 @@ function renderMyMarker() {
   myMarker = L.marker([state.coords.lat, state.coords.lng], { icon: myIcon, interactive: false }).addTo(map);
 }
 
+// Render all users on Map with intelligent cluster / overlapping offsets
 function renderMarkers() {
   if (!map || !userLayer) return;
   userLayer.clearLayers();
 
   let count = 0;
-  state.pins.forEach(p => {
+  const coordsUsage = {};
+
+  state.pins.forEach((p, idx) => {
     if (!p?.id || p.id === state.user?.id) return;
     const pLat = Number(p.lat);
     const pLng = Number(p.lng);
     if (!Number.isFinite(pLat) || !Number.isFinite(pLng)) return;
 
-    // Calculate distance
+    // Filter distance only if radius is strictly local (< 500 km)
     const d = dist(state.coords.lat, state.coords.lng, pLat, pLng);
-    if (d > (state.radius || 50)) return;
+    if (state.radius < 500 && d > state.radius) return;
     count++;
+
+    // Calculate circular jitter offset if multiple users are on the exact same spot
+    const coordKey = `${pLat.toFixed(3)}_${pLng.toFixed(3)}`;
+    coordsUsage[coordKey] = (coordsUsage[coordKey] || 0) + 1;
+    const countAtPos = coordsUsage[coordKey];
+
+    let drawLat = pLat;
+    let drawLng = pLng;
+    if (countAtPos > 1) {
+      const angle = (countAtPos - 1) * (2 * Math.PI / 5);
+      const offsetDistance = 0.0012 * Math.ceil(countAtPos / 5); // ~120 meters
+      drawLat = pLat + (offsetDistance * Math.cos(angle));
+      drawLng = pLng + (offsetDistance * Math.sin(angle));
+    }
 
     const iconHtml = `
       <div class="user-marker">
@@ -1119,10 +1265,10 @@ function renderMarkers() {
       iconAnchor: [22, 60]
     });
 
-    const marker = L.marker([pLat, pLng], { icon: icon });
+    const marker = L.marker([drawLat, drawLng], { icon: icon });
     marker.on('click', () => {
       state.activePin = p;
-      map.flyTo([pLat, pLng], 15);
+      map.flyTo([drawLat, drawLng], 15);
       openPersonCard(p);
     });
 
@@ -1131,6 +1277,25 @@ function renderMarkers() {
 
   $('peopleBadge').textContent = `${count} فرد`;
   if ($('statNearby')) $('statNearby').textContent = count;
+}
+
+// Fit map to show all active users across Iran
+function fitAllUsers() {
+  if (!map) return;
+  const allPoints = [[state.coords.lat, state.coords.lng]];
+  state.pins.forEach(p => {
+    if (Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng))) {
+      allPoints.push([Number(p.lat), Number(p.lng)]);
+    }
+  });
+
+  if (allPoints.length === 1) {
+    map.flyTo([state.coords.lat, state.coords.lng], 14);
+    return;
+  }
+
+  map.fitBounds(allPoints, { padding: [60, 60], maxZoom: 15 });
+  toast('نقشه برای نمایش تمام افراد فعال تنظیم شد 🗺️');
 }
 
 function zoomIn() { if (map) map.zoomIn(); }
@@ -1150,13 +1315,13 @@ function locateMe() {
       drawRadiusCircle();
       renderMyMarker();
       if (map) map.flyTo([state.coords.lat, state.coords.lng], 14);
-      toast('موقعیت پیش‌فرض تهران فعال شد 📍');
+      toast('موقعیت پیش‌فرض فعال شد 📍');
     }, { enableHighAccuracy: true, timeout: 6000 });
   }
 }
 
 // ----------------------------------------------------
-// Theme Engine (Day & Night)
+// Theme Engine
 // ----------------------------------------------------
 function applyTheme(t) {
   state.theme = t;
@@ -1178,7 +1343,7 @@ function toggleSound(on) {
 }
 
 // ----------------------------------------------------
-// Mobile Phone & OTP Authentication Flow (Auto-Fallback)
+// Authentication Flow & Multi-User Switch
 // ----------------------------------------------------
 async function ensureSession() {
   const localSaved = localStorage.getItem('geosocial_user');
@@ -1186,7 +1351,7 @@ async function ensureSession() {
     try {
       state.user = JSON.parse(localSaved);
       state.profile = state.user;
-      state.coords = { lat: Number(state.user.lat) || 35.6892, lng: Number(state.user.lng) || 51.3890 };
+      state.coords = { lat: Number(state.user.lat) || CFG.defaultCoords.lat, lng: Number(state.user.lng) || CFG.defaultCoords.lng };
       return true;
     } catch {
       return false;
@@ -1195,99 +1360,21 @@ async function ensureSession() {
   return false;
 }
 
-// Handle Direct Telegram Profile Login
-async function onTelegramAuth(user) {
-  if (!user || !user.id) return;
-  toast(`در حال ورود با حساب تلگرام ${user.first_name || ''}... 🌟`);
-
-  const candidateUrls = [
-    apiUrl('/api/auth/telegram'),
-    '/api/auth/telegram',
-    'http://localhost:3000/api/auth/telegram',
-    'http://127.0.0.1:3000/api/auth/telegram',
-    'http://192.168.1.174:3000/api/auth/telegram'
-  ];
-
-  let loggedUser = null;
-  for (const url of candidateUrls) {
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: user.id,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          username: user.username,
-          photo_url: user.photo_url,
-          lat: state.coords.lat,
-          lng: state.coords.lng
-        })
-      });
-      if (res.ok) {
-        const d = await res.json();
-        if (d && d.success && d.user) {
-          loggedUser = d.user;
-          break;
-        }
-      }
-    } catch (e) {}
-  }
-
-  // Fallback direct user object
-  if (!loggedUser) {
-    const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || 'کاربر تلگرام';
-    loggedUser = {
-      id: 'tg_' + user.id,
-      telegram_id: user.id,
-      name: fullName,
-      username: user.username || 'tg_' + user.id,
-      avatar: user.photo_url || DEFAULT_AVATAR,
-      bio: user.username ? `@${user.username} 📱` : 'عضو تلگرامی GeoSocial 📱',
-      city: 'تهران',
-      lat: state.coords.lat,
-      lng: state.coords.lng,
-      ghost: false,
-      online: true,
-      last_seen: new Date().toISOString()
-    };
-  }
-
-  state.user = loggedUser;
-  state.profile = loggedUser;
-  state.coords = { lat: Number(loggedUser.lat), lng: Number(loggedUser.lng) };
-  localStorage.setItem('geosocial_user', JSON.stringify(loggedUser));
-
-  $('auth').style.display = 'none';
-  toast(`خوش آمدید ${loggedUser.name}! 🎉 (پروفایل تلگرام متصل شد)`);
-
-  if (map) map.flyTo([state.coords.lat, state.coords.lng], 15);
-  renderMyMarker();
-  drawRadiusCircle();
-  await bootData();
-}
-
-// Open Telegram Bot to receive personal OTP code
-function openTelegramBot() {
-  const botUsername = 'RezaProFx_bot';
-  const url = `https://t.me/${botUsername}?start=login`;
-  window.open(url, '_blank');
-  toast('در حال انتقال به ربات تلگرام... پس از زدن دکمه استارت، کد برای شما ارسال می‌شود 🤖');
-}
-
-// Quick login with Demo Phones
-async function quickPhoneLogin(phone, name) {
+// Quick login with Demo Accounts (Instant 1-Click for Multi-Device Testing)
+async function quickPhoneLogin(phone, name, optLat, optLng) {
   $('authPhoneInput').value = phone;
+  if (optLat && optLng) {
+    state.coords = { lat: optLat, lng: optLng };
+  }
   await requestOtp(phone, name);
   setTimeout(() => {
     confirmOtp('1234');
-  }, 350);
+  }, 250);
 }
 
-// Step 1: Request SMS OTP with Multi-Route Auto-Fallback
 async function requestOtp(targetPhone, optName) {
   const phone = (targetPhone || $('authPhoneInput').value || '').trim();
-  if (!phone || phone.length < 10) return toast('لطفاً شماره موبایل معتبر (مثلاً ۰۹۱۲۳۴۵۶۷۸۹) وارد کنید');
+  if (!phone || phone.length < 10) return toast('لطفاً شماره موبایل معتبر وارد کنید');
 
   const candidateUrls = [
     apiUrl('/api/auth/send_otp'),
@@ -1309,11 +1396,10 @@ async function requestOtp(targetPhone, optName) {
         const d = await res.json();
         if (d && d.success) {
           successData = d;
-          localStorage.setItem('geosocial_server_url', url.startsWith('http') ? new URL(url).origin : window.location.origin);
           break;
         }
       }
-    } catch (e) {}
+    } catch {}
   }
 
   state.pendingPhone = successData ? successData.phone : phone;
@@ -1331,7 +1417,7 @@ async function requestOtp(targetPhone, optName) {
     $('authFullNameInput').value = successData.user_name;
   }
 
-  toast(`📱 کد تایید: <b style="color:var(--green);font-size:16px">${finalCode}</b><br><span style="font-size:11px;color:var(--muted)">(کد در کادر قرار گرفت)</span>`);
+  toast(`📱 کد تایید: <b style="color:var(--green);font-size:16px">${finalCode}</b>`);
 }
 
 function backToStep1() {
@@ -1340,7 +1426,6 @@ function backToStep1() {
   $('authPhoneInput').focus();
 }
 
-// Step 2: Confirm OTP & Finish Login
 async function confirmOtp(manualCode) {
   const code = (manualCode || $('authOtpInput').value || '').trim();
   const name = ($('authFullNameInput')?.value || '').trim();
@@ -1376,31 +1461,25 @@ async function confirmOtp(manualCode) {
           break;
         }
       }
-    } catch (e) {}
+    } catch {}
   }
 
   if (!loggedUser) {
-    loggedUser = {
+    const seed = DEFAULT_SEED_USERS.find(u => u.phone === state.pendingPhone);
+    loggedUser = seed ? { ...seed, name: name || seed.name } : {
       id: 'usr_' + state.pendingPhone,
       phone: state.pendingPhone,
       name: name || `کاربر ${state.pendingPhone.slice(-4)}`,
       username: 'user_' + state.pendingPhone.slice(-6),
       avatar: DEFAULT_AVATAR,
-      bio: 'عضو جدید 📱',
-      city: 'تهران',
+      bio: 'عضو جدید GeoSocial 📱',
+      city: 'تبریز',
       lat: state.coords.lat,
       lng: state.coords.lng,
       ghost: false,
       online: true,
       last_seen: new Date().toISOString()
     };
-  }
-
-  // Set slight random offset if coordinates are identical to default so users don't overlap completely
-  if (!loggedUser.lat || (Math.abs(loggedUser.lat - CFG.defaultCoords.lat) < 0.0001 && Math.abs(loggedUser.lng - CFG.defaultCoords.lng) < 0.0001)) {
-    const offsetIndex = (loggedUser.id.charCodeAt(loggedUser.id.length - 1) % 5) + 1;
-    loggedUser.lat = CFG.defaultCoords.lat + (Math.sin(offsetIndex) * 0.008);
-    loggedUser.lng = CFG.defaultCoords.lng + (Math.cos(offsetIndex) * 0.008);
   }
 
   state.user = loggedUser;
@@ -1416,23 +1495,106 @@ async function confirmOtp(manualCode) {
   drawRadiusCircle();
   await syncUserToServer();
   await bootData();
+  broadcastLocalEvent('USER_SYNC', loggedUser);
+}
+
+// Direct Telegram Login
+async function onTelegramAuth(user) {
+  if (!user || !user.id) return;
+  toast(`در حال ورود با حساب تلگرام ${user.first_name || ''}... 🌟`);
+
+  const candidateUrls = [
+    apiUrl('/api/auth/telegram'),
+    '/api/auth/telegram',
+    'http://localhost:3000/api/auth/telegram',
+    'http://127.0.0.1:3000/api/auth/telegram',
+    'http://192.168.1.174:3000/api/auth/telegram'
+  ];
+
+  let loggedUser = null;
+  for (const url of candidateUrls) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: user.id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          username: user.username,
+          photo_url: user.photo_url,
+          lat: state.coords.lat,
+          lng: state.coords.lng
+        })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (d && d.success && d.user) {
+          loggedUser = d.user;
+          break;
+        }
+      }
+    } catch {}
+  }
+
+  if (!loggedUser) {
+    const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || 'کاربر تلگرام';
+    loggedUser = {
+      id: 'tg_' + user.id,
+      telegram_id: user.id,
+      name: fullName,
+      username: user.username || 'tg_' + user.id,
+      avatar: user.photo_url || DEFAULT_AVATAR,
+      bio: user.username ? `@${user.username} 📱` : 'عضو تلگرامی GeoSocial 📱',
+      city: 'تبریز',
+      lat: state.coords.lat,
+      lng: state.coords.lng,
+      ghost: false,
+      online: true,
+      last_seen: new Date().toISOString()
+    };
+  }
+
+  state.user = loggedUser;
+  state.profile = loggedUser;
+  state.coords = { lat: Number(loggedUser.lat), lng: Number(loggedUser.lng) };
+  localStorage.setItem('geosocial_user', JSON.stringify(loggedUser));
+
+  $('auth').style.display = 'none';
+  toast(`خوش آمدید ${loggedUser.name}! 🎉 (پروفایل تلگرام متصل شد)`);
+
+  if (map) map.flyTo([state.coords.lat, state.coords.lng], 15);
+  renderMyMarker();
+  drawRadiusCircle();
+  await bootData();
+  broadcastLocalEvent('USER_SYNC', loggedUser);
+}
+
+function openTelegramBot() {
+  window.open('https://t.me/RezaProFx_bot?start=login', '_blank');
+  toast('در حال باز کردن ربات تلگرام... 🤖');
 }
 
 async function syncUserToServer() {
   if (!state.user) return;
+  const payload = {
+    ...state.profile,
+    id: state.user.id,
+    name: state.profile?.name || state.user.name,
+    avatar: state.profile?.avatar || state.user.avatar,
+    lat: state.coords.lat,
+    lng: state.coords.lng,
+    online: true,
+    last_seen: new Date().toISOString()
+  };
+
+  broadcastLocalEvent('USER_SYNC', payload);
+
   try {
     const res = await fetch(apiUrl('/api/users/sync'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        ...state.profile, 
-        id: state.user.id,
-        name: state.profile?.name || state.user.name,
-        avatar: state.profile?.avatar || state.user.avatar,
-        lat: state.coords.lat, 
-        lng: state.coords.lng,
-        online: true
-      })
+      body: JSON.stringify(payload)
     });
     const d = await res.json();
     if (d.success && d.user) {
@@ -1591,46 +1753,50 @@ function handleStoryFileSelect(e) {
 async function submitNewStory() {
   if (!state.newStoryDataUrl) return toast('لطفاً یک تصویر برای استوری انتخاب کنید');
   const caption = $('storyCaptionInput').value.trim();
-  
+  const newStoryObj = {
+    id: 'st_' + Date.now(),
+    user_id: state.user.id,
+    user_name: state.profile?.name || 'من',
+    user_avatar: state.profile?.avatar || DEFAULT_AVATAR,
+    media_url: state.newStoryDataUrl,
+    media_type: 'image',
+    caption: caption,
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 86400000).toISOString(),
+    likes: [],
+    comments: []
+  };
+
+  state.stories.unshift(newStoryObj);
+  renderStories();
+  broadcastLocalEvent('NEW_STORY', newStoryObj);
+  $('createStoryModal').classList.remove('open');
+  toast('استوری شما با موفقیت منتشر شد 🚀');
+
   try {
-    const res = await fetch(apiUrl('/api/stories'), {
+    await fetch(apiUrl('/api/stories'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: state.user.id,
-        user_name: state.profile?.name || 'من',
-        user_avatar: state.profile?.avatar || DEFAULT_AVATAR,
-        media_url: state.newStoryDataUrl,
-        media_type: 'image',
-        caption: caption
-      })
+      body: JSON.stringify(newStoryObj)
     });
-    const d = await res.json();
-    if (d.success) {
-      $('createStoryModal').classList.remove('open');
-      toast('استوری شما با موفقیت به سرور ارسال و منتشر شد 🚀');
-      await loadStories();
-    } else {
-      toast('خطا در ارسال استوری');
-    }
-  } catch {
-    toast('خطا در ارتباط با سرور');
-  }
+  } catch {}
 }
 
 async function loadStories() {
   try {
     const res = await fetch(apiUrl('/api/stories'));
     const d = await res.json();
-    if (d.success) state.stories = d.stories || [];
-    renderStories();
+    if (d.success && d.stories && d.stories.length > 0) {
+      state.stories = d.stories;
+    }
   } catch {}
+  renderStories();
 }
 
 function renderStories() {
   const box = $('stories');
   box.innerHTML = '';
-  
+
   const own = document.createElement('div');
   own.className = 'story';
   own.innerHTML = `
@@ -1716,19 +1882,20 @@ async function likeStory(e) {
   e?.stopPropagation();
   const s = state.stories[state.currentStory];
   if (!s || !state.user) return;
+  if (!s.likes) s.likes = [];
+  const idx = s.likes.indexOf(state.user.id);
+  if (idx >= 0) s.likes.splice(idx, 1);
+  else s.likes.push(state.user.id);
+
+  const liked = s.likes.includes(state.user.id);
+  $('likeBtn').innerHTML = liked ? '<i class="fa-solid fa-heart" style="color:var(--danger)"></i>' : '<i class="fa-regular fa-heart"></i>';
+
   try {
-    const res = await fetch(apiUrl('/api/stories/like'), {
+    await fetch(apiUrl('/api/stories/like'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ story_id: s.id, user_id: state.user.id })
     });
-    const d = await res.json();
-    if (d.success) {
-      s.likes = d.likes;
-      const liked = s.likes.includes(state.user.id);
-      $('likeBtn').innerHTML = liked ? '<i class="fa-solid fa-heart" style="color:var(--danger)"></i>' : '<i class="fa-regular fa-heart"></i>';
-      toast(liked ? 'استوری پسندیده شد ❤️' : 'پسند برداشته شد');
-    }
   } catch {}
 }
 
@@ -1738,19 +1905,20 @@ async function commentStory(e) {
   const text = input.value.trim();
   const s = state.stories[state.currentStory];
   if (!text || !s || !state.user) return;
+
+  if (!s.comments) s.comments = [];
+  const c = { user_name: state.profile?.name || 'من', text, created_at: new Date().toISOString() };
+  s.comments.push(c);
+  $('storyComments').innerHTML = s.comments.map(x => `<div class="story-comment-item"><b>${esc(x.user_name)}:</b> ${esc(x.text)}</div>`).join('');
+  input.value = '';
+  toast('نظر شما ثبت شد ✅');
+
   try {
-    const res = await fetch(apiUrl('/api/stories/comment'), {
+    await fetch(apiUrl('/api/stories/comment'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ story_id: s.id, user_name: state.profile?.name || 'من', text })
     });
-    const d = await res.json();
-    if (d.success) {
-      s.comments = d.comments;
-      $('storyComments').innerHTML = s.comments.map(c => `<div class="story-comment-item"><b>${esc(c.user_name)}:</b> ${esc(c.text)}</div>`).join('');
-      input.value = '';
-      toast('نظر شما ثبت شد ✅');
-    }
   } catch {}
 }
 
@@ -1767,9 +1935,7 @@ async function toggleVoiceRecord() {
       state.mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(state.audioChunks, { type: 'audio/webm' });
         const reader = new FileReader();
-        reader.onloadend = () => {
-          sendVoiceMessage(reader.result);
-        };
+        reader.onloadend = () => sendVoiceMessage(reader.result);
         reader.readAsDataURL(audioBlob);
       };
       state.mediaRecorder.start();
@@ -1789,24 +1955,24 @@ async function toggleVoiceRecord() {
 async function sendVoiceMessage(audioDataUrl) {
   if (!state.activeConversation || !state.user) return;
   const newMsg = {
+    id: 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: state.user.id,
     receiver_id: state.activeConversation,
-    audio_url: audioDataUrl
+    audio_url: audioDataUrl,
+    created_at: new Date().toISOString()
   };
   playBeep('send');
+  state.activeMessages.push(newMsg);
+  renderMessages();
+  broadcastLocalEvent('NEW_DM', newMsg);
+  toast('پیام صوتی ارسال شد ✈️');
 
   try {
-    const res = await fetch(apiUrl('/api/messages'), {
+    await fetch(apiUrl('/api/messages'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newMsg)
     });
-    const d = await res.json();
-    if (d.success) {
-      state.activeMessages.push(d.message);
-      renderMessages();
-      toast('پیام صوتی ارسال شد ✈️');
-    }
   } catch {}
 }
 
@@ -1835,8 +2001,8 @@ async function loadPublic() {
     const res = await fetch(apiUrl('/api/public_messages'));
     const d = await res.json();
     if (d.success && d.messages) state.public = d.messages;
-    renderPublic();
   } catch {}
+  renderPublic();
 }
 
 function renderPublic() {
@@ -1856,30 +2022,30 @@ async function sendPublic() {
   const input = $('publicInput');
   const text = input.value.trim();
   if (!text) return;
-  
+
   const senderId = state.user?.id || 'guest_' + Date.now();
   const senderName = state.profile?.name || 'من';
 
   const msg = {
+    id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: senderId,
     sender_name: senderName,
-    text: text
+    text: text,
+    created_at: new Date().toISOString()
   };
 
   input.value = '';
   playBeep('send');
+  state.public.push(msg);
+  renderPublic();
+  broadcastLocalEvent('PUBLIC_MSG', msg);
 
   try {
-    const res = await fetch(apiUrl('/api/public_messages'), {
+    await fetch(apiUrl('/api/public_messages'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(msg)
     });
-    const d = await res.json();
-    if (d.success) {
-      state.public.push(d.message);
-      renderPublic();
-    }
   } catch {}
 }
 
@@ -1910,8 +2076,8 @@ async function refreshActiveChat() {
     const res = await fetch(apiUrl(`/api/messages?user1=${state.user.id}&user2=${state.activeConversation}`));
     const d = await res.json();
     if (d.success) state.activeMessages = d.messages || [];
-    renderMessages();
   } catch {}
+  renderMessages();
 }
 
 function renderMessages() {
@@ -1924,7 +2090,7 @@ function renderMessages() {
     const timeStr = new Date(m.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
     e.oncontextmenu = ev => { ev.preventDefault(); openCtx(ev, m); };
     e.onclick = ev => { ev.stopPropagation(); openCtx(ev, m); };
-    
+
     let contentHtml = '';
     if (m.audio_url) {
       contentHtml = `
@@ -1966,28 +2132,28 @@ async function sendMessage() {
   if (!text || !state.activeConversation || !state.user) return;
 
   const newMsg = {
+    id: 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: state.user.id,
     receiver_id: state.activeConversation,
     text: text,
     reply_to: state.reply?.id || null,
-    reply_text: state.reply?.text || null
+    reply_text: state.reply?.text || null,
+    created_at: new Date().toISOString()
   };
 
   input.value = '';
   cancelReply();
   playBeep('send');
+  state.activeMessages.push(newMsg);
+  renderMessages();
+  broadcastLocalEvent('NEW_DM', newMsg);
 
   try {
-    const res = await fetch(apiUrl('/api/messages'), {
+    await fetch(apiUrl('/api/messages'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newMsg)
     });
-    const d = await res.json();
-    if (d.success) {
-      state.activeMessages.push(d.message);
-      renderMessages();
-    }
   } catch {}
 }
 
@@ -2052,17 +2218,24 @@ function renderPeople(q = '') {
   state.pins.forEach(p => {
     if (needle && !`${p.name} ${p.phone || ''} ${p.username || ''} ${p.city || ''}`.toLowerCase().includes(needle)) return;
     n++;
+    const pLat = Number(p.lat) || state.coords.lat;
+    const pLng = Number(p.lng) || state.coords.lng;
+    const distanceKm = dist(state.coords.lat, state.coords.lng, pLat, pLng).toFixed(1);
+
     const e = document.createElement('div');
     e.style.display = 'flex'; e.style.alignItems = 'center'; e.style.gap = '12px';
     e.style.padding = '12px 16px'; e.style.borderBottom = '1px solid var(--border)'; e.style.cursor = 'pointer';
     e.innerHTML = `
       <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover">
-      <div style="flex:1"><b>${esc(p.name)}</b><div style="font-size:11px;color:var(--muted)">${dist(state.coords.lat, state.coords.lng, p.lat, p.lng).toFixed(1)} کیلومتر • ${esc(p.city || 'آنلاین')}</div></div>
+      <div style="flex:1">
+        <b>${esc(p.name)}</b>
+        <div style="font-size:11px;color:var(--muted)">${distanceKm} کیلومتر • ${esc(p.city || 'آنلاین')}</div>
+      </div>
       <i class="fa-solid fa-location-dot" style="color:var(--blue)"></i>
     `;
     e.onclick = () => {
       closeModals();
-      if (map) map.flyTo([p.lat, p.lng], 15);
+      if (map) map.flyTo([pLat, pLng], 15);
       openPersonCard(p);
     };
     box.appendChild(e);
@@ -2093,11 +2266,13 @@ function renderChats(q = '') {
 
 function openPersonCard(p) {
   state.activePin = p;
+  const pLat = Number(p.lat) || state.coords.lat;
+  const pLng = Number(p.lng) || state.coords.lng;
   $('pcAvatar').src = p.avatar || DEFAULT_AVATAR;
   $('pcName').textContent = p.name;
   $('pcCaption').textContent = p.phone ? `📱 ${p.phone}` : (p.username ? `@${p.username}` : 'کاربر GeoSocial');
   $('pcBio').textContent = p.bio || 'اطلاعاتی ثبت نشده';
-  $('pcDistance').textContent = `${dist(state.coords.lat, state.coords.lng, p.lat, p.lng).toFixed(1)} کیلومتر فاصله`;
+  $('pcDistance').textContent = `${dist(state.coords.lat, state.coords.lng, pLat, pLng).toFixed(1)} کیلومتر فاصله (${esc(p.city || 'ایران')})`;
   $('personCard').classList.add('open');
 }
 function closePersonCard() { $('personCard').classList.remove('open'); }
@@ -2105,10 +2280,12 @@ function closePersonCard() { $('personCard').classList.remove('open'); }
 function openOtherProfile() {
   const p = state.activePin;
   if (!p) return;
+  const pLat = Number(p.lat) || state.coords.lat;
+  const pLng = Number(p.lng) || state.coords.lng;
   $('otherAvatar').src = p.avatar || DEFAULT_AVATAR;
   $('otherName').textContent = p.name;
   $('otherBio').textContent = p.bio || 'اطلاعاتی ثبت نشده';
-  $('otherDistance').textContent = `${dist(state.coords.lat, state.coords.lng, p.lat, p.lng).toFixed(1)} کیلومتر`;
+  $('otherDistance').textContent = `${dist(state.coords.lat, state.coords.lng, pLat, pLng).toFixed(1)} کیلومتر (${esc(p.city || 'ایران')})`;
   $('otherStatus').textContent = online(p) ? 'آنلاین' : 'آفلاین';
   closePersonCard();
   $('otherModal').classList.add('open');
@@ -2125,21 +2302,35 @@ async function searchPlace(e) {
     if (!a.length) return toast('مکان پیدا نشد');
     const targetLat = Number(a[0].lat);
     const targetLng = Number(a[0].lon);
-    
+
     if (map) map.flyTo([targetLat, targetLng], 14);
     toast(`انتقال به: ${a[0].display_name.slice(0, 30)}... 📍`);
   } catch { toast('خطا در جستجو'); }
 }
 
 async function loadUsers() {
+  let loaded = [];
   try {
     const res = await fetch(apiUrl(`/api/users?user_id=${state.user?.id || ''}`));
     const d = await res.json();
-    if (d.success) state.pins = d.users || [];
-    renderMarkers();
-    $('peopleBadge').textContent = `${state.pins.length} فرد`;
-    if ($('statNearby')) $('statNearby').textContent = state.pins.length;
+    if (d.success && Array.isArray(d.users) && d.users.length > 0) {
+      loaded = d.users;
+    }
   } catch {}
+
+  // Merge with default seed users so map is always populated with real active accounts
+  const mergedMap = new Map();
+  DEFAULT_SEED_USERS.forEach(u => {
+    if (u.id !== state.user?.id) mergedMap.set(u.id, u);
+  });
+  loaded.forEach(u => {
+    if (u.id !== state.user?.id) mergedMap.set(u.id, u);
+  });
+
+  state.pins = Array.from(mergedMap.values());
+  renderMarkers();
+  $('peopleBadge').textContent = `${state.pins.length} فرد`;
+  if ($('statNearby')) $('statNearby').textContent = state.pins.length;
 }
 
 let evtSource = null;
@@ -2149,14 +2340,12 @@ function initRealtimeStream() {
   if (evtSource) {
     try { evtSource.close(); } catch {}
   }
-  
+
   try {
     const streamUrl = apiUrl('/api/events');
     evtSource = new EventSource(streamUrl);
 
-    evtSource.onopen = () => {
-      checkServerHealth();
-    };
+    evtSource.onopen = () => checkServerHealth();
 
     evtSource.addEventListener('public_msg', e => {
       const msg = JSON.parse(e.data);
@@ -2200,21 +2389,21 @@ function initRealtimeStream() {
         try { evtSource.close(); } catch {}
       }
       clearTimeout(reconnectTimer);
-      reconnectTimer = setTimeout(initRealtimeStream, 4000);
+      reconnectTimer = setTimeout(initRealtimeStream, 5000);
     };
   } catch {
     clearTimeout(reconnectTimer);
-    reconnectTimer = setTimeout(initRealtimeStream, 4000);
+    reconnectTimer = setTimeout(initRealtimeStream, 5000);
   }
 }
 
-// Background sync fallback every 12s for mobile devices
+// Background sync fallback every 10s
 setInterval(() => {
   if (state.user) {
     loadUsers();
     loadStories();
   }
-}, 12000);
+}, 10000);
 
 async function bootData() {
   await loadUsers();
@@ -2250,9 +2439,9 @@ async function init() {
   $('locateBtn').addEventListener('click', () => locateMe());
   applyTheme(state.theme);
   $('radius').value = state.radius;
-  $('radiusValue').textContent = state.radius;
+  $('radiusValue').textContent = state.radius >= 500 ? 'سراسری' : `${state.radius} km`;
 
-  // 1. Check if opened inside Telegram WebApp (Zero-Click Auto Login!)
+  // 1. Check if opened inside Telegram WebApp
   const isTgMiniApp = await checkTelegramMiniApp();
   if (isTgMiniApp) return;
 

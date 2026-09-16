@@ -412,62 +412,6 @@ async function sendRealSMS(receptor, code) {
     resolve({ provider: 'simulator', success: true });
   });
 }
-    // Priority 2: Kavenegar
-    if (SMS_CONFIG.kavenegar_api_key) {
-      const url = `https://api.kavenegar.com/v1/${SMS_CONFIG.kavenegar_api_key}/verify/lookup.json?receptor=${receptor}&token=${code}&template=${SMS_CONFIG.kavenegar_template}`;
-      https.get(url, (res) => {
-        let data = '';
-        res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          console.log(`[SMS-Kavenegar] Response for ${receptor}:`, data);
-          resolve({ provider: 'kavenegar', success: true });
-        });
-      }).on('error', (err) => {
-        console.error(`[SMS-Kavenegar] Error sending to ${receptor}:`, err.message);
-        resolve({ provider: 'kavenegar', success: false, error: err.message });
-      });
-      return;
-    }
-
-    // Priority 3: FarazSMS / IPPanel
-    if (SMS_CONFIG.faraz_api_key && SMS_CONFIG.faraz_pattern_code) {
-      const postData = JSON.stringify({
-        code: SMS_CONFIG.faraz_pattern_code,
-        sender: SMS_CONFIG.faraz_originator,
-        recipient: receptor,
-        variable: { code: code }
-      });
-      const req = https.request({
-        hostname: 'api2.ippanel.com',
-        path: '/api/v1/sms/pattern/normal/send',
-        method: 'POST',
-        headers: {
-          'apikey': SMS_CONFIG.faraz_api_key,
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
-        }
-      }, (res) => {
-        let data = '';
-        res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          console.log(`[SMS-Faraz] Response for ${receptor}:`, data);
-          resolve({ provider: 'faraz', success: true });
-        });
-      });
-      req.on('error', (err) => {
-        console.error(`[SMS-Faraz] Error:`, err.message);
-        resolve({ provider: 'faraz', success: false, error: err.message });
-      });
-      req.write(postData);
-      req.end();
-      return;
-    }
-
-    // Fallback: Simulator mode
-    console.log(`[SMS/Telegram-Simulator] Code for ${receptor}: [${code}]`);
-    resolve({ provider: 'simulator', success: true });
-  });
-}
 
 // 1. Send OTP Code
 app.post('/api/auth/send_otp', async (req, res) => {
