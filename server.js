@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,14 +31,13 @@ app.use(express.static(__dirname));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Real Dynamic Users (No fake seed users)
-const defaultUsers = [];
-const defaultPublicMessages = [];
-const defaultStories = [];
-
-let users = [...defaultUsers];
-let publicMessages = [...defaultPublicMessages];
+let users = [];
+let publicMessages = [];
 let directMessages = {};
-let stories = [...defaultStories];
+let stories = [];
+let highlights = [];
+let posts = [];
+let follows = {}; // { userId: [followingUserIds] }
 let activeOTPs = {}; // { phone: { code: '1234', expires: timestamp } }
 
 // Load persisted DB from disk if available
@@ -49,6 +49,9 @@ try {
     if (parsed.publicMessages && Array.isArray(parsed.publicMessages)) publicMessages = parsed.publicMessages;
     if (parsed.directMessages && typeof parsed.directMessages === 'object') directMessages = parsed.directMessages;
     if (parsed.stories && Array.isArray(parsed.stories)) stories = parsed.stories;
+    if (parsed.highlights && Array.isArray(parsed.highlights)) highlights = parsed.highlights;
+    if (parsed.posts && Array.isArray(parsed.posts)) posts = parsed.posts;
+    if (parsed.follows && typeof parsed.follows === 'object') follows = parsed.follows;
     console.log('📦 Loaded database from disk:', DB_FILE);
   }
 } catch (e) {
@@ -60,7 +63,7 @@ function persistDB() {
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     try {
-      const data = { users, publicMessages, directMessages, stories };
+      const data = { users, publicMessages, directMessages, stories, highlights, posts, follows };
       fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
     } catch (e) {
       console.error('Error saving database:', e.message);
@@ -120,7 +123,9 @@ app.get('/api/health', (req, res) => {
     online_users: users.length,
     sse_clients: sseClients.length,
     stories_count: stories.length,
-    public_messages_count: publicMessages.length
+    public_messages_count: publicMessages.length,
+    highlights_count: highlights.length,
+    posts_count: posts.length
   });
 });
 
@@ -139,13 +144,9 @@ function normalizePhone(input) {
 // Mobile Number & OTP Authentication APIs
 // ----------------------------------------------------
 
-// SMS & Telegram Gateway Integration Configuration
 const SMS_CONFIG = {
-  // Telegram Bot Token
   telegram_bot_token: process.env.TELEGRAM_BOT_TOKEN || '8186173027:AAHY6oTA7TF0NWbgD_KaajJgqBZtyAu6EPc',
   telegram_bot_username: process.env.TELEGRAM_BOT_USERNAME || 'RezaProFx_bot',
-  
-  // SMS Gateways
   kavenegar_api_key: process.env.KAVENEGAR_API_KEY || '',
   kavenegar_template: process.env.KAVENEGAR_TEMPLATE || 'verify',
   faraz_api_key: process.env.FARAZ_API_KEY || '',
@@ -153,9 +154,6 @@ const SMS_CONFIG = {
   faraz_originator: process.env.FARAZ_ORIGINATOR || '+983000505'
 };
 
-const https = require('https');
-
-// Send Message directly to a specific Telegram Chat ID
 async function sendTelegramMessage(chatId, text, replyMarkup = null) {
   return new Promise((resolve) => {
     if (!SMS_CONFIG.telegram_bot_token || !chatId) {
@@ -189,9 +187,7 @@ async function sendTelegramMessage(chatId, text, replyMarkup = null) {
       }, (res) => {
         let data = '';
         res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          resolve({ success: true, data });
-        });
+        res.on('end', () => resolve({ success: true, data }));
       });
 
       req.on('timeout', () => { req.destroy(); trySend(idx + 1); });
@@ -204,15 +200,11 @@ async function sendTelegramMessage(chatId, text, replyMarkup = null) {
   });
 }
 
-// Telegram Bot Poller with anti-censorship proxy rotation
 let lastTelegramUpdateId = 0;
 function startTelegramBotPoller() {
   if (!SMS_CONFIG.telegram_bot_token) return;
 
-  const hosts = [
-    'api.telegram.org',
-    'api.telegram-proxy.org'
-  ];
+  const hosts = ['api.telegram.org', 'api.telegram-proxy.org'];
 
   async function pollUpdates(hostIdx = 0) {
     const currentHost = hosts[hostIdx % hosts.length];
@@ -256,7 +248,6 @@ function startTelegramBotPoller() {
   console.log('🤖 Telegram Bot Poller active for @' + SMS_CONFIG.telegram_bot_username);
 }
 
-// Handle incoming message from any Telegram user
 function handleTelegramUpdate(update) {
   const msg = update.message;
   if (!msg) return;
@@ -264,7 +255,6 @@ function handleTelegramUpdate(update) {
   const chatId = msg.chat.id;
   const fromUser = msg.from;
 
-  // 1. User shared their Phone Number via Contact Button
   if (msg.contact && msg.contact.phone_number) {
     const rawPhone = msg.contact.phone_number;
     const cleanPhone = normalizePhone(rawPhone);
@@ -277,14 +267,11 @@ function handleTelegramUpdate(update) {
 
     const replyText = `🔐 <b>کد تایید ورود شما به ژئوسوشیال:</b>\n\n<code>${code}</code>\n\n📱 شماره تلفن: <code>${cleanPhone}</code>\n⏱ اعتبار: ۳ دقیقه\n\nاین کد را در برنامه وارد کنید تا وارد شوید.`;
     
-    sendTelegramMessage(chatId, replyText, {
-      remove_keyboard: true
-    });
+    sendTelegramMessage(chatId, replyText, { remove_keyboard: true });
     console.log(`📱 Issued OTP ${code} to Telegram user ${chatId} (${cleanPhone})`);
     return;
   }
 
-  // 2. User started the bot
   const text = (msg.text || '').trim();
   if (text.startsWith('/start')) {
     const welcomeText = `سلام ${fromUser.first_name || 'کاربر گرامی'} عزیز! 🌟\n\nبه ربات ورود اختصاصی <b>ژئوسوشیال (GeoSocial)</b> خوش آمدید.\n\nبرای دریافت کد تایید ورود به حساب، لطفاً دکمه زیر را لمس کنید تا کد تایید برای شماره تلگرام شما ارسال شود 👇`;
@@ -301,30 +288,20 @@ function handleTelegramUpdate(update) {
   }
 }
 
-// Start bot listener
 startTelegramBotPoller();
 
-// Send Real SMS / Telegram OTP
 async function sendRealSMS(receptor, code) {
   return new Promise((resolve) => {
-    // Priority 1: Kavenegar
     if (SMS_CONFIG.kavenegar_api_key) {
       const url = `https://api.kavenegar.com/v1/${SMS_CONFIG.kavenegar_api_key}/verify/lookup.json?receptor=${receptor}&token=${code}&template=${SMS_CONFIG.kavenegar_template}`;
       https.get(url, (res) => {
         let data = '';
         res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          console.log(`[SMS-Kavenegar] Response for ${receptor}:`, data);
-          resolve({ provider: 'kavenegar', success: true });
-        });
-      }).on('error', (err) => {
-        console.error(`[SMS-Kavenegar] Error sending to ${receptor}:`, err.message);
-        resolve({ provider: 'kavenegar', success: false, error: err.message });
-      });
+        res.on('end', () => resolve({ provider: 'kavenegar', success: true }));
+      }).on('error', (err) => resolve({ provider: 'kavenegar', success: false, error: err.message }));
       return;
     }
 
-    // Priority 2: FarazSMS / IPPanel
     if (SMS_CONFIG.faraz_api_key && SMS_CONFIG.faraz_pattern_code) {
       const postData = JSON.stringify({
         code: SMS_CONFIG.faraz_pattern_code,
@@ -344,21 +321,14 @@ async function sendRealSMS(receptor, code) {
       }, (res) => {
         let data = '';
         res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          console.log(`[SMS-Faraz] Response for ${receptor}:`, data);
-          resolve({ provider: 'faraz', success: true });
-        });
+        res.on('end', () => resolve({ provider: 'faraz', success: true }));
       });
-      req.on('error', (err) => {
-        console.error(`[SMS-Faraz] Error:`, err.message);
-        resolve({ provider: 'faraz', success: false, error: err.message });
-      });
+      req.on('error', (err) => resolve({ provider: 'faraz', success: false, error: err.message }));
       req.write(postData);
       req.end();
       return;
     }
 
-    // Fallback: Simulator mode
     console.log(`[SMS/Telegram-Simulator] Code for ${receptor}: [${code}]`);
     resolve({ provider: 'simulator', success: true });
   });
@@ -373,18 +343,15 @@ app.post('/api/auth/send_otp', async (req, res) => {
     return res.status(400).json({ success: false, error: 'شماره موبایل نامعتبر است (مثال: 09123456789)' });
   }
 
-  // Generate 4-digit random OTP
   const code = Math.floor(1000 + Math.random() * 9000).toString();
   activeOTPs[cleanPhone] = {
     code: code,
-    expires: Date.now() + 180000 // 3 minutes validity
+    expires: Date.now() + 180000
   };
 
   const existingUser = users.find(u => u.phone === cleanPhone || u.id === 'usr_' + cleanPhone);
 
   console.log(`📱 SMS OTP Code for ${cleanPhone}: [${code}]`);
-
-  // Dispatch SMS / Telegram in background (non-blocking so connection never hangs)
   sendRealSMS(cleanPhone, code).catch(err => console.error('SMS background error:', err));
 
   const hasGateway = (SMS_CONFIG.telegram_bot_token && SMS_CONFIG.telegram_chat_id) || SMS_CONFIG.kavenegar_api_key || SMS_CONFIG.faraz_api_key;
@@ -395,7 +362,7 @@ app.post('/api/auth/send_otp', async (req, res) => {
     is_new_user: !existingUser,
     user_name: existingUser ? existingUser.name : null,
     has_real_gateway: !!hasGateway,
-    code: code, // keep in payload so user is never stuck if ISP blocks telegram
+    code: code,
     message: `کد تایید ارسال شد`
   });
 });
@@ -417,7 +384,6 @@ app.post('/api/auth/verify_otp', (req, res) => {
     return res.status(400).json({ success: false, error: 'کد تایید اشتباه است (کد ۱۲۳۴ نیز برای تست مجاز است)' });
   }
 
-  // Remove used OTP
   delete activeOTPs[cleanPhone];
 
   let user = users.find(u => u.phone === cleanPhone || u.id === 'usr_' + cleanPhone);
@@ -430,7 +396,7 @@ app.post('/api/auth/verify_otp', (req, res) => {
       username: 'user_' + cleanPhone.slice(-6),
       avatar: avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       bio: bio || 'عضو GeoSocial 📱',
-      city: city || 'تهران',
+      city: city || 'ایران',
       lat: Number(lat) || (35.6892 + (Math.random() - 0.5) * 0.02),
       lng: Number(lng) || (51.3890 + (Math.random() - 0.5) * 0.02),
       ghost: false,
@@ -454,7 +420,7 @@ app.post('/api/auth/verify_otp', (req, res) => {
   res.json({ success: true, user });
 });
 
-// 3. Direct Telegram Profile Login (Instant Auth with User's Real Telegram Profile)
+// 3. Direct Telegram Profile Login
 app.post('/api/auth/telegram', (req, res) => {
   const { id, first_name, last_name, username, photo_url, lat, lng } = req.body || {};
 
@@ -476,7 +442,7 @@ app.post('/api/auth/telegram', (req, res) => {
       username: username || 'tg_' + id,
       avatar: photo_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       bio: username ? `کاربر تلگرام (@${username}) 📱` : 'عضو تلگرامی GeoSocial 📱',
-      city: 'تهران',
+      city: 'ایران',
       lat: Number(lat) || (35.6892 + (Math.random() - 0.5) * 0.02),
       lng: Number(lng) || (51.3890 + (Math.random() - 0.5) * 0.02),
       ghost: false,
@@ -507,6 +473,57 @@ app.get('/api/users', (req, res) => {
   res.json({ success: true, users: filtered });
 });
 
+app.get('/api/users/profile', (req, res) => {
+  const { user_id, target_id } = req.query;
+  const target = users.find(u => u.id === target_id);
+  if (!target) return res.status(404).json({ success: false, error: 'User not found' });
+
+  const targetStories = stories.filter(s => s.user_id === target_id && (!s.expires_at || s.expires_at > new Date().toISOString()));
+  const targetHighlights = highlights.filter(h => h.user_id === target_id);
+  const targetPosts = posts.filter(p => p.user_id === target_id);
+  const followerCount = Object.values(follows).filter(list => Array.isArray(list) && list.includes(target_id)).length;
+  const followingCount = (follows[target_id] || []).length;
+  const isFollowing = user_id && follows[user_id] ? follows[user_id].includes(target_id) : false;
+
+  res.json({
+    success: true,
+    user: target,
+    has_active_story: targetStories.length > 0,
+    stories: targetStories,
+    highlights: targetHighlights,
+    posts: targetPosts,
+    stats: {
+      followers: followerCount,
+      following: followingCount,
+      posts: targetPosts.length,
+      stories: targetStories.length,
+      highlights: targetHighlights.length
+    },
+    is_following: isFollowing
+  });
+});
+
+app.post('/api/users/follow', (req, res) => {
+  const { user_id, target_id } = req.body;
+  if (!user_id || !target_id) return res.status(400).json({ success: false, error: 'Missing user IDs' });
+
+  if (!follows[user_id]) follows[user_id] = [];
+  const idx = follows[user_id].indexOf(target_id);
+  let isFollowing = false;
+
+  if (idx >= 0) {
+    follows[user_id].splice(idx, 1);
+    isFollowing = false;
+  } else {
+    follows[user_id].push(target_id);
+    isFollowing = true;
+  }
+
+  persistDB();
+  broadcastSSE('follow_update', { user_id, target_id, is_following: isFollowing });
+  res.json({ success: true, is_following: isFollowing });
+});
+
 app.post('/api/users/sync', (req, res) => {
   const user = req.body;
   if (!user || !user.id) return res.status(400).json({ success: false, error: 'User ID required' });
@@ -533,8 +550,14 @@ app.get('/api/stories', (req, res) => {
   res.json({ success: true, stories: active });
 });
 
+app.get('/api/stories/archive', (req, res) => {
+  const { user_id } = req.query;
+  const userStories = stories.filter(s => s.user_id === user_id);
+  res.json({ success: true, stories: userStories });
+});
+
 app.post('/api/stories', (req, res) => {
-  const { user_id, user_name, user_avatar, media_url, media_type, caption } = req.body || {};
+  const { user_id, user_name, user_avatar, media_url, media_type, caption, stickers, audience } = req.body || {};
   if (!user_id || !media_url) return res.status(400).json({ success: false, error: 'Missing story data' });
   
   const newStory = {
@@ -545,16 +568,40 @@ app.post('/api/stories', (req, res) => {
     media_url,
     media_type: media_type || 'image',
     caption: caption || '',
+    stickers: stickers || [],
+    audience: audience || 'all',
     created_at: new Date().toISOString(),
     expires_at: new Date(Date.now() + 86400000).toISOString(),
     likes: [],
-    comments: []
+    comments: [],
+    views: [],
+    poll_votes: {} // { [optionIndex]: [userIds] }
   };
 
   stories.unshift(newStory);
   persistDB();
   broadcastSSE('new_story', newStory);
   res.json({ success: true, story: newStory });
+});
+
+app.post('/api/stories/view', (req, res) => {
+  const { story_id, user_id, user_name, user_avatar } = req.body;
+  const story = stories.find(s => s.id === story_id);
+  if (!story) return res.status(404).json({ success: false, error: 'Story not found' });
+
+  if (!story.views) story.views = [];
+  if (user_id && !story.views.some(v => (typeof v === 'string' ? v === user_id : v.user_id === user_id))) {
+    story.views.push({
+      user_id,
+      user_name: user_name || 'کاربر',
+      user_avatar: user_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      viewed_at: new Date().toISOString()
+    });
+    persistDB();
+    broadcastSSE('story_view', { story_id, views_count: story.views.length });
+  }
+
+  res.json({ success: true, views_count: story.views.length, views: story.views });
 });
 
 app.post('/api/stories/like', (req, res) => {
@@ -573,17 +620,126 @@ app.post('/api/stories/like', (req, res) => {
 });
 
 app.post('/api/stories/comment', (req, res) => {
-  const { story_id, user_name, text } = req.body;
+  const { story_id, user_id, user_name, user_avatar, text } = req.body;
   const story = stories.find(s => s.id === story_id);
   if (!story) return res.status(404).json({ success: false, error: 'Story not found' });
   
   if (!story.comments) story.comments = [];
-  const comment = { user_name: user_name || 'کاربر', text: text.trim(), created_at: new Date().toISOString() };
+  const comment = {
+    id: 'cm_' + Date.now(),
+    user_id: user_id || 'guest',
+    user_name: user_name || 'کاربر',
+    user_avatar: user_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    text: text.trim(),
+    created_at: new Date().toISOString()
+  };
   story.comments.push(comment);
 
   persistDB();
   broadcastSSE('story_comment', { story_id, comment });
   res.json({ success: true, comments: story.comments });
+});
+
+app.post('/api/stories/vote_poll', (req, res) => {
+  const { story_id, sticker_id, option_index, user_id } = req.body;
+  const story = stories.find(s => s.id === story_id);
+  if (!story) return res.status(404).json({ success: false, error: 'Story not found' });
+
+  if (!story.poll_votes) story.poll_votes = {};
+  const pollKey = sticker_id || 'default_poll';
+  if (!story.poll_votes[pollKey]) story.poll_votes[pollKey] = {};
+
+  // Remove previous vote by user
+  Object.keys(story.poll_votes[pollKey]).forEach(k => {
+    story.poll_votes[pollKey][k] = (story.poll_votes[pollKey][k] || []).filter(u => u !== user_id);
+  });
+
+  const optKey = String(option_index);
+  if (!story.poll_votes[pollKey][optKey]) story.poll_votes[pollKey][optKey] = [];
+  story.poll_votes[pollKey][optKey].push(user_id);
+
+  persistDB();
+  broadcastSSE('story_poll_vote', { story_id, poll_key: pollKey, votes: story.poll_votes[pollKey] });
+  res.json({ success: true, votes: story.poll_votes[pollKey] });
+});
+
+app.delete('/api/stories/:id', (req, res) => {
+  const { id } = req.params;
+  const idx = stories.findIndex(s => s.id === id);
+  if (idx >= 0) {
+    stories.splice(idx, 1);
+    persistDB();
+    broadcastSSE('story_deleted', { id });
+    return res.json({ success: true, message: 'Story deleted' });
+  }
+  res.status(404).json({ success: false, error: 'Story not found' });
+});
+
+// Highlights API
+app.get('/api/highlights', (req, res) => {
+  const { user_id } = req.query;
+  const list = user_id ? highlights.filter(h => h.user_id === user_id) : highlights;
+  res.json({ success: true, highlights: list });
+});
+
+app.post('/api/highlights', (req, res) => {
+  const { user_id, title, cover_url, story_ids } = req.body;
+  if (!user_id || !title) return res.status(400).json({ success: false, error: 'Missing parameters' });
+
+  const newHighlight = {
+    id: 'hl_' + Date.now(),
+    user_id,
+    title: title.trim(),
+    cover_url: cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150',
+    story_ids: story_ids || [],
+    created_at: new Date().toISOString()
+  };
+
+  highlights.unshift(newHighlight);
+  persistDB();
+  broadcastSSE('new_highlight', newHighlight);
+  res.json({ success: true, highlight: newHighlight });
+});
+
+app.delete('/api/highlights/:id', (req, res) => {
+  const { id } = req.params;
+  const idx = highlights.findIndex(h => h.id === id);
+  if (idx >= 0) {
+    highlights.splice(idx, 1);
+    persistDB();
+    broadcastSSE('highlight_deleted', { id });
+    return res.json({ success: true });
+  }
+  res.status(404).json({ success: false, error: 'Highlight not found' });
+});
+
+// Posts & Shared Media API
+app.get('/api/posts', (req, res) => {
+  const { user_id } = req.query;
+  const list = user_id ? posts.filter(p => p.user_id === user_id) : posts;
+  res.json({ success: true, posts: list });
+});
+
+app.post('/api/posts', (req, res) => {
+  const { user_id, user_name, user_avatar, media_url, caption } = req.body;
+  if (!user_id || !media_url) return res.status(400).json({ success: false, error: 'Missing post data' });
+
+  const newPost = {
+    id: 'post_' + Date.now(),
+    user_id,
+    user_name: user_name || 'کاربر',
+    user_avatar: user_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    media_url,
+    caption: caption || '',
+    created_at: new Date().toISOString(),
+    likes: [],
+    comments: []
+  };
+
+  posts.unshift(newPost);
+  persistDB();
+  broadcastSSE('new_post', newPost);
+  res.json({ success: true, post: newPost });
 });
 
 // Public Chat API
@@ -617,8 +773,10 @@ app.get('/api/messages', (req, res) => {
 });
 
 app.post('/api/messages', (req, res) => {
-  const { sender_id, receiver_id, text, audio_url, reply_to, reply_text } = req.body || {};
-  if (!sender_id || !receiver_id || (!text && !audio_url)) return res.status(400).json({ success: false, error: 'Missing parameters' });
+  const { sender_id, receiver_id, text, audio_url, media_url, media_type, location, reply_to, reply_text, forward_from } = req.body || {};
+  if (!sender_id || !receiver_id || (!text && !audio_url && !media_url && !location)) {
+    return res.status(400).json({ success: false, error: 'Missing parameters' });
+  }
   
   const key = [sender_id, receiver_id].sort().join('_');
   if (!directMessages[key]) directMessages[key] = [];
@@ -629,8 +787,13 @@ app.post('/api/messages', (req, res) => {
     receiver_id,
     text: text ? text.trim() : null,
     audio_url: audio_url || null,
+    media_url: media_url || null,
+    media_type: media_type || null,
+    location: location || null,
     reply_to: reply_to || null,
     reply_text: reply_text || null,
+    forward_from: forward_from || null,
+    reactions: {},
     created_at: new Date().toISOString(),
     status: 'delivered'
   };
@@ -639,6 +802,48 @@ app.post('/api/messages', (req, res) => {
   persistDB();
   broadcastSSE('dm_msg', msg);
   res.json({ success: true, message: msg });
+});
+
+app.post('/api/messages/reaction', (req, res) => {
+  const { user1, user2, msg_id, emoji, user_id } = req.body;
+  if (!user1 || !user2 || !msg_id || !emoji) return res.status(400).json({ success: false, error: 'Missing parameters' });
+
+  const key = [user1, user2].sort().join('_');
+  const msgList = directMessages[key];
+  if (!msgList) return res.status(404).json({ success: false, error: 'Chat not found' });
+
+  const msg = msgList.find(m => m.id === msg_id);
+  if (!msg) return res.status(404).json({ success: false, error: 'Message not found' });
+
+  if (!msg.reactions) msg.reactions = {};
+  if (typeof msg.reactions[emoji] === 'number') {
+    msg.reactions[emoji] = msg.reactions[emoji] + 1;
+  } else if (Array.isArray(msg.reactions[emoji])) {
+    const uIdx = msg.reactions[emoji].indexOf(user_id);
+    if (uIdx >= 0) msg.reactions[emoji].splice(uIdx, 1);
+    else msg.reactions[emoji].push(user_id);
+  } else {
+    msg.reactions[emoji] = (msg.reactions[emoji] || 0) + 1;
+  }
+
+  persistDB();
+  broadcastSSE('msg_reaction', { msg_id, reactions: msg.reactions, key });
+  res.json({ success: true, reactions: msg.reactions });
+});
+
+app.delete('/api/messages/:id', (req, res) => {
+  const { id } = req.params;
+  const { user1, user2 } = req.query;
+  if (!user1 || !user2) return res.status(400).json({ success: false, error: 'Missing users' });
+
+  const key = [user1, user2].sort().join('_');
+  if (directMessages[key]) {
+    directMessages[key] = directMessages[key].filter(m => m.id !== id);
+    persistDB();
+    broadcastSSE('msg_deleted', { id, key });
+    return res.json({ success: true });
+  }
+  res.status(404).json({ success: false, error: 'Message not found' });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
