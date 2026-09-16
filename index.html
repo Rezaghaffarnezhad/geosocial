@@ -772,24 +772,11 @@ input:checked + .slider:before { transform: translateX(20px); }
     <span id="peopleBadge" class="badge" onclick="openPeople()">۰ فرد</span>
   </div>
 
-  <!-- Google Maps Style Radius Pills -->
-  <div class="filter-pills-row">
-    <button class="filter-pill active" onclick="setFilterRadius(500, this)"><i class="fa-solid fa-globe"></i> سراسری</button>
-    <button class="filter-pill" onclick="setFilterRadius(10, this)"><i class="fa-solid fa-compass"></i> تا ۱۰ کیلومتر</button>
-    <button class="filter-pill" onclick="setFilterRadius(30, this)"><i class="fa-solid fa-city"></i> تا ۳۰ کیلومتر</button>
-    <button class="filter-pill" onclick="setFilterRadius(100, this)"><i class="fa-solid fa-rocket"></i> تا ۱۰۰ کیلومتر</button>
-  </div>
-
   <div id="stories" class="stories"></div>
 </div>
 
 <!-- Map Controls -->
 <div class="controls">
-  <!-- Theme Toggle (Day/Night Map) -->
-  <button class="ctrl solid" onclick="toggleTheme()" title="تغییر نقشه روز و شب">
-    <i id="mapThemeIcon" class="fa-solid fa-sun" style="color:#f39c12"></i>
-  </button>
-
   <!-- Radar Radius Slider -->
   <div class="radius">
     <span><b id="radiusValue">سراسری</b></span>
@@ -959,6 +946,22 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 
 
+    <!-- Dedicated Telegram-style Ghost Mode Status Card -->
+    <div id="ghostStatusCard" class="setting-group" style="padding:14px 16px;border-radius:14px;transition:all 0.3s ease;border:1px solid rgba(46,204,113,0.35);background:rgba(46,204,113,0.1);margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div id="ghostCardIconWrapper" style="width:40px;height:40px;border-radius:10px;background:rgba(46,204,113,0.22);display:grid;place-items:center;font-size:18px;flex-shrink:0">
+            <i id="ghostCardIcon" class="fa-solid fa-location-dot" style="color:var(--green)"></i>
+          </div>
+          <div>
+            <div id="ghostCardTitle" style="font-size:13px;font-weight:700;color:var(--text)"><span style="color:var(--green)">موقعیت فعال و نمایان است 📍</span></div>
+            <div id="ghostCardSubtitle" style="font-size:11px;color:var(--muted);margin-top:2px">موقعیت و پالس شما روی نقشه برای افراد نزدیک نمایش داده می‌شود</div>
+          </div>
+        </div>
+        <label class="switch" style="flex-shrink:0"><input type="checkbox" id="ghostSwitch" onchange="toggleGhost(this.checked)"><span class="slider"></span></label>
+      </div>
+    </div>
+
     <!-- Server Connection Settings -->
     <div class="setting-group" style="padding:14px 16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -981,10 +984,6 @@ input:checked + .slider:before { transform: translateX(20px); }
       <div class="setting-row">
         <div class="setting-info"><i class="fa-solid fa-moon"></i><span>حالت شب / روز (Dark/Light Map)</span></div>
         <label class="switch"><input type="checkbox" id="themeSwitch" onchange="toggleTheme()"><span class="slider"></span></label>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info"><i class="fa-solid fa-ghost"></i><span>حالت روح (مخفی شدن روی نقشه)</span></div>
-        <label class="switch"><input type="checkbox" id="ghostSwitch" onchange="toggleGhost(this.checked)"><span class="slider"></span></label>
       </div>
       <div class="setting-row">
         <div class="setting-info"><i class="fa-solid fa-volume-high"></i><span>صدای اعلانات</span></div>
@@ -1613,9 +1612,9 @@ function renderMarkers() {
   $('peopleBadge').textContent = `${activeUsers.length} فرد`;
   if ($('statNearby')) $('statNearby').textContent = activeUsers.length;
 
-  // 1. Far Zoom (< 10): Group into Dynamic Spatial Clusters
-  if (zoom < 10) {
-    const gridSize = zoom <= 5 ? 2.5 : (zoom <= 7 ? 1.4 : 0.6);
+  // 1. Far Zoom (< 7): Group into Regional Dynamic Spatial Clusters (keeps country map clean)
+  if (zoom < 7) {
+    const gridSize = zoom <= 5 ? 2.8 : 1.4;
     const clusters = {};
     activeUsers.forEach(p => {
       const pLat = Number(p.lat);
@@ -1629,12 +1628,12 @@ function renderMarkers() {
       if (group.length === 1) {
         const p = group[0];
         const iconHtml = `
-          <div class="user-marker-compact">
+          <div class="user-marker-compact" style="transform:scale(0.85)">
             <img src="${esc(p.avatar || DEFAULT_AVATAR)}" alt="${esc(p.name)}">
             <i class="led ${online(p) ? 'online' : 'offline'}"></i>
           </div>
         `;
-        const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] });
+        const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [30, 30], iconAnchor: [15, 15] });
         const marker = L.marker([Number(p.lat), Number(p.lng)], { icon });
         marker.on('click', () => {
           state.activePin = p;
@@ -1676,8 +1675,8 @@ function renderMarkers() {
     return;
   }
 
-  // 2. Mid Zoom (10 <= zoom < 13): Compact Markers
-  // 3. High Zoom (zoom >= 13): Full Detailed Markers
+  // 2. Mid Zoom (7 <= zoom < 12): Compact Markers without text labels (prevents covering streets)
+  // 3. High Zoom (zoom >= 12): Full Detailed Markers with Name Badge & Pin Stem
   const coordsUsage = {};
   activeUsers.forEach(p => {
     const pLat = Number(p.lat);
@@ -1696,7 +1695,7 @@ function renderMarkers() {
     }
 
     let iconHtml, iconSize, iconAnchor;
-    if (zoom < 13) {
+    if (zoom < 12) {
       iconHtml = `
         <div class="user-marker-compact">
           <img src="${esc(p.avatar || DEFAULT_AVATAR)}" alt="${esc(p.name)}">
@@ -2191,6 +2190,39 @@ function logout() {
   $('auth').style.display = 'flex';
 }
 
+function updateGhostCard(isGhost) {
+  const card = $('ghostStatusCard');
+  const icon = $('ghostCardIcon');
+  const iconWrapper = $('ghostCardIconWrapper');
+  const title = $('ghostCardTitle');
+  const subtitle = $('ghostCardSubtitle');
+  const sw = $('ghostSwitch');
+  if (sw) sw.checked = !!isGhost;
+  if (!card) return;
+
+  if (isGhost) {
+    card.style.background = 'rgba(155, 89, 182, 0.14)';
+    card.style.borderColor = 'rgba(155, 89, 182, 0.45)';
+    if (iconWrapper) iconWrapper.style.background = 'rgba(155, 89, 182, 0.25)';
+    if (icon) {
+      icon.className = 'fa-solid fa-ghost';
+      icon.style.color = '#9b59b6';
+    }
+    if (title) title.innerHTML = '<span style="color:#9b59b6">حالت روح فعال است 👻 (مخفی)</span>';
+    if (subtitle) subtitle.textContent = 'موقعیت شما روی نقشه برای دیگران کاملاً پنهان است';
+  } else {
+    card.style.background = 'rgba(46, 204, 113, 0.1)';
+    card.style.borderColor = 'rgba(46, 204, 113, 0.35)';
+    if (iconWrapper) iconWrapper.style.background = 'rgba(46, 204, 113, 0.22)';
+    if (icon) {
+      icon.className = 'fa-solid fa-location-dot';
+      icon.style.color = 'var(--green)';
+    }
+    if (title) title.innerHTML = '<span style="color:var(--green)">موقعیت فعال و نمایان است 📍</span>';
+    if (subtitle) subtitle.textContent = 'موقعیت شما روی نقشه برای افراد نزدیک نمایش داده می‌شود';
+  }
+}
+
 function refreshProfile() {
   const p = state.profile || {};
   $('profileAvatar').src = p.avatar || DEFAULT_AVATAR;
@@ -2199,7 +2231,7 @@ function refreshProfile() {
   $('profileBio').textContent = p.bio || 'بیوگرافی ثبت نشده است.';
   if ($('serverUrlInput')) $('serverUrlInput').value = getApiBaseUrl();
   checkServerHealth();
-  if ($('ghostSwitch')) $('ghostSwitch').checked = !!p.ghost;
+  updateGhostCard(!!p.ghost);
   if ($('themeSwitch')) $('themeSwitch').checked = (state.theme === 'dark');
   if ($('statNearby')) $('statNearby').textContent = state.pins.length;
   if ($('statStories')) $('statStories').textContent = state.stories.filter(s => s.user_id === state.user?.id).length;
@@ -2234,6 +2266,7 @@ async function toggleGhost(isGhost) {
   state.profile.ghost = isGhost;
   state.user.ghost = isGhost;
   localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
+  updateGhostCard(isGhost);
   await syncUserToServer();
   renderMyMarker();
   drawRadiusCircle();
@@ -2877,22 +2910,36 @@ function openPeople() { renderPeople(''); $('peopleModal').classList.add('open')
 function renderPeople(q = '') {
   const box = $('peopleList'), needle = q.trim().toLowerCase();
   box.innerHTML = ''; let n = 0;
-  state.pins.forEach(p => {
+
+  const sortedPins = [...state.pins].sort((a, b) => {
+    const aOnline = online(a) ? 1 : 0;
+    const bOnline = online(b) ? 1 : 0;
+    if (aOnline !== bOnline) return bOnline - aOnline;
+    const distA = dist(state.coords.lat, state.coords.lng, Number(a.lat) || state.coords.lat, Number(a.lng) || state.coords.lng);
+    const distB = dist(state.coords.lat, state.coords.lng, Number(b.lat) || state.coords.lat, Number(b.lng) || state.coords.lng);
+    return distA - distB;
+  });
+
+  sortedPins.forEach(p => {
     if (needle && !`${p.name} ${p.phone || ''} ${p.username || ''} ${p.city || ''}`.toLowerCase().includes(needle)) return;
     n++;
     const pLat = Number(p.lat) || state.coords.lat;
     const pLng = Number(p.lng) || state.coords.lng;
     const distanceKm = dist(state.coords.lat, state.coords.lng, pLat, pLng).toFixed(1);
-    const statusLabel = formatLastSeen(p.last_seen, online(p));
+    const isUserOnline = online(p);
+    const statusLabel = formatLastSeen(p.last_seen, isUserOnline);
 
     const e = document.createElement('div');
     e.style.display = 'flex'; e.style.alignItems = 'center'; e.style.gap = '12px';
     e.style.padding = '12px 16px'; e.style.borderBottom = '1px solid var(--border)'; e.style.cursor = 'pointer';
     e.innerHTML = `
-      <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover">
+      <div style="position:relative;width:42px;height:42px;flex-shrink:0">
+        <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover">
+        <span class="led ${isUserOnline ? 'online' : 'offline'}" style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;border:2px solid var(--panel)"></span>
+      </div>
       <div style="flex:1">
         <b>${esc(p.name)}</b>
-        <div style="font-size:11px;color:var(--muted)">${distanceKm} کیلومتر • ${esc(statusLabel)}</div>
+        <div style="font-size:11px;color:var(--muted)">${distanceKm} کیلومتر • <span style="color:${isUserOnline ? 'var(--green)' : 'var(--muted)'};font-weight:${isUserOnline ? '600' : 'normal'}">${esc(statusLabel)}</span></div>
       </div>
       <i class="fa-solid fa-location-dot" style="color:var(--blue)"></i>
     `;
@@ -2909,23 +2956,40 @@ function renderPeople(q = '') {
 
 function renderChats(q = '') {
   const box = $('chatList');
+  const needle = (q || '').trim().toLowerCase();
   box.innerHTML = '';
   let count = 0;
-  state.pins.forEach(p => {
+
+  const sortedPins = [...state.pins].sort((a, b) => {
+    const aOnline = online(a) ? 1 : 0;
+    const bOnline = online(b) ? 1 : 0;
+    return bOnline - aOnline;
+  });
+
+  sortedPins.forEach(p => {
+    if (needle && !`${p.name} ${p.phone || ''} ${p.username || ''}`.toLowerCase().includes(needle)) return;
     count++;
-    const statusLabel = formatLastSeen(p.last_seen, online(p));
+    const isUserOnline = online(p);
+    const statusLabel = formatLastSeen(p.last_seen, isUserOnline);
     const e = document.createElement('div');
     e.style.display = 'flex'; e.style.alignItems = 'center'; e.style.gap = '12px';
     e.style.padding = '12px 16px'; e.style.borderBottom = '1px solid var(--border)'; e.style.cursor = 'pointer';
     e.innerHTML = `
-      <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover">
-      <div style="flex:1"><b>${esc(p.name)}</b><div style="font-size:11px;color:var(--muted)">${esc(statusLabel)}</div></div>
+      <div style="position:relative;width:42px;height:42px;flex-shrink:0">
+        <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover">
+        <span class="led ${isUserOnline ? 'online' : 'offline'}" style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;border:2px solid var(--panel)"></span>
+      </div>
+      <div style="flex:1">
+        <b>${esc(p.name)}</b>
+        <div style="font-size:11px;color:${isUserOnline ? 'var(--green)' : 'var(--muted)'};font-weight:${isUserOnline ? '600' : 'normal'}">${esc(statusLabel)}</div>
+      </div>
       <i class="fa-solid fa-chevron-left" style="font-size:11px;color:var(--muted)"></i>
     `;
     e.onclick = () => { closeModals(); state.activePin = p; openChat(); };
     box.appendChild(e);
   });
   if ($('statChats')) $('statChats').textContent = count;
+  if (!count) box.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px">گفتگویی یافت نشد</div>';
 }
 
 function openPersonCard(p) {
