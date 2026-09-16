@@ -325,125 +325,188 @@ input, textarea { direction: rtl; }
   transform: scale(1.1);
 }
 
-/* Radius Adjustment Lever & Circle Control Bar */
-.radius-control-bar {
+/* Pull-up Radius Dial above GPS locate button */
+.radius-pull-dial {
+  position: absolute;
+  bottom: calc(130px + var(--safe-bottom));
+  right: 17px;
+  z-index: 25;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  background: var(--panel-glass);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 6px 14px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  pointer-events: auto;
-  transition: all 0.2s;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.9);
+  transition: opacity 0.2s, transform 0.2s;
 }
-.radius-info {
+.radius-pull-dial.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+.radius-pull-bubble {
+  background: var(--panel-glass-heavy);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
   display: flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-  flex-shrink: 0;
+  box-shadow: 0 4px 18px var(--blue-glow);
 }
-.radius-title {
-  font-size: 11px;
-  color: var(--muted);
-  font-weight: 600;
+.radius-pull-track {
+  width: 8px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
 }
-.radius-value {
-  font-size: 12px;
-  color: var(--blue);
-  font-weight: 800;
-  min-width: 65px;
-  display: inline-block;
-}
-.radius-lever-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  padding: 0 4px;
-}
-.radius-slider-input {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--border);
-  outline: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.radius-slider-input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
+.radius-pull-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background: var(--blue);
   box-shadow: 0 0 10px var(--blue-glow);
-  cursor: pointer;
-  border: 2px solid #fff;
-  transition: transform 0.15s;
-}
-.radius-slider-input::-webkit-slider-thumb:hover,
-.radius-slider-input::-webkit-slider-thumb:active {
-  transform: scale(1.25);
-  background: #fff;
-  border-color: var(--blue);
-}
-.radius-slider-input::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--blue);
-  box-shadow: 0 0 10px var(--blue-glow);
-  cursor: pointer;
-  border: 2px solid #fff;
-  transition: transform 0.15s;
-}
-.radius-all-btn {
-  background: rgba(42, 171, 238, 0.12);
-  border: 1px solid rgba(42, 171, 238, 0.3);
-  color: var(--blue);
-  padding: 4px 10px;
-  border-radius: 14px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
-.radius-all-btn.active, .radius-all-btn:hover {
-  background: var(--blue);
-  color: #fff;
-  border-color: var(--blue);
+  border-radius: 4px;
+  transition: height 0.05s linear;
 }
 
-/* Floating Controls (GPS at Bottom-Right, Public Feed at Bottom-Left) */
+/* Snapp & Maps Fixed Center Location Pin */
+.center-location-pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  z-index: 22;
+  pointer-events: none;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+.center-location-pin.active { display: flex; }
+.center-pin-body {
+  color: var(--danger);
+  font-size: 42px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.45));
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  line-height: 1;
+}
+.center-location-pin.moving .center-pin-body {
+  transform: translateY(-16px) scale(1.12);
+}
+.center-pin-shadow {
+  width: 14px;
+  height: 5px;
+  background: rgba(0,0,0,0.35);
+  border-radius: 50%;
+  filter: blur(1.5px);
+  margin-top: 2px;
+  transition: transform 0.18s, opacity 0.18s;
+}
+.center-location-pin.moving .center-pin-shadow {
+  transform: scale(0.5);
+  opacity: 0.2;
+}
+
+/* Public Chat Stream Overlay (سمت چپ پایین) */
+.public-chat-overlay {
+  position: absolute;
+  bottom: calc(72px + var(--safe-bottom));
+  left: 12px;
+  width: 48vw;
+  max-width: 260px;
+  min-width: 170px;
+  height: 33vh;
+  max-height: 250px;
+  min-height: 180px;
+  z-index: 18;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: auto;
+  gap: 6px;
+}
+.public-overlay-messages {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-top: 30px;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 15%, black 40%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 15%, black 40%);
+}
+.public-overlay-messages::-webkit-scrollbar { display: none; }
+.public-overlay-msg-item {
+  background: transparent;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9);
+  word-break: break-word;
+  padding: 1px 0;
+}
+.public-overlay-msg-sender {
+  font-weight: 800;
+  color: var(--blue);
+  margin-left: 4px;
+}
+.public-overlay-composer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(23, 33, 43, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 18px;
+  padding: 3px 8px;
+}
+.public-overlay-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 11px;
+}
+.public-overlay-input::placeholder { color: rgba(255,255,255,0.6); }
+.public-overlay-send {
+  background: transparent;
+  border: 0;
+  color: var(--blue);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px;
+  display: grid;
+  place-items: center;
+}
+
+/* Floating Controls (GPS at Bottom-Right) */
 .map-locate-fab {
   position: absolute;
   bottom: calc(75px + var(--safe-bottom));
   right: 14px;
   z-index: 20;
   color: var(--blue);
+  touch-action: none;
+  user-select: none;
 }
 .map-locate-fab:hover {
   background: var(--blue);
   color: #fff;
   transform: scale(1.1);
   box-shadow: 0 4px 18px var(--blue-glow);
-}
-.map-controls-group {
-  position: absolute;
-  bottom: calc(75px + var(--safe-bottom));
-  left: 14px;
-  z-index: 15;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 .fab-btn {
   width: 46px;
@@ -1678,6 +1741,14 @@ input:checked + .slider:before { transform: translateX(20px); }
 <!-- 1. Fullscreen Map -->
 <div id="map"></div>
 
+<!-- Snapp & Maps Fixed Center Location Pin (پیکان ثابت وسط صفحه برای انتخاب دستی) -->
+<div id="centerLocationPin" class="center-location-pin">
+  <div class="center-pin-body">
+    <i class="fa-solid fa-location-dot"></i>
+  </div>
+  <div class="center-pin-shadow"></div>
+</div>
+
 <!-- 2. Live Route Navigation HUD (Google Maps Style) -->
 <div id="navRouteHud" class="nav-route-hud">
   <div style="display:flex;align-items:center;gap:12px">
@@ -1696,8 +1767,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div id="manualLocationBar" class="manual-location-bar">
   <i class="fa-solid fa-location-crosshairs" style="color:var(--blue);font-size:20px"></i>
   <div style="flex:1">
-    <div style="font-size:12px;font-weight:700">موقعیت دلخواه را روی نقشه انتخاب کنید</div>
-    <div style="font-size:10px;color:var(--muted)">می‌توانید نقشه را جابجا کنید یا پین قرمز را بکشید</div>
+    <div style="font-size:12px;font-weight:700">موقعیت دلخواه را روی نقشه تنظیم کنید</div>
+    <div style="font-size:10px;color:var(--muted)">نقشه را جابجا کنید تا پین در مرکز قرار گیرد</div>
   </div>
   <div style="display:flex;gap:6px">
     <button class="badge" style="background:var(--green);color:#fff;border:0" onclick="confirmManualLocation()"><i class="fa-solid fa-check"></i> تایید</button>
@@ -1705,49 +1776,54 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 </div>
 
-<!-- 4. Top Header: Search Bar, Instagram Stories Tray & Radius Slider Control -->
+<!-- 4. Top Header: Search Bar & Instagram Stories Tray -->
 <div class="top-container">
-  <!-- Search Bar with Online People & Mode Toggle -->
+  <!-- Search Bar with Mode Toggle & Online People (Swapped Order) -->
   <div class="search-bar solid">
     <i class="fa-solid fa-magnifying-glass" style="font-size:13px;flex-shrink:0"></i>
     <input id="searchInput" placeholder="جستجوی شهر، خیابان یا کاربران..." onkeypress="searchPlace(event)">
     
+    <!-- Mode Toggle (تغییر مود) -->
+    <button id="themeToggleBtn" class="top-theme-btn" title="تغییر حالت شب/روز" onclick="toggleTheme()">
+      <i id="mapThemeIcon" class="fa-solid fa-moon"></i>
+    </button>
+
     <!-- Online People Indicator (چراغ سبز و عدد افراد) -->
     <div id="peopleBadge" class="online-indicator-pill" onclick="nav('people', this)" title="افراد آنلاین و حاضر در محدوده">
       <span class="online-led-glow"></span>
       <span id="peopleBadgeCount">0</span>
     </div>
-
-    <!-- Mode Toggle (تغییر مود کنار افراد آنلاین) -->
-    <button id="themeToggleBtn" class="top-theme-btn" title="تغییر حالت شب/روز" onclick="toggleTheme()">
-      <i id="mapThemeIcon" class="fa-solid fa-moon"></i>
-    </button>
   </div>
 
   <!-- Instagram Stories Tray -->
   <div id="storiesTray" class="stories-tray">
     <!-- Generated dynamically via JS -->
   </div>
-
-  <!-- Radius Circle Adjustment Lever (دایره شعاع با اهرم تنظیم) -->
-  <div id="radiusControlBar" class="radius-control-bar">
-    <div class="radius-info">
-      <i class="fa-solid fa-circle-notch" style="color:var(--blue);font-size:13px"></i>
-      <span class="radius-title">شعاع:</span>
-      <b id="radiusDisplayLabel" class="radius-value">۲۵ کیلومتر</b>
-    </div>
-    <div class="radius-lever-container">
-      <input type="range" id="radiusRangeSlider" min="1" max="150" value="25" class="radius-slider-input" oninput="onRadiusSliderInput(this.value)" onchange="onRadiusSliderChange(this.value)" title="اهرم تنظیم دایره شعاع">
-    </div>
-    <button id="radiusAllBtn" class="radius-all-btn" onclick="toggleRadiusAll()" title="نمایش سراسری (بدون محدودیت شعاع)">سراسری</button>
-  </div>
 </div>
 
-<!-- 5. Floating Map Controls (GPS at Bottom-Right, Public Feed at Bottom-Left) -->
-<button id="locateBtn" class="fab-btn map-locate-fab" title="بروزرسانی موقعیت مکانی من (GPS)"><i class="fa-solid fa-location-crosshairs"></i></button>
+<!-- 5. Pull-up Radius Dial & Location Button (پایین سمت راست) -->
+<div id="radiusPullDial" class="radius-pull-dial">
+  <div class="radius-pull-bubble">
+    <i class="fa-solid fa-circle-notch"></i>
+    <span id="radiusPullValue">۲۵ km</span>
+  </div>
+  <div class="radius-pull-track">
+    <div id="radiusPullFill" class="radius-pull-fill" style="height: 20%;"></div>
+  </div>
+</div>
+<button id="locateBtn" class="fab-btn map-locate-fab" title="بروزرسانی موقعیت (لمس) • تنظیم شعاع (کشیدن به بالا) • انتخاب دستی (نگه داشتن)">
+  <i class="fa-solid fa-location-crosshairs"></i>
+</button>
 
-<div class="map-controls-group">
-  <button id="publicChatFab" class="fab-btn" title="چت عمومی منطقه" onclick="togglePublicDrawer()"><i class="fa-solid fa-bullhorn" style="color:var(--blue)"></i></button>
+<!-- 6. Live Public Stream Chat Overlay (پایین سمت چپ: بدون پس‌زمینه، نصف صفحه افقی، یک سوم عمودی، محو از بالا) -->
+<div id="publicChatOverlay" class="public-chat-overlay">
+  <div id="publicOverlayMessages" class="public-overlay-messages">
+    <!-- Dynamic public messages -->
+  </div>
+  <div class="public-overlay-composer">
+    <input id="publicOverlayInput" class="public-overlay-input" placeholder="پیام به افراد منطقه..." onkeypress="if(event.key==='Enter')sendPublicOverlayMsg()">
+    <button class="public-overlay-send" onclick="sendPublicOverlayMsg()" title="ارسال"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
 </div>
 
 <!-- 6. Bottom Navigation -->
@@ -2497,6 +2573,7 @@ function initMap() {
   renderMyMarker();
   renderRadiusCircle();
   renderMarkers();
+  renderPublicOverlayMessages();
   setupLocateButton();
 }
 
@@ -2540,6 +2617,7 @@ function renderMarkers() {
 
   const activeUsers = state.pins.filter(p => {
     if (!p?.id || p.id === state.user?.id) return false;
+    if (p.ghost) return false;
     const pLat = Number(p.lat), pLng = Number(p.lng);
     if (!Number.isFinite(pLat) || !Number.isFinite(pLng)) return false;
     const d = dist(state.coords.lat, state.coords.lng, pLat, pLng);
@@ -2722,20 +2800,85 @@ function clearActiveRoute() {
 }
 
 // ----------------------------------------------------
-// Location Picking & GPS
+// Location Picking & Pull-Up Radius Dial
 // ----------------------------------------------------
 function setupLocateButton() {
   const btn = $('locateBtn');
   if (!btn) return;
-  let pressTimer = null, isLong = false;
-  btn.onmousedown = btn.ontouchstart = () => {
-    isLong = false;
-    pressTimer = setTimeout(() => { isLong = true; startManualLocationPick(); }, 500);
+  let startY = 0, isDraggingRadius = false, pressTimer = null, hasLongPressed = false;
+
+  const onStart = (e) => {
+    hasLongPressed = false;
+    isDraggingRadius = false;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    pressTimer = setTimeout(() => {
+      if (!isDraggingRadius) {
+        hasLongPressed = true;
+        startManualLocationPick();
+      }
+    }, 650);
   };
-  btn.onmouseup = btn.ontouchend = () => {
+
+  const onMove = (e) => {
+    const curY = e.touches ? e.touches[0].clientY : e.clientY;
+    const deltaY = startY - curY; // pulling upwards
+
+    if (deltaY > 10) {
+      clearTimeout(pressTimer);
+      isDraggingRadius = true;
+      $('radiusPullDial')?.classList.add('active');
+
+      let newKm = Math.round(1 + (deltaY - 10) * (149 / 170));
+      if (deltaY >= 180) {
+        newKm = 500;
+        const valEl = $('radiusPullValue');
+        if (valEl) valEl.textContent = 'سراسری';
+        const fillEl = $('radiusPullFill');
+        if (fillEl) fillEl.style.height = '100%';
+        if (radiusCircle && map) {
+          map.removeLayer(radiusCircle);
+          radiusCircle = null;
+        }
+      } else {
+        newKm = Math.min(150, Math.max(1, newKm));
+        const valEl = $('radiusPullValue');
+        if (valEl) valEl.textContent = `${newKm} km`;
+        const fillEl = $('radiusPullFill');
+        if (fillEl) fillEl.style.height = `${Math.round((newKm / 150) * 100)}%`;
+        if (radiusCircle && map) {
+          radiusCircle.setRadius(newKm * 1000);
+        } else {
+          state.radius = newKm;
+          renderRadiusCircle();
+        }
+      }
+      state.radius = newKm;
+      renderMarkers();
+    }
+  };
+
+  const onEnd = () => {
     clearTimeout(pressTimer);
-    if (!isLong && !state.isPickingLocation) locateMe();
+    if (isDraggingRadius) {
+      isDraggingRadius = false;
+      setTimeout(() => $('radiusPullDial')?.classList.remove('active'), 400);
+      playHapticSound('pop');
+      if (state.radius < 500 && radiusCircle && map) {
+        map.fitBounds(radiusCircle.getBounds(), { padding: [40, 40], maxZoom: 16 });
+      }
+      toast(`شعاع جستجو: ${state.radius >= 500 ? 'سراسری' : state.radius + ' کیلومتر'} 🎯`);
+    } else if (!hasLongPressed && !state.isPickingLocation) {
+      locateMe();
+    }
   };
+
+  btn.addEventListener('mousedown', onStart);
+  window.addEventListener('mousemove', (e) => { if (pressTimer || isDraggingRadius) onMove(e); });
+  window.addEventListener('mouseup', () => { if (pressTimer || isDraggingRadius) onEnd(); });
+
+  btn.addEventListener('touchstart', onStart, { passive: true });
+  btn.addEventListener('touchmove', onMove, { passive: true });
+  btn.addEventListener('touchend', onEnd, { passive: true });
 }
 
 function locateMe() {
@@ -2743,43 +2886,107 @@ function locateMe() {
     navigator.geolocation.getCurrentPosition(pos => {
       state.coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
       renderMyMarker();
+      renderRadiusCircle();
       renderMarkers();
-      if (map) map.flyTo([state.coords.lat, state.coords.lng], 15);
+      if (map) {
+        if (radiusCircle) map.fitBounds(radiusCircle.getBounds(), { padding: [40, 40], maxZoom: 16 });
+        else map.flyTo([state.coords.lat, state.coords.lng], 15);
+      }
       syncUserToServer();
       toast('موقعیت مکانی شما با GPS بروزرسانی شد 🧭');
     }, () => toast('موقعیت پیش‌فرض فعال شد 📍'), { enableHighAccuracy: true });
   }
 }
 
+// Snapp & Maps Fixed Center Pin Manual Location Picker
 function startManualLocationPick() {
   state.isPickingLocation = true;
-  $('manualLocationBar').classList.add('active');
-  toast('نقطه مورد نظر را روی نقشه انتخاب کنید 📍');
-  if (state.tempPickMarker && map) map.removeLayer(state.tempPickMarker);
-  state.tempCoords = { ...state.coords };
+  $('manualLocationBar')?.classList.add('active');
+  $('centerLocationPin')?.classList.add('active');
+  toast('نقشه را جابجا کنید تا پین در مرکز قرار گیرد 📍');
+  playHapticSound('pop');
 
-  const icon = L.divIcon({ className: '', html: '<div class="temp-pin"><i class="fa-solid fa-location-dot"></i></div>', iconSize: [32, 32], iconAnchor: [16, 32] });
-  state.tempPickMarker = L.marker([state.coords.lat, state.coords.lng], { icon, draggable: true }).addTo(map);
-  state.tempPickMarker.on('dragend', e => state.tempCoords = e.target.getLatLng());
-  map.on('click', e => { if (state.isPickingLocation) { state.tempCoords = e.latlng; state.tempPickMarker.setLatLng(e.latlng); } });
+  if (map) {
+    map.on('movestart', onCenterPinMoveStart);
+    map.on('moveend', onCenterPinMoveEnd);
+  }
+}
+
+function onCenterPinMoveStart() {
+  if (state.isPickingLocation) {
+    $('centerLocationPin')?.classList.add('moving');
+  }
+}
+
+function onCenterPinMoveEnd() {
+  if (state.isPickingLocation && map) {
+    $('centerLocationPin')?.classList.remove('moving');
+    state.tempCoords = map.getCenter();
+  }
 }
 
 function confirmManualLocation() {
-  if (state.tempCoords) {
-    state.coords = { lat: state.tempCoords.lat, lng: state.tempCoords.lng };
-    renderMyMarker();
-    renderMarkers();
-    syncUserToServer();
-    toast('موقعیت جدید ثبت شد ✅');
-  }
+  const center = map ? map.getCenter() : (state.tempCoords || state.coords);
+  state.coords = { lat: center.lat, lng: center.lng };
+  renderMyMarker();
+  renderRadiusCircle();
+  renderMarkers();
+  syncUserToServer();
   cancelManualLocation(false);
+  playHapticSound('sent');
+  toast('موقعیت جدید ثبت شد ✅');
 }
 
 function cancelManualLocation(showToast = true) {
   state.isPickingLocation = false;
-  $('manualLocationBar').classList.remove('active');
-  if (state.tempPickMarker && map) { map.removeLayer(state.tempPickMarker); state.tempPickMarker = null; }
+  $('manualLocationBar')?.classList.remove('active');
+  $('centerLocationPin')?.classList.remove('active');
+  if (map) {
+    map.off('movestart', onCenterPinMoveStart);
+    map.off('moveend', onCenterPinMoveEnd);
+  }
   if (showToast) toast('انتخاب موقعیت لغو شد');
+}
+
+// ----------------------------------------------------
+// Public Stream Chat Overlay (Bottom-Left)
+// ----------------------------------------------------
+function renderPublicOverlayMessages() {
+  const box = $('publicOverlayMessages');
+  if (!box) return;
+  box.innerHTML = '';
+  const recent = state.publicMessages.slice(-25);
+  recent.forEach(m => {
+    const item = document.createElement('div');
+    item.className = 'public-overlay-msg-item';
+    item.innerHTML = `<b class="public-overlay-msg-sender">${esc(m.sender_name || 'کاربر')}:</b> <span>${esc(m.text || '')}</span>`;
+    box.appendChild(item);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendPublicOverlayMsg() {
+  const input = $('publicOverlayInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const newMsg = {
+    id: 'pub_' + Date.now(),
+    sender_id: state.user?.id || 'guest',
+    sender_name: state.profile?.name || state.user?.name || 'من',
+    text: text,
+    created_at: new Date().toISOString()
+  };
+  input.value = '';
+  state.publicMessages.push(newMsg);
+  renderPublicOverlayMessages();
+  playHapticSound('sent');
+
+  fetch('/api/public_messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newMsg)
+  }).catch(() => {});
 }
 
 // ----------------------------------------------------
@@ -4237,6 +4444,21 @@ function initSSE() {
 
     sseConn.addEventListener('user_sync', e => {
       try { registerOrUpdateUser(JSON.parse(e.data)); } catch {}
+    });
+
+    sseConn.addEventListener('user_update', e => {
+      try { registerOrUpdateUser(JSON.parse(e.data)); } catch {}
+    });
+
+    sseConn.addEventListener('public_msg', e => {
+      try {
+        const data = JSON.parse(e.data);
+        if (!state.publicMessages.some(m => m.id === data.id)) {
+          state.publicMessages.push(data);
+          renderPublicOverlayMessages();
+          if ($('publicDrawer')?.classList.contains('open')) renderPublicMessages();
+        }
+      } catch {}
     });
 
     sseConn.addEventListener('chat_cleared', e => {

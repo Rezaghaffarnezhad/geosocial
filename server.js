@@ -422,6 +422,7 @@ app.post('/api/auth/verify_otp', (req, res) => {
 
   persistDB();
   broadcastSSE('user_update', user);
+  broadcastSSE('user_sync', user);
   res.json({ success: true, user });
 });
 
@@ -467,6 +468,7 @@ app.post('/api/auth/telegram', (req, res) => {
 
   persistDB();
   broadcastSSE('user_update', user);
+  broadcastSSE('user_sync', user);
   console.log(`🚀 Instant Telegram Login for ${user.name} (@${user.username})`);
   res.json({ success: true, user });
 });
@@ -542,10 +544,11 @@ app.post('/api/users/sync', (req, res) => {
   } else {
     users.push(user);
   }
-
+  const updatedUser = idx >= 0 ? users[idx] : user;
   persistDB();
-  broadcastSSE('user_update', user);
-  res.json({ success: true, user });
+  broadcastSSE('user_update', updatedUser);
+  broadcastSSE('user_sync', updatedUser);
+  res.json({ success: true, user: updatedUser });
 });
 
 // Stories API
