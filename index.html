@@ -851,6 +851,108 @@ input, textarea { direction: rtl; }
 .voice-record-btn.recording { background: var(--danger) !important; color: #fff !important; animation: pulseRecord 1s infinite; }
 @keyframes pulseRecord { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }
 
+/* Telegram Voice Recording Banner */
+.voice-recording-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 8px 14px;
+  flex: 1;
+}
+.voice-recording-banner.active { display: flex; }
+.voice-rec-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 700;
+}
+.voice-rec-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: pulseDot 1s infinite alternate;
+}
+@keyframes pulseDot { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+
+/* Telegram Pinned Message Bar */
+.pinned-message-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  z-index: 5;
+}
+.pinned-message-bar.active { display: flex; }
+
+/* Telegram Chat Search Bar */
+.chat-search-bar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  z-index: 5;
+}
+.chat-search-bar.active { display: flex; }
+
+/* Telegram 3-dots Chat Options Menu */
+.chat-options-menu {
+  position: absolute;
+  top: 56px;
+  left: 10px;
+  background: var(--panel-glass-heavy);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  z-index: 80;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  min-width: 180px;
+}
+.chat-options-menu.open { display: flex; }
+.chat-options-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+  direction: rtl;
+}
+.chat-options-menu button:hover {
+  background: rgba(42, 171, 238, 0.12);
+  color: var(--blue);
+}
+
+/* Edit message banner */
+.edit-message-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--input-bg);
+  padding: 6px 12px;
+  border-radius: 10px;
+  border-right: 3px solid var(--green);
+  font-size: 12px;
+}
+.edit-message-banner.active { display: flex; }
+
 /* Context Menu */
 .ctx-menu {
   position: fixed;
@@ -1550,21 +1652,53 @@ input:checked + .slider:before { transform: translateX(20px); }
 <!-- Telegram Direct Chat Room -->
 <div id="chatRoom" class="chat-room">
   <div class="chat-header">
-    <div style="display:flex;align-items:center;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
       <button class="composer-icon-btn" onclick="closeChatRoom()"><i class="fa-solid fa-arrow-right"></i></button>
-      <div class="chat-user-info" onclick="openOtherUserProfile(state.activeConversationUser)">
+      <div class="chat-user-info" onclick="openOtherUserProfile(state.activeConversationUser)" style="min-width:0">
         <img id="chatRoomAvatar" src="">
-        <div>
-          <div id="chatRoomName" style="font-weight:700;font-size:14px"></div>
-          <div id="chatRoomStatus" style="font-size:11px;color:var(--muted)"></div>
+        <div style="min-width:0">
+          <div id="chatRoomName" style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+          <div id="chatRoomStatus" style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
         </div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:6px">
+    <div style="display:flex;align-items:center;gap:4px">
+      <button class="composer-icon-btn" onclick="toggleChatSearch()" title="جستجو در گفتگو"><i class="fa-solid fa-magnifying-glass"></i></button>
       <button class="composer-icon-btn" onclick="startNavigationToUser(state.activeConversationUser)" title="مسیریابی زنده رو نقشه"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i></button>
       <button class="composer-icon-btn" onclick="startCall('voice')" title="تماس صوتی"><i class="fa-solid fa-phone"></i></button>
       <button class="composer-icon-btn" onclick="startCall('video')" title="تماس تصویری"><i class="fa-solid fa-video"></i></button>
+      <button class="composer-icon-btn" onclick="toggleChatOptionsMenu()" title="گزینه‌های گفتگو"><i class="fa-solid fa-ellipsis-vertical"></i></button>
     </div>
+  </div>
+
+  <!-- Telegram Pinned Message Bar -->
+  <div id="pinnedMessageBar" class="pinned-message-bar">
+    <div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0" onclick="scrollToPinnedMessage()">
+      <i class="fa-solid fa-thumbtack" style="color:var(--blue);transform:rotate(45deg);font-size:13px"></i>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:700;color:var(--blue)">پیام سنجاق‌شده</div>
+        <div id="pinnedMessagePreview" style="font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+      </div>
+    </div>
+    <button class="composer-icon-btn" style="width:28px;height:28px" onclick="unpinCurrentMessage()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <!-- Telegram In-Chat Search Bar -->
+  <div id="chatSearchBar" class="chat-search-bar">
+    <i class="fa-solid fa-magnifying-glass" style="color:var(--muted);font-size:13px"></i>
+    <input id="chatSearchQuery" class="composer-input" style="padding:6px 10px;font-size:12px" placeholder="جستجو در پیام‌ها..." oninput="performChatSearch(this.value)">
+    <div id="chatSearchResultsCount" style="font-size:11px;color:var(--muted);white-space:nowrap"></div>
+    <button class="composer-icon-btn" style="width:30px;height:30px" onclick="prevSearchResult()"><i class="fa-solid fa-chevron-up"></i></button>
+    <button class="composer-icon-btn" style="width:30px;height:30px" onclick="nextSearchResult()"><i class="fa-solid fa-chevron-down"></i></button>
+    <button class="composer-icon-btn" style="width:30px;height:30px" onclick="closeChatSearch()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <!-- Telegram 3-dots Chat Options Menu -->
+  <div id="chatOptionsMenu" class="chat-options-menu">
+    <button onclick="toggleChatSearch(true); toggleChatOptionsMenu(false);"><i class="fa-solid fa-magnifying-glass"></i> جستجو در پیام‌ها</button>
+    <button onclick="toggleMuteChat(); toggleChatOptionsMenu(false);"><i class="fa-solid fa-bell-slash"></i> بی‌صدا کردن اعلان‌ها</button>
+    <button onclick="clearChatHistory(); toggleChatOptionsMenu(false);"><i class="fa-solid fa-broom"></i> پاک کردن تاریخچه چت</button>
+    <button onclick="deleteActiveChat(); toggleChatOptionsMenu(false);" style="color:var(--danger)"><i class="fa-solid fa-trash"></i> حذف کامل گفتگو</button>
   </div>
 
   <div id="chatMessagesScroll" class="chat-messages-scroll" onscroll="onChatScroll(this)">
@@ -1652,8 +1786,27 @@ input:checked + .slider:before { transform: translateX(20px); }
       <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="cancelReply()"></i>
     </div>
 
+    <!-- Edit Message Banner -->
+    <div id="editMessageBanner" class="edit-message-banner">
+      <div style="display:flex;align-items:center;gap:8px">
+        <i class="fa-solid fa-pen" style="color:var(--green)"></i>
+        <span id="editBannerText" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
+      </div>
+      <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="cancelEditMessage()"></i>
+    </div>
+
+    <!-- Voice Recording Banner (Telegram style) -->
+    <div id="voiceRecordingBanner" class="voice-recording-banner">
+      <div class="voice-rec-indicator">
+        <div class="voice-rec-dot"></div>
+        <span id="voiceRecTimer">0:00</span>
+        <span style="font-size:11px;color:var(--muted);font-weight:normal">در حال ضبط صدا...</span>
+      </div>
+      <button class="badge" style="background:rgba(231,76,60,0.15);color:var(--danger);border:0" onclick="cancelVoiceRecording()"><i class="fa-solid fa-xmark"></i> لغو</button>
+    </div>
+
     <!-- Main Input Row -->
-    <div class="composer-row">
+    <div class="composer-row" id="composerMainRow">
       <button class="composer-icon-btn" onclick="toggleElementsDrawer()" title="افزودن المنت به چت" style="color:var(--blue);font-size:20px"><i class="fa-solid fa-plus"></i></button>
       <button class="composer-icon-btn" onclick="toggleEmojiDrawer()" title="ایموجی‌ها"><i class="fa-regular fa-face-smile"></i></button>
       <button class="composer-icon-btn" onclick="$('chatAttachmentInput').click()" title="ارسال فایل/عکس"><i class="fa-solid fa-paperclip"></i></button>
@@ -1663,10 +1816,10 @@ input:checked + .slider:before { transform: translateX(20px); }
       <input id="chatDocumentInput" type="file" hidden accept=".pdf,.doc,.docx,.zip,.rar,.txt" onchange="handleDocumentAttachment(event)">
       <input id="chatAudioInput" type="file" hidden accept="audio/*" onchange="handleAudioAttachment(event)">
       
-      <input id="chatMsgInput" class="composer-input" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendDirectMessage()" oninput="broadcastTyping()">
+      <input id="chatMsgInput" class="composer-input" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendDirectMessage()" oninput="onComposerInput(this.value)">
       
       <button id="voiceRecordBtn" class="composer-icon-btn voice-record-btn" onclick="toggleVoiceRecording()" title="ضبط صدا"><i class="fa-solid fa-microphone"></i></button>
-      <button class="btn-primary" style="width:40px;height:40px;border-radius:50%;padding:0" onclick="sendDirectMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+      <button id="chatSendBtn" class="btn-primary" style="width:40px;height:40px;border-radius:50%;padding:0" onclick="sendDirectMessage()"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
 </div>
@@ -1720,6 +1873,11 @@ input:checked + .slider:before { transform: translateX(20px); }
 
   <!-- Interactive Stickers Layer -->
   <div id="storyStickersLayer" class="story-stickers-layer"></div>
+
+  <!-- Story Viewers Counter Pill (for story owner) -->
+  <div id="storyViewersBar" style="display:none;position:absolute;bottom:calc(70px + var(--safe-bottom));right:16px;z-index:12;align-items:center;gap:6px;background:rgba(0,0,0,0.65);backdrop-filter:blur(10px);padding:6px 14px;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,0.2)" onclick="openStoryViewersList()">
+    <i class="fa-solid fa-eye"></i> <span id="storyViewersCount">0</span> بازدید
+  </div>
 
   <!-- Story Bottom Interaction Bar -->
   <div class="story-bottom-bar" id="storyBottomBar">
@@ -1908,9 +2066,22 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div id="msgContextMenu" class="ctx-menu">
   <button onclick="ctxActionReply()"><i class="fa-solid fa-reply"></i> پاسخ (Reply)</button>
   <button onclick="openReactionPicker(event, state.selectedMessage?.id)"><i class="fa-regular fa-face-smile"></i> واکنش (Reaction)</button>
+  <button id="ctxEditBtn" onclick="ctxActionEdit()"><i class="fa-solid fa-pen"></i> ویرایش (Edit)</button>
+  <button id="ctxPinBtn" onclick="ctxActionPin()"><i class="fa-solid fa-thumbtack"></i> سنجاق کردن (Pin)</button>
   <button onclick="openForwardModal(state.selectedMessage)"><i class="fa-solid fa-share"></i> فوروارد (Forward)</button>
   <button onclick="ctxActionCopy()"><i class="fa-solid fa-copy"></i> کپی متن</button>
   <button id="ctxDeleteBtn" onclick="ctxActionDelete()" style="color:var(--danger)"><i class="fa-solid fa-trash"></i> حذف پیام</button>
+</div>
+
+<!-- Story Viewers Modal (Instagram style) -->
+<div id="storyViewersModal" class="modal-overlay" style="z-index:230;background:rgba(0,0,0,0.8)" onclick="if(event.target===this)closeStoryViewersList()">
+  <div style="margin-top:auto;background:var(--panel);border-radius:20px 20px 0 0;padding:16px 20px;max-height:65vh;overflow-y:auto;border-top:1px solid var(--border);width:100%">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700"><i class="fa-solid fa-eye" style="color:var(--blue)"></i> مشاهده‌کنندگان استوری (<span id="storyViewersModalCount">0</span>)</div>
+      <button class="composer-icon-btn" onclick="closeStoryViewersList()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="storyViewersList" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
 </div>
 
 <!-- Fullscreen Image Lightbox -->
@@ -2028,11 +2199,19 @@ let state = {
   activeMessages: [],
   selectedMessage: null,
   replyMessage: null,
+  editingMessage: null,
+  pinnedMessage: null,
   currentStoryIndex: -1,
   storyTimer: null,
   isRecordingVoice: false,
   mediaRecorder: null,
   audioChunks: [],
+  voiceRecordTimer: null,
+  voiceRecordSeconds: 0,
+  chatSearchMatches: [],
+  chatSearchIndex: -1,
+  chatSyncInterval: null,
+  mutedChats: {},
   isPickingLocation: false,
   tempPickMarker: null,
   tempCoords: null,
@@ -2444,7 +2623,32 @@ function openStoryViewer(idx) {
   state.storyTimer = setTimeout(nextStorySlide, CFG.storyDuration);
   setupStoryViewerGestures();
 
-  // Record View
+  // Show Viewers Pill if own story (Instagram style)
+  const isMine = s.user_id === state.user?.id;
+  const viewersBar = $('storyViewersBar');
+  if (viewersBar) {
+    if (isMine) {
+      viewersBar.style.display = 'flex';
+      $('storyViewersCount').textContent = (s.views && Array.isArray(s.views)) ? s.views.length : 0;
+    } else {
+      viewersBar.style.display = 'none';
+    }
+  }
+
+  // Record view locally and on server
+  if (!isMine && state.user) {
+    if (!s.views) s.views = [];
+    if (!s.views.some(v => (typeof v === 'object' ? v.user_id : v) === state.user.id)) {
+      s.views.push({
+        user_id: state.user.id,
+        user_name: state.profile?.name || state.user.name,
+        user_avatar: state.profile?.avatar || DEFAULT_AVATAR,
+        created_at: new Date().toISOString()
+      });
+    }
+  }
+
+  // Record View on Server
   fetch('/api/stories/view', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2726,13 +2930,40 @@ function openChatRoom(user) {
   $('chatRoomName').textContent = user.name;
   $('chatRoomStatus').textContent = formatLastSeen(user.last_seen, online(user));
   $('chatRoom').classList.add('open');
+
+  cancelReply();
+  cancelEditMessage();
+  closeChatSearch();
+  toggleChatOptionsMenu(false);
+  $('voiceRecordingBanner')?.classList.remove('active');
+  $('composerMainRow').style.display = 'flex';
+  onComposerInput($('chatMsgInput')?.value || '');
+
   loadDirectMessages();
+
+  // Mark all unread incoming messages as seen/read (Telegram double checkmark)
+  if (state.user && user) {
+    fetch('/api/messages/seen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user1: state.user.id, user2: user.id, reader_id: state.user.id })
+    }).catch(() => {});
+  }
+
+  // Active sync polling fallback (every 3 seconds)
+  clearInterval(state.chatSyncInterval);
+  state.chatSyncInterval = setInterval(syncActiveChatMessages, 3000);
 }
 
 function closeChatRoom() {
+  clearInterval(state.chatSyncInterval);
+  state.chatSyncInterval = null;
   $('chatRoom').classList.remove('open');
   state.activeConversationUser = null;
   cancelReply();
+  cancelEditMessage();
+  closeChatSearch();
+  toggleChatOptionsMenu(false);
 }
 
 async function loadDirectMessages() {
@@ -2740,7 +2971,12 @@ async function loadDirectMessages() {
   try {
     const res = await fetch(`/api/messages?user1=${state.user.id}&user2=${state.activeConversationUser.id}`);
     const d = await res.json();
-    if (d.success) state.activeMessages = d.messages || [];
+    if (d.success && Array.isArray(d.messages)) {
+      state.activeMessages = d.messages;
+      const pinned = state.activeMessages.find(m => m.is_pinned);
+      if (pinned) renderPinnedMessageBar(pinned);
+      else $('pinnedMessageBar')?.classList.remove('active');
+    }
   } catch {}
   renderDirectMessages();
 }
@@ -3055,11 +3291,21 @@ function renderDirectMessages() {
       `;
     }
 
+    const editedHtml = m.edited_at ? '<span style="font-size:9px;opacity:0.75;margin-left:4px">ویرایش شده</span>' : '';
+    const pinHtml = m.is_pinned ? '<i class="fa-solid fa-thumbtack" style="font-size:9px;color:var(--blue);margin-left:4px;transform:rotate(45deg)"></i>' : '';
+    const tickHtml = isOut ? (
+      (m.status === 'read' || m.seen) ?
+      '<i class="fa-solid fa-check-double" style="color:#2aabee" title="خوانده شد"></i>' :
+      '<i class="fa-solid fa-check" style="opacity:0.75" title="ارسال شد"></i>'
+    ) : '';
+
     bubble.innerHTML = `
       ${contentHtml}
       <div class="msg-meta-row">
+        ${pinHtml}
+        ${editedHtml}
         <span>${timeStr}</span>
-        ${isOut ? '<i class="fa-solid fa-check-double" style="color:#2aabee"></i>' : ''}
+        ${tickHtml}
       </div>
       ${reactHtml ? `<div class="msg-reactions">${reactHtml}</div>` : ''}
     `;
@@ -3067,7 +3313,9 @@ function renderDirectMessages() {
     bubble.oncontextmenu = e => { e.preventDefault(); openMessageCtx(e, m); };
     // Long-press for mobile reaction picker
     let mPressTimer;
-    bubble.addEventListener('touchstart', () => { mPressTimer = setTimeout(() => openReactionPicker({ preventDefault:()=>{}, stopPropagation:()=>{}, target:bubble, clientX: bubble.getBoundingClientRect().left + 40, clientY: bubble.getBoundingClientRect().top }, m.id), 600); }, { passive: true });
+    bubble.addEventListener('touchstart', () => {
+      mPressTimer = setTimeout(() => openReactionPicker({ preventDefault:()=>{}, stopPropagation:()=>{}, target:bubble, clientX: bubble.getBoundingClientRect().left + 40, clientY: bubble.getBoundingClientRect().top }, m.id), 600);
+    }, { passive: true });
     bubble.addEventListener('touchend', () => clearTimeout(mPressTimer));
     box.appendChild(bubble);
   });
@@ -3087,36 +3335,147 @@ function openMessageCtx(e, msg) {
   state.selectedMessage = msg;
   const menu = $('msgContextMenu');
   const x = Math.min(e.clientX, window.innerWidth - 200);
-  const y = Math.min(e.clientY, window.innerHeight - 200);
+  const y = Math.min(e.clientY, window.innerHeight - 260);
   menu.style.top = `${y}px`;
   menu.style.left = `${x}px`;
   menu.classList.add('open');
+
+  const isMine = msg.sender_id === state.user?.id;
   const deleteBtn = $('ctxDeleteBtn');
-  if (deleteBtn) deleteBtn.style.display = msg.sender_id === state.user?.id ? 'flex' : 'none';
+  if (deleteBtn) deleteBtn.style.display = isMine ? 'flex' : 'none';
+
+  const editBtn = $('ctxEditBtn');
+  if (editBtn) editBtn.style.display = (isMine && msg.text) ? 'flex' : 'none';
+
+  const pinBtn = $('ctxPinBtn');
+  if (pinBtn) {
+    pinBtn.innerHTML = msg.is_pinned ? '<i class="fa-solid fa-thumbtack" style="transform:rotate(45deg)"></i> حذف سنجاق (Unpin)' : '<i class="fa-solid fa-thumbtack"></i> سنجاق کردن (Pin)';
+  }
+
   playHapticSound('pop');
 }
 
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#msgContextMenu')) $('msgContextMenu')?.classList.remove('open');
   if (!e.target.closest('#reactionPicker')) $('reactionPicker')?.classList.remove('open');
+  if (!e.target.closest('#chatOptionsMenu') && !e.target.closest('[onclick="toggleChatOptionsMenu()"]')) $('chatOptionsMenu')?.classList.remove('open');
 });
 
 function ctxActionReply() {
   if (!state.selectedMessage) return;
   state.replyMessage = state.selectedMessage;
-  // Support both old and new element IDs
-  const bar = $('replyBanner') || $('chatReplyBar');
+  const bar = $('replyBanner');
   if (bar) { bar.style.display = 'flex'; bar.classList.add('active'); }
-  const textEl = $('replyBannerText') || $('chatReplyText');
-  if (textEl) textEl.textContent = state.selectedMessage.text || 'رسانه پیوست شده';
+  const textEl = $('replyBannerText');
+  if (textEl) textEl.textContent = state.selectedMessage.text || (state.selectedMessage.audio_url ? 'پیام صوتی' : 'رسانه پیوست شده');
   $('chatMsgInput')?.focus();
   playHapticSound('pop');
 }
 
 function cancelReply() {
   state.replyMessage = null;
-  const bar = $('replyBanner') || $('chatReplyBar');
+  const bar = $('replyBanner');
   if (bar) { bar.style.display = 'none'; bar.classList.remove('active'); }
+}
+
+function ctxActionEdit() {
+  if (!state.selectedMessage || state.selectedMessage.sender_id !== state.user?.id) return;
+  state.editingMessage = state.selectedMessage;
+  const banner = $('editMessageBanner');
+  if (banner) {
+    banner.classList.add('active');
+    $('editBannerText').textContent = state.selectedMessage.text || '';
+  }
+  const input = $('chatMsgInput');
+  if (input) {
+    input.value = state.selectedMessage.text || '';
+    onComposerInput(input.value);
+    input.focus();
+  }
+  playHapticSound('pop');
+}
+
+function cancelEditMessage() {
+  state.editingMessage = null;
+  $('editMessageBanner')?.classList.remove('active');
+  const input = $('chatMsgInput');
+  if (input) {
+    input.value = '';
+    onComposerInput('');
+  }
+}
+
+async function ctxActionPin() {
+  if (!state.selectedMessage || !state.activeConversationUser || !state.user) return;
+  const isPinned = !state.selectedMessage.is_pinned;
+  state.selectedMessage.is_pinned = isPinned;
+  renderDirectMessages();
+  if (isPinned) {
+    renderPinnedMessageBar(state.selectedMessage);
+    toast('پیام در بالای گفتگو سنجاق شد 📌');
+  } else {
+    $('pinnedMessageBar')?.classList.remove('active');
+    state.pinnedMessage = null;
+    toast('سنجاق پیام برداشته شد');
+  }
+  playHapticSound('pop');
+  fetch('/api/messages/pin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user1: state.user.id,
+      user2: state.activeConversationUser.id,
+      msg_id: state.selectedMessage.id,
+      is_pinned: isPinned
+    })
+  }).catch(() => {});
+}
+
+function renderPinnedMessageBar(msg) {
+  const bar = $('pinnedMessageBar');
+  if (!bar) return;
+  state.pinnedMessage = msg;
+  bar.classList.add('active');
+  const preview = $('pinnedMessagePreview');
+  if (preview) preview.textContent = msg.text || (msg.audio_url ? 'پیام صوتی' : (msg.media_url ? 'تصویر' : 'پیام'));
+}
+
+function scrollToPinnedMessage() {
+  if (!state.pinnedMessage) return;
+  scrollToMessage(state.pinnedMessage.id);
+}
+
+function unpinCurrentMessage() {
+  if (!state.pinnedMessage || !state.activeConversationUser || !state.user) return;
+  const msgId = state.pinnedMessage.id;
+  state.pinnedMessage = null;
+  $('pinnedMessageBar')?.classList.remove('active');
+  const m = state.activeMessages.find(msg => msg.id === msgId);
+  if (m) m.is_pinned = false;
+  renderDirectMessages();
+  toast('سنجاق پیام برداشته شد');
+  fetch('/api/messages/pin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user1: state.user.id,
+      user2: state.activeConversationUser.id,
+      msg_id: msgId,
+      is_pinned: false
+    })
+  }).catch(() => {});
+}
+
+function scrollToMessage(id) {
+  if (!id) return;
+  const bubbles = $('chatMessagesScroll')?.querySelectorAll('.msg-bubble');
+  const msgIdx = state.activeMessages.findIndex(m => m.id === id);
+  if (msgIdx >= 0 && bubbles && bubbles[msgIdx]) {
+    bubbles[msgIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    bubbles[msgIdx].style.transition = 'box-shadow 0.3s';
+    bubbles[msgIdx].style.boxShadow = '0 0 18px var(--blue-glow)';
+    setTimeout(() => { bubbles[msgIdx].style.boxShadow = ''; }, 1600);
+  }
 }
 
 function ctxActionCopy() {
@@ -3139,6 +3498,150 @@ function ctxActionDelete() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ user1: state.user.id, user2: state.activeConversationUser.id })
   }).catch(() => {});
+}
+
+// =============================================
+// Telegram In-Chat Search
+// =============================================
+function toggleChatSearch(force) {
+  const bar = $('chatSearchBar');
+  if (!bar) return;
+  const isActive = force !== undefined ? force : !bar.classList.contains('active');
+  if (isActive) {
+    bar.classList.add('active');
+    $('chatSearchQuery')?.focus();
+  } else {
+    closeChatSearch();
+  }
+}
+
+function closeChatSearch() {
+  $('chatSearchBar')?.classList.remove('active');
+  state.chatSearchMatches = [];
+  state.chatSearchIndex = -1;
+  const counter = $('chatSearchResultsCount');
+  if (counter) counter.textContent = '';
+  const bubbles = $('chatMessagesScroll')?.querySelectorAll('.msg-bubble');
+  bubbles?.forEach(b => b.style.outline = '');
+}
+
+function performChatSearch(q) {
+  const needle = (q || '').trim().toLowerCase();
+  const counter = $('chatSearchResultsCount');
+  const bubbles = $('chatMessagesScroll')?.querySelectorAll('.msg-bubble');
+  bubbles?.forEach(b => b.style.outline = '');
+
+  if (!needle) {
+    state.chatSearchMatches = [];
+    state.chatSearchIndex = -1;
+    if (counter) counter.textContent = '';
+    return;
+  }
+
+  state.chatSearchMatches = [];
+  state.activeMessages.forEach((m, idx) => {
+    if (m.text && m.text.toLowerCase().includes(needle)) {
+      state.chatSearchMatches.push(idx);
+    }
+  });
+
+  if (state.chatSearchMatches.length === 0) {
+    if (counter) counter.textContent = 'یافت نشد';
+    state.chatSearchIndex = -1;
+    return;
+  }
+
+  state.chatSearchIndex = state.chatSearchMatches.length - 1;
+  updateSearchHighlight();
+}
+
+function nextSearchResult() {
+  if (state.chatSearchMatches.length === 0) return;
+  state.chatSearchIndex = (state.chatSearchIndex - 1 + state.chatSearchMatches.length) % state.chatSearchMatches.length;
+  updateSearchHighlight();
+}
+
+function prevSearchResult() {
+  if (state.chatSearchMatches.length === 0) return;
+  state.chatSearchIndex = (state.chatSearchIndex + 1) % state.chatSearchMatches.length;
+  updateSearchHighlight();
+}
+
+function updateSearchHighlight() {
+  const counter = $('chatSearchResultsCount');
+  const bubbles = $('chatMessagesScroll')?.querySelectorAll('.msg-bubble');
+  if (!bubbles) return;
+  bubbles.forEach(b => b.style.outline = '');
+
+  if (state.chatSearchIndex >= 0 && state.chatSearchIndex < state.chatSearchMatches.length) {
+    const bubbleIdx = state.chatSearchMatches[state.chatSearchIndex];
+    if (bubbles[bubbleIdx]) {
+      bubbles[bubbleIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      bubbles[bubbleIdx].style.outline = '2px solid var(--blue)';
+    }
+    if (counter) counter.textContent = `${state.chatSearchIndex + 1} از ${state.chatSearchMatches.length}`;
+  }
+}
+
+// =============================================
+// Telegram Chat Options Menu (3 dots)
+// =============================================
+function toggleChatOptionsMenu(force) {
+  const menu = $('chatOptionsMenu');
+  if (!menu) return;
+  if (force === false || menu.classList.contains('open')) menu.classList.remove('open');
+  else menu.classList.add('open');
+}
+
+function toggleMuteChat() {
+  if (!state.activeConversationUser) return;
+  const uid = state.activeConversationUser.id;
+  state.mutedChats[uid] = !state.mutedChats[uid];
+  toast(state.mutedChats[uid] ? 'گفتگو بی‌صدا شد 🔕' : 'اعلان‌های گفتگو فعال شد 🔔');
+  playHapticSound('pop');
+}
+
+async function clearChatHistory() {
+  if (!state.activeConversationUser || !state.user) return;
+  if (!confirm('آیا مطمئن هستید که می‌خواهید تمام پیام‌های این گفتگو را پاک کنید؟')) return;
+  state.activeMessages = [];
+  renderDirectMessages();
+  toast('تاریخچه گفتگو پاک شد 🧹');
+  playHapticSound('sent');
+  fetch('/api/messages/clear', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user1: state.user.id, user2: state.activeConversationUser.id })
+  }).catch(() => {});
+}
+
+async function deleteActiveChat() {
+  if (!state.activeConversationUser || !state.user) return;
+  if (!confirm('آیا مطمئن هستید که این گفتگو حذف شود؟')) return;
+  const targetId = state.activeConversationUser.id;
+  closeChatRoom();
+  state.pins = state.pins.filter(p => p.id !== targetId);
+  renderChatsList();
+  renderMarkers();
+  toast('گفتگو حذف شد 🗑️');
+  playHapticSound('sent');
+}
+
+// =============================================
+// Composer Input Handler (Telegram Send/Mic Toggle)
+// =============================================
+function onComposerInput(val) {
+  const text = (val || '').trim();
+  const sendBtn = $('chatSendBtn');
+  const micBtn = $('voiceRecordBtn');
+  if (text.length > 0) {
+    if (sendBtn) sendBtn.style.display = 'grid';
+    if (micBtn) micBtn.style.display = 'none';
+    broadcastTyping();
+  } else {
+    if (sendBtn) sendBtn.style.display = 'none';
+    if (micBtn) micBtn.style.display = 'grid';
+  }
 }
 
 // =============================================
@@ -3167,7 +3670,7 @@ function showTypingIndicator(userData) {
   const avatarEl = $('typingAvatar');
   const nameEl = $('typingName');
   if (avatarEl) avatarEl.src = userData.user_avatar || DEFAULT_AVATAR;
-  if (nameEl) nameEl.textContent = `${userData.user_name || 'کاربر'} در حال تایپ...`;
+  if (nameEl) nameEl.textContent = `${userData.user_name || 'کاربر'} در حال نوشتن...`;
   el.classList.add('show');
   clearTimeout(typingTimeout);
   typingTimeout = setTimeout(() => el.classList.remove('show'), 3000);
@@ -3177,7 +3680,20 @@ let typingBroadcastThrottle = null;
 function broadcastTyping() {
   if (!state.activeConversationUser || !state.user) return;
   if (typingBroadcastThrottle) return;
-  typingBroadcastThrottle = setTimeout(() => { typingBroadcastThrottle = null; }, 1500);
+  typingBroadcastThrottle = setTimeout(() => { typingBroadcastThrottle = null; }, 1800);
+
+  // Broadcast via Server HTTP API and MQTT
+  fetch('/api/messages/typing', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user_id: state.user.id,
+      user_name: state.profile?.name || state.user.name,
+      user_avatar: state.profile?.avatar || DEFAULT_AVATAR,
+      to_user_id: state.activeConversationUser.id
+    })
+  }).catch(() => {});
+
   if (mqttClient && mqttClient.connected) {
     try {
       mqttClient.publish(`${MQTT_TOPIC_PREFIX}/typing`, JSON.stringify({
@@ -3215,13 +3731,11 @@ function addReactionToMessage(emoji) {
   if (!msg.reactions) msg.reactions = {};
   const uid = state.user.id;
 
-  // Toggle: remove from all first
   Object.keys(msg.reactions).forEach(e => {
     msg.reactions[e] = (msg.reactions[e] || []).filter(id => id !== uid);
     if (msg.reactions[e].length === 0) delete msg.reactions[e];
   });
 
-  // Add to the clicked emoji (unless we just removed it)
   if (!msg.reactions[emoji] || !msg.reactions[emoji].includes(uid)) {
     msg.reactions[emoji] = [...(msg.reactions[emoji] || []), uid];
   }
@@ -3230,13 +3744,18 @@ function addReactionToMessage(emoji) {
   renderDirectMessages();
   playHapticSound('pop');
 
-  // Broadcast via MQTT
-  if (mqttClient?.connected && state.activeConversationUser) {
-    try {
-      mqttClient.publish(`${MQTT_TOPIC_PREFIX}/reaction`, JSON.stringify({
-        msg_id: msg.id, emoji, user_id: uid
-      }));
-    } catch {}
+  if (state.activeConversationUser) {
+    fetch('/api/messages/reaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user1: state.user.id,
+        user2: state.activeConversationUser.id,
+        msg_id: msg.id,
+        emoji,
+        user_id: uid
+      })
+    }).catch(() => {});
   }
 }
 
@@ -3302,7 +3821,7 @@ function forwardMessageTo(toUserId) {
 }
 
 // =============================================
-// Story More Menu (Instagram style)
+// Story More Menu & Viewers List (Instagram style)
 // =============================================
 function toggleStoryMoreMenu() {
   $('storyMoreMenu')?.classList.toggle('open');
@@ -3336,6 +3855,50 @@ function reportCurrentStory() {
   $('storyMoreMenu')?.classList.remove('open');
 }
 
+function openStoryViewersList() {
+  const s = state.stories[state.currentStoryIndex];
+  if (!s) return;
+  const list = $('storyViewersList');
+  const countEl = $('storyViewersModalCount');
+  if (!list) return;
+  list.innerHTML = '';
+
+  const views = s.views || [];
+  if (countEl) countEl.textContent = views.length;
+
+  if (views.length === 0) {
+    list.innerHTML = `
+      <div style="padding:30px;text-align:center;color:var(--muted)">
+        <i class="fa-solid fa-eye-slash" style="font-size:36px;margin-bottom:8px;display:block;opacity:0.4"></i>
+        هنوز کسی استوری شما را ندیده است
+      </div>
+    `;
+  } else {
+    views.forEach(v => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)';
+      const avatar = typeof v === 'object' ? (v.user_avatar || DEFAULT_AVATAR) : DEFAULT_AVATAR;
+      const name = typeof v === 'object' ? (v.user_name || 'کاربر') : 'کاربر';
+      const time = typeof v === 'object' && v.created_at ? new Date(v.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : 'امروز';
+      item.innerHTML = `
+        <img src="${esc(avatar)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border)">
+        <div style="flex:1">
+          <b style="font-size:13px">${esc(name)}</b>
+          <div style="font-size:10px;color:var(--muted)">${time}</div>
+        </div>
+        <i class="fa-solid fa-heart" style="color:#ff3366;font-size:14px"></i>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  $('storyViewersModal')?.classList.add('open');
+}
+
+function closeStoryViewersList() {
+  $('storyViewersModal')?.classList.remove('open');
+}
+
 // =============================================
 // Story Text Overlay (Instagram style)
 // =============================================
@@ -3358,39 +3921,156 @@ function updateStoryText(text) {
 }
 
 // =============================================
-// SSE Realtime (Server-Sent Events)
+// Robust Server-Sent Events (SSE) Engine
 // =============================================
 let sseConn = null;
 function initSSE() {
   if (!state.user) return;
   if (sseConn) { try { sseConn.close(); } catch {} }
   try {
-    sseConn = new EventSource(`/api/sse?user_id=${state.user.id}`);
-    sseConn.onmessage = (e) => {
+    sseConn = new EventSource('/api/events');
+
+    sseConn.addEventListener('dm_msg', e => {
+      try { handleIncomingDM(JSON.parse(e.data)); } catch {}
+    });
+
+    sseConn.addEventListener('msg_seen', e => {
       try {
         const data = JSON.parse(e.data);
-        if (!data) return;
-        if (data.type === 'dm_msg') handleIncomingDM(data.payload || data);
-        else if (data.type === 'user_sync') registerOrUpdateUser(data.payload || data);
-        else if (data.type === 'new_story') {
-          if (!state.stories.some(s => s.id === (data.payload || data).id)) {
-            state.stories.unshift(data.payload || data);
-            renderStoriesTray();
-          }
-        } else if (data.type === 'typing') {
-          const p = data.payload || data;
-          if (p.to_user_id === state.user?.id && state.activeConversationUser?.id === p.user_id) {
-            showTypingIndicator(p);
+        if (state.activeConversationUser) {
+          const currentKey = [state.user.id, state.activeConversationUser.id].sort().join('_');
+          if (data.key === currentKey) {
+            state.activeMessages.forEach(m => {
+              if (m.sender_id === state.user.id) {
+                m.status = 'read';
+                m.seen = true;
+              }
+            });
+            renderDirectMessages();
           }
         }
       } catch {}
+    });
+
+    sseConn.addEventListener('msg_edited', e => {
+      try {
+        const data = JSON.parse(e.data);
+        const m = state.activeMessages.find(msg => msg.id === data.id);
+        if (m) {
+          m.text = data.text;
+          m.edited_at = data.edited_at;
+          renderDirectMessages();
+        }
+      } catch {}
+    });
+
+    sseConn.addEventListener('msg_deleted', e => {
+      try {
+        const data = JSON.parse(e.data);
+        state.activeMessages = state.activeMessages.filter(msg => msg.id !== data.id);
+        renderDirectMessages();
+      } catch {}
+    });
+
+    sseConn.addEventListener('msg_pinned', e => {
+      try {
+        const data = JSON.parse(e.data);
+        const m = state.activeMessages.find(msg => msg.id === data.msg_id);
+        if (m) m.is_pinned = data.is_pinned;
+        renderDirectMessages();
+        if (data.is_pinned) renderPinnedMessageBar({ id: data.msg_id, text: data.text });
+        else if (state.pinnedMessage?.id === data.msg_id) $('pinnedMessageBar')?.classList.remove('active');
+      } catch {}
+    });
+
+    sseConn.addEventListener('msg_reaction', e => {
+      try {
+        const data = JSON.parse(e.data);
+        const m = state.activeMessages.find(msg => msg.id === data.msg_id);
+        if (m) {
+          m.reactions = data.reactions;
+          renderDirectMessages();
+        }
+      } catch {}
+    });
+
+    sseConn.addEventListener('typing', e => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.to_user_id === state.user?.id && state.activeConversationUser?.id === data.user_id) {
+          showTypingIndicator(data);
+        }
+      } catch {}
+    });
+
+    sseConn.addEventListener('new_story', e => {
+      try {
+        const data = JSON.parse(e.data);
+        if (!state.stories.some(s => s.id === data.id)) {
+          state.stories.unshift(data);
+          renderStoriesTray();
+        }
+      } catch {}
+    });
+
+    sseConn.addEventListener('user_sync', e => {
+      try { registerOrUpdateUser(JSON.parse(e.data)); } catch {}
+    });
+
+    sseConn.addEventListener('chat_cleared', e => {
+      try {
+        const data = JSON.parse(e.data);
+        if (state.activeConversationUser) {
+          const currentKey = [state.user.id, state.activeConversationUser.id].sort().join('_');
+          if (data.key === currentKey) {
+            state.activeMessages = [];
+            renderDirectMessages();
+          }
+        }
+      } catch {}
+    });
+
+    sseConn.onmessage = e => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === 'dm_msg') handleIncomingDM(data.payload || data);
+      } catch {}
     };
-    sseConn.onerror = () => setTimeout(initSSE, 5000);
+
+    sseConn.onerror = () => {
+      setTimeout(initSSE, 4000);
+    };
   } catch {}
 }
 
-function seekVoiceAudio(e, id) {
-  toast('پخش صوت در حال اجراست 🎧');
+// 3-Second Active Chat Fallback Polling Guarantee
+async function syncActiveChatMessages() {
+  if (!state.activeConversationUser || !state.user) return;
+  if (!$('chatRoom').classList.contains('open')) return;
+  try {
+    const res = await fetch(`/api/messages?user1=${state.user.id}&user2=${state.activeConversationUser.id}`);
+    const d = await res.json();
+    if (d.success && Array.isArray(d.messages)) {
+      const prevCount = state.activeMessages.length;
+      const lastPrevId = state.activeMessages[prevCount - 1]?.id;
+      const newLastId = d.messages[d.messages.length - 1]?.id;
+      if (prevCount !== d.messages.length || lastPrevId !== newLastId || JSON.stringify(d.messages) !== JSON.stringify(state.activeMessages)) {
+        state.activeMessages = d.messages;
+        renderDirectMessages();
+        const hasUnread = d.messages.some(m => m.receiver_id === state.user.id && m.status !== 'read');
+        if (hasUnread) {
+          fetch('/api/messages/seen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user1: state.user.id, user2: state.activeConversationUser.id, reader_id: state.user.id })
+          }).catch(() => {});
+        }
+        const pinned = d.messages.find(m => m.is_pinned);
+        if (pinned) renderPinnedMessageBar(pinned);
+        else $('pinnedMessageBar')?.classList.remove('active');
+      }
+    }
+  } catch {}
 }
 
 function onChatScroll(el) {
@@ -3413,6 +4093,7 @@ function toggleEmojiDrawer() {
 }
 function insertEmoji(e) {
   $('chatMsgInput').value += e;
+  onComposerInput($('chatMsgInput').value);
   $('chatMsgInput').focus();
   playHapticSound('pop');
 }
@@ -3422,6 +4103,24 @@ async function sendDirectMessage() {
   const text = input.value.trim();
   if (!text || !state.activeConversationUser || !state.user) return;
 
+  if (state.editingMessage) {
+    const editId = state.editingMessage.id;
+    const msg = state.activeMessages.find(m => m.id === editId);
+    if (msg) {
+      msg.text = text;
+      msg.edited_at = new Date().toISOString();
+      renderDirectMessages();
+    }
+    cancelEditMessage();
+    playHapticSound('sent');
+    fetch(`/api/messages/${editId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user1: state.user.id, user2: state.activeConversationUser.id, text, editor_id: state.user.id })
+    }).catch(() => {});
+    return;
+  }
+
   const newMsg = {
     id: 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: state.user.id,
@@ -3429,20 +4128,33 @@ async function sendDirectMessage() {
     text: text,
     reply_to: state.replyMessage?.id || null,
     reply_text: state.replyMessage?.text || null,
+    status: 'sent',
+    reactions: {},
     created_at: new Date().toISOString()
   };
 
   input.value = '';
+  onComposerInput('');
   cancelReply();
   state.activeMessages.push(newMsg);
   renderDirectMessages();
   playHapticSound('sent');
 
-  fetch('/api/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newMsg)
-  }).catch(() => {});
+  try {
+    const res = await fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMsg)
+    });
+    const d = await res.json();
+    if (d.success && d.message) {
+      const idx = state.activeMessages.findIndex(m => m.id === newMsg.id);
+      if (idx >= 0) {
+        state.activeMessages[idx] = { ...state.activeMessages[idx], ...d.message, status: 'delivered' };
+        renderDirectMessages();
+      }
+    }
+  } catch {}
 }
 
 function handleChatAttachment(e) {
@@ -3451,10 +4163,11 @@ function handleChatAttachment(e) {
   const reader = new FileReader();
   reader.onload = ev => {
     const newMsg = {
-      id: 'dm_' + Date.now(),
+      id: 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       sender_id: state.user.id,
       receiver_id: state.activeConversationUser.id,
       media_url: ev.target.result,
+      status: 'sent',
       created_at: new Date().toISOString()
     };
     state.activeMessages.push(newMsg);
@@ -3470,50 +4183,98 @@ function handleChatAttachment(e) {
 }
 
 function handleIncomingDM(msg) {
+  if (!msg) return;
   if (state.activeConversationUser && (msg.sender_id === state.activeConversationUser.id || msg.receiver_id === state.activeConversationUser.id)) {
     if (!state.activeMessages.some(m => m.id === msg.id)) {
       state.activeMessages.push(msg);
       renderDirectMessages();
       playHapticSound('pop');
+      if (msg.sender_id === state.activeConversationUser.id && state.user) {
+        fetch('/api/messages/seen', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user1: state.user.id, user2: state.activeConversationUser.id, reader_id: state.user.id })
+        }).catch(() => {});
+      }
     }
+  } else {
+    playHapticSound('pop');
+    const sender = state.pins.find(p => p.id === msg.sender_id);
+    toast(`💬 پیام جدید از ${sender?.name || 'کاربر'}`);
+    renderChatsList();
   }
 }
 
-// Voice Recording
+// =============================================
+// Telegram Voice Recording & Waveform Engine
+// =============================================
 async function toggleVoiceRecording() {
-  const btn = $('voiceRecordBtn');
   if (!state.isRecordingVoice) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       state.audioChunks = [];
       state.mediaRecorder = new MediaRecorder(stream);
       state.mediaRecorder.ondataavailable = e => state.audioChunks.push(e.data);
-      state.mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(state.audioChunks, { type: 'audio/webm' });
-        const reader = new FileReader();
-        reader.onloadend = () => sendVoiceDirectMessage(reader.result);
-        reader.readAsDataURL(audioBlob);
+      state.mediaRecorder.onstop = () => {
+        if (!state.voiceCancelled && state.audioChunks.length > 0) {
+          const audioBlob = new Blob(state.audioChunks, { type: 'audio/webm' });
+          const reader = new FileReader();
+          reader.onloadend = () => sendVoiceDirectMessage(reader.result);
+          reader.readAsDataURL(audioBlob);
+        }
+        state.voiceCancelled = false;
       };
+      state.voiceCancelled = false;
       state.mediaRecorder.start();
       state.isRecordingVoice = true;
-      btn.classList.add('recording');
+
+      $('voiceRecordingBanner')?.classList.add('active');
+      $('composerMainRow').style.display = 'none';
+
+      state.voiceRecordSeconds = 0;
+      $('voiceRecTimer').textContent = '0:00';
+      clearInterval(state.voiceRecordTimer);
+      state.voiceRecordTimer = setInterval(() => {
+        state.voiceRecordSeconds++;
+        const mins = Math.floor(state.voiceRecordSeconds / 60);
+        const secs = state.voiceRecordSeconds % 60;
+        $('voiceRecTimer').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      }, 1000);
+
       playHapticSound('pop');
-      toast('در حال ضبط صدا... 🎙️');
-    } catch { toast('دسترسی میکروفون برقرار نشد'); }
+    } catch { toast('دسترسی میکروفون برقرار نشد 🎙️'); }
   } else {
-    state.mediaRecorder?.stop();
-    state.isRecordingVoice = false;
-    btn.classList.remove('recording');
+    stopVoiceRecording();
   }
+}
+
+function stopVoiceRecording() {
+  if (!state.isRecordingVoice) return;
+  state.isRecordingVoice = false;
+  clearInterval(state.voiceRecordTimer);
+  $('voiceRecordingBanner')?.classList.remove('active');
+  $('composerMainRow').style.display = 'flex';
+  try {
+    state.mediaRecorder?.stop();
+    state.mediaRecorder?.stream?.getTracks()?.forEach(t => t.stop());
+  } catch {}
+}
+
+function cancelVoiceRecording() {
+  state.voiceCancelled = true;
+  stopVoiceRecording();
+  toast('ضبط صدا لغو شد');
+  playHapticSound('pop');
 }
 
 function sendVoiceDirectMessage(audioDataUrl) {
   if (!state.activeConversationUser || !state.user) return;
   const newMsg = {
-    id: 'dm_' + Date.now(),
+    id: 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: state.user.id,
     receiver_id: state.activeConversationUser.id,
     audio_url: audioDataUrl,
+    status: 'sent',
     created_at: new Date().toISOString()
   };
   state.activeMessages.push(newMsg);
@@ -3526,22 +4287,64 @@ function sendVoiceDirectMessage(audioDataUrl) {
   }).catch(() => {});
 }
 
+// Global Single Voice Audio Player
+let currentPlayingAudio = null;
+let currentPlayingMsgId = null;
+
 function playVoiceAudio(e, id, url) {
   e.stopPropagation();
+  if (currentPlayingAudio && currentPlayingMsgId === id) {
+    if (!currentPlayingAudio.paused) {
+      currentPlayingAudio.pause();
+      $(`voiceMsg_${id}`)?.classList.remove('playing');
+      const icon = $(`voiceMsg_${id}`)?.querySelector('.voice-play-btn i');
+      if (icon) icon.className = 'fa-solid fa-play';
+      return;
+    } else {
+      currentPlayingAudio.play();
+      $(`voiceMsg_${id}`)?.classList.add('playing');
+      const icon = $(`voiceMsg_${id}`)?.querySelector('.voice-play-btn i');
+      if (icon) icon.className = 'fa-solid fa-pause';
+      return;
+    }
+  }
+
+  if (currentPlayingAudio) {
+    currentPlayingAudio.pause();
+    if (currentPlayingMsgId) {
+      $(`voiceMsg_${currentPlayingMsgId}`)?.classList.remove('playing');
+      const oldIcon = $(`voiceMsg_${currentPlayingMsgId}`)?.querySelector('.voice-play-btn i');
+      if (oldIcon) oldIcon.className = 'fa-solid fa-play';
+    }
+  }
+
   const box = $(`voiceMsg_${id}`);
-  if (box) box.classList.add('playing');
-  const a = new Audio(url);
-  a.onended = () => box?.classList.remove('playing');
-  a.play();
+  if (box) {
+    box.classList.add('playing');
+    const icon = box.querySelector('.voice-play-btn i');
+    if (icon) icon.className = 'fa-solid fa-pause';
+  }
+
+  currentPlayingMsgId = id;
+  currentPlayingAudio = new Audio(url);
+  currentPlayingAudio.onended = () => {
+    box?.classList.remove('playing');
+    const icon = box?.querySelector('.voice-play-btn i');
+    if (icon) icon.className = 'fa-solid fa-play';
+    currentPlayingAudio = null;
+    currentPlayingMsgId = null;
+  };
+  currentPlayingAudio.play().catch(() => {});
 }
 
 function shareMyLocationInChat() {
   if (!state.activeConversationUser || !state.user) return;
   const newMsg = {
-    id: 'dm_' + Date.now(),
+    id: 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: state.user.id,
     receiver_id: state.activeConversationUser.id,
     location: { lat: state.coords.lat, lng: state.coords.lng },
+    status: 'sent',
     created_at: new Date().toISOString()
   };
   state.activeMessages.push(newMsg);

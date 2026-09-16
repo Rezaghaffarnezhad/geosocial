@@ -106,6 +106,11 @@ app.get('/api/events', (req, res) => {
   });
 });
 
+// Alias for /api/sse so both SSE paths work reliably
+app.get('/api/sse', (req, res) => {
+  res.redirect(307, '/api/events');
+});
+
 app.get('/', (req, res) => {
   if (fs.existsSync(path.join(__dirname, 'index.html'))) {
     res.sendFile(path.join(__dirname, 'index.html'));
@@ -864,9 +869,95 @@ app.post('/api/messages/reaction', (req, res) => {
   res.json({ success: true, reactions: msg.reactions });
 });
 
+// Mark messages as seen/read (Telegram double checkmark ✓✓)
+app.post('/api/messages/seen', (req, res) => {
+  const { user1, user2, reader_id } = req.body || {};
+  if (!user1 || !user2) return res.status(400).json({ success: false, error: 'Missing users' });
+
+  const key = [user1, user2].sort().join('_');
+  const msgList = directMessages[key];
+  if (!msgList) return res.json({ success: true, updated: 0 });
+
+  let updated = 0;
+  msgList.forEach(m => {
+    if (m.receiver_id === reader_id && m.status !== 'read') {
+      m.status = 'read';
+      m.seen = true;
+      updated++;
+    }
+  });
+
+  if (updated > 0) {
+    persistDB();
+    broadcastSSE('msg_seen', { key, reader_id, time: new Date().toISOString() });
+  }
+  res.json({ success: true, updated });
+});
+
+// Real-time typing status broadcast
+app.post('/api/messages/typing', (req, res) => {
+  const { user_id, user_name, user_avatar, to_user_id } = req.body || {};
+  if (!user_id || !to_user_id) return res.status(400).json({ success: false });
+
+  broadcastSSE('typing', { user_id, user_name, user_avatar, to_user_id });
+  res.json({ success: true });
+});
+
+// Edit message (Telegram style)
+app.put('/api/messages/:id', (req, res) => {
+  const { id } = req.params;
+  const { user1, user2, text, editor_id } = req.body || {};
+  if (!user1 || !user2 || !text) return res.status(400).json({ success: false, error: 'Missing parameters' });
+
+  const key = [user1, user2].sort().join('_');
+  const msgList = directMessages[key];
+  if (!msgList) return res.status(404).json({ success: false, error: 'Chat not found' });
+
+  const msg = msgList.find(m => m.id === id);
+  if (!msg) return res.status(404).json({ success: false, error: 'Message not found' });
+  if (editor_id && msg.sender_id !== editor_id) return res.status(403).json({ success: false, error: 'Unauthorized' });
+
+  msg.text = text.trim();
+  msg.edited_at = new Date().toISOString();
+  persistDB();
+  broadcastSSE('msg_edited', { id, text: msg.text, edited_at: msg.edited_at, key });
+  res.json({ success: true, message: msg });
+});
+
+// Pin/Unpin message (Telegram style)
+app.post('/api/messages/pin', (req, res) => {
+  const { user1, user2, msg_id, is_pinned } = req.body || {};
+  if (!user1 || !user2) return res.status(400).json({ success: false });
+
+  const key = [user1, user2].sort().join('_');
+  const msgList = directMessages[key];
+  if (!msgList) return res.status(404).json({ success: false });
+
+  const msg = msgList.find(m => m.id === msg_id);
+  if (msg) {
+    msg.is_pinned = !!is_pinned;
+    persistDB();
+    broadcastSSE('msg_pinned', { msg_id, is_pinned: msg.is_pinned, key, text: msg.text });
+  }
+  res.json({ success: true });
+});
+
+// Clear chat history (Telegram style)
+app.post('/api/messages/clear', (req, res) => {
+  const { user1, user2 } = req.body || {};
+  if (!user1 || !user2) return res.status(400).json({ success: false });
+
+  const key = [user1, user2].sort().join('_');
+  directMessages[key] = [];
+  persistDB();
+  broadcastSSE('chat_cleared', { key });
+  res.json({ success: true });
+});
+
 app.delete('/api/messages/:id', (req, res) => {
   const { id } = req.params;
-  const { user1, user2 } = req.query;
+  const user1 = req.query.user1 || req.body.user1;
+  const user2 = req.query.user2 || req.body.user2;
   if (!user1 || !user2) return res.status(400).json({ success: false, error: 'Missing users' });
 
   const key = [user1, user2].sort().join('_');
