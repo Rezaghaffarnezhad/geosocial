@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#17212b">
-<meta name="description" content="GeoSocial - اکوسیستم نقشه، استوری‌های اینستاگرام و پیام‌رسانی تلگرام">
-<title>GeoSocial - نقشه زنده، استوری و چت هوشمند</title>
+<meta name="description" content="GeoSocial - اکوسیستم جامع نقشه هوشمند، استوری‌های اینستاگرام و چت پیشرفته تلگرام">
+<title>GeoSocial - نقشه زنده، استوری و پیام‌رسان هوشمند</title>
 
 <!-- Telegram WebApp SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- FontAwesome 6 Icons -->
+<!-- FontAwesome 6 Pro Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
@@ -32,6 +32,7 @@
   --muted: #879ab0;
   --border: #263646;
   --green: #2ecc71;
+  --green-glow: rgba(46, 204, 113, 0.4);
   --danger: #e74c3c;
   --purple: #9b59b6;
   --input-bg: #0e1621;
@@ -39,6 +40,7 @@
   --chat-in: #182533;
   --chat-out: #2b5278;
   --insta-gradient: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  --cf-gradient: linear-gradient(45deg, #2ecc71, #1abc9c, #27ae60);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -54,6 +56,7 @@
   --muted: #627485;
   --border: #d3dce6;
   --green: #27ae60;
+  --green-glow: rgba(39, 174, 96, 0.3);
   --danger: #e74c3c;
   --purple: #8e44ad;
   --input-bg: #f5f7fb;
@@ -91,7 +94,7 @@ input, textarea { direction: rtl; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   transform-origin: bottom center;
 }
 .user-marker:hover {
@@ -111,6 +114,12 @@ input, textarea { direction: rtl; }
   border: 2px solid transparent;
   background: var(--insta-gradient);
   padding: 2px;
+}
+.user-marker .pin-body.has-cf-story {
+  border: 2px solid transparent;
+  background: var(--cf-gradient);
+  padding: 2px;
+  box-shadow: 0 0 16px var(--green-glow);
 }
 .user-marker .pin-body img {
   width: 100%;
@@ -149,50 +158,32 @@ input, textarea { direction: rtl; }
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-.user-marker-compact {
-  cursor: pointer;
-  position: relative;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid var(--blue);
-  background: var(--panel);
-  box-shadow: 0 0 10px var(--blue-glow), 0 4px 10px rgba(0,0,0,0.3);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.user-marker-compact:hover { transform: scale(1.22); z-index: 1000 !important; }
-.user-marker-compact img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
-.user-marker-compact .led { position: absolute; bottom: -1px; right: -1px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--panel); }
-
-.user-cluster-marker {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(42, 171, 238, 0.95), rgba(34, 158, 217, 0.95));
-  color: #fff;
-  border-radius: 24px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 700;
-  box-shadow: 0 4px 16px var(--blue-glow), 0 4px 12px rgba(0,0,0,0.4);
-  border: 2px solid #ffffff;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  white-space: nowrap;
-  gap: 6px;
-}
-.user-cluster-marker:hover { transform: scale(1.15); z-index: 1000 !important; }
-.user-cluster-avatars { display: flex; align-items: center; margin-left: -4px; }
-.user-cluster-avatar-mini { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #fff; object-fit: cover; margin-right: -8px; }
-
 /* My Location Radar Pin */
 .my-marker { position: relative; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; pointer-events: none; }
 .my-dot { position: absolute; top: 50%; left: 50%; width: 14px; height: 14px; transform: translate(-50%, -50%); border-radius: 50%; background: #2aabee; border: 2px solid #ffffff; box-shadow: 0 0 14px #2aabee; }
 .my-pulse { position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; margin-top: -15px; margin-left: -15px; border-radius: 50%; border: 2px solid rgba(42, 171, 238, 0.9); animation: myPulse 2s infinite ease-out; }
 @keyframes myPulse { 0% { transform: scale(0.4); opacity: 1; } 100% { transform: scale(2.3); opacity: 0; } }
+
+/* Live Route Navigation HUD */
+.nav-route-hud {
+  position: absolute;
+  top: max(12px, var(--safe-top));
+  left: 12px;
+  right: 12px;
+  z-index: 40;
+  background: var(--panel-glass-heavy);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid var(--blue);
+  border-radius: 18px;
+  padding: 12px 16px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 20px var(--blue-glow);
+  animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nav-route-hud.active { display: flex; }
+@keyframes slideDown { 0% { transform: translateY(-30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 
 /* Manual Location Picker Floating Bar */
 .manual-location-bar {
@@ -219,7 +210,7 @@ input, textarea { direction: rtl; }
 .temp-pin { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #e74c3c; animation: bouncePin 0.8s infinite alternate ease-in-out; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); }
 @keyframes bouncePin { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
 
-/* Top Header, Search, Stories & Filter Pills */
+/* Top Header: Search Bar, Stories Tray & Filter Pills */
 .top-container {
   position: absolute;
   top: max(10px, var(--safe-top));
@@ -266,6 +257,10 @@ input, textarea { direction: rtl; }
   box-shadow: 0 4px 14px rgba(220, 39, 67, 0.35);
   transition: transform 0.2s;
 }
+.story-ring.close-friends {
+  background: var(--cf-gradient);
+  box-shadow: 0 4px 14px var(--green-glow);
+}
 .story-ring.unviewed { animation: storyGlow 2.5s infinite alternate ease-in-out; }
 @keyframes storyGlow { 0% { filter: drop-shadow(0 0 4px rgba(220,39,67,0.4)); } 100% { filter: drop-shadow(0 0 10px rgba(240,148,51,0.8)); } }
 .story-ring.viewed { background: var(--border); box-shadow: none; }
@@ -300,7 +295,7 @@ input, textarea { direction: rtl; }
   transform: translateY(-1px);
 }
 
-/* Floating Controls (Locate GPS, Public Drawer, Radius) */
+/* Floating Controls (GPS, Public Feed, Theme) */
 .map-controls-group {
   position: absolute;
   bottom: calc(75px + var(--safe-bottom));
@@ -426,6 +421,7 @@ input, textarea { direction: rtl; }
   left: 0;
   right: 0;
   z-index: 10;
+  transition: opacity 0.2s;
 }
 .story-progress-segment {
   flex: 1;
@@ -450,6 +446,7 @@ input, textarea { direction: rtl; }
   justify-content: space-between;
   z-index: 10;
   color: #fff;
+  transition: opacity 0.2s;
 }
 .story-user-meta { display: flex; align-items: center; gap: 9px; }
 .story-user-meta img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid #fff; }
@@ -513,6 +510,7 @@ input, textarea { direction: rtl; }
   display: flex;
   align-items: center;
   gap: 10px;
+  transition: opacity 0.2s;
 }
 .story-reply-input {
   flex: 1;
@@ -537,6 +535,24 @@ input, textarea { direction: rtl; }
   place-items: center;
   font-size: 18px;
   cursor: pointer;
+}
+
+/* Double-tap Heart Explosion */
+.heart-explosion {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 80px;
+  color: #ff3366;
+  z-index: 15;
+  pointer-events: none;
+  animation: heartExplode 0.7s cubic-bezier(0.17, 0.89, 0.32, 1.49) forwards;
+}
+@keyframes heartExplode {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.1); opacity: 0; }
 }
 
 /* Floating Emoji Particles */
@@ -585,17 +601,7 @@ input, textarea { direction: rtl; }
   gap: 10px;
   background-image: radial-gradient(rgba(42, 171, 238, 0.04) 1px, transparent 0);
   background-size: 20px 20px;
-}
-.date-divider {
-  align-self: center;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 12px;
-  border-radius: 12px;
-  margin: 6px 0;
+  position: relative;
 }
 .msg-bubble {
   max-width: 82%;
@@ -638,42 +644,58 @@ input, textarea { direction: rtl; }
   font-size: 11px;
   cursor: pointer;
 }
-.msg-reactions-row { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
-.msg-reaction-badge {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  padding: 1px 6px;
-  font-size: 11px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
+.msg-image-attachment {
+  width: 100%;
+  max-width: 240px;
+  border-radius: 10px;
+  margin-bottom: 4px;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: block;
 }
-.msg-quick-react-bar {
-  position: absolute;
-  top: -36px;
-  right: 8px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 3px 8px;
-  display: none;
-  gap: 6px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-  z-index: 10;
-}
-.msg-bubble:hover .msg-quick-react-bar { display: flex; }
-.msg-quick-react-btn { background: transparent; font-size: 15px; cursor: pointer; transition: transform 0.15s; }
-.msg-quick-react-btn:hover { transform: scale(1.3); }
 
-/* Voice Waveform Player */
-.voice-msg-player { display: flex; align-items: center; gap: 10px; padding: 2px 0; min-width: 170px; }
-.voice-play-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-size: 13px; }
-.waveform-bars { display: flex; align-items: center; gap: 2px; height: 24px; flex: 1; }
-.waveform-bar { width: 3px; background: rgba(255, 255, 255, 0.6); border-radius: 2px; }
+/* Seekable Voice Waveform Player */
+.voice-msg-player { display: flex; align-items: center; gap: 10px; padding: 4px 0; min-width: 180px; }
+.voice-play-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-size: 13px; flex-shrink: 0; }
+.waveform-bars { display: flex; align-items: center; gap: 3px; height: 26px; flex: 1; cursor: pointer; }
+.waveform-bar { width: 3px; background: rgba(255, 255, 255, 0.5); border-radius: 2px; transition: background 0.15s; }
+.waveform-bar.passed { background: #2aabee; }
 .voice-msg-player.playing .waveform-bar { animation: waveDance 0.6s infinite alternate ease-in-out; }
-@keyframes waveDance { 0% { height: 4px; } 100% { height: 22px; } }
+@keyframes waveDance { 0% { height: 4px; } 100% { height: 24px; } }
+
+/* Scroll to Bottom FAB */
+.scroll-bottom-fab {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--panel-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  color: var(--blue);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+  display: none;
+  place-items: center;
+  font-size: 15px;
+  cursor: pointer;
+  z-index: 20;
+}
+
+/* Telegram Emoji Drawer */
+.emoji-drawer {
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: 8px 12px;
+  display: none;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.emoji-drawer.open { display: grid; }
+.emoji-btn { font-size: 22px; background: transparent; padding: 4px; border-radius: 8px; transition: transform 0.1s; }
+.emoji-btn:hover { transform: scale(1.25); }
 
 /* Chat Composer Bar */
 .chat-composer {
@@ -893,7 +915,21 @@ input:checked + .slider:before { transform: translateX(20px); }
 <!-- 1. Fullscreen Map -->
 <div id="map"></div>
 
-<!-- 2. Manual Location Picking Floating Bar -->
+<!-- 2. Live Route Navigation HUD (Google Maps Style) -->
+<div id="navRouteHud" class="nav-route-hud">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="width:40px;height:40px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;font-size:18px">
+      <i class="fa-solid fa-location-arrow"></i>
+    </div>
+    <div>
+      <div style="font-weight:700;font-size:13px">مسیر زنده به <span id="routeTargetName"></span></div>
+      <div style="font-size:11px;color:var(--muted)" id="routeEtaText">فاصله: -- کیلومتر</div>
+    </div>
+  </div>
+  <button class="badge" style="background:var(--danger);color:#fff;border:0" onclick="clearActiveRoute()"><i class="fa-solid fa-xmark"></i> پایان</button>
+</div>
+
+<!-- 3. Manual Location Picking Floating Bar -->
 <div id="manualLocationBar" class="manual-location-bar">
   <i class="fa-solid fa-location-crosshairs" style="color:var(--blue);font-size:20px"></i>
   <div style="flex:1">
@@ -906,7 +942,7 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 </div>
 
-<!-- 3. Top Header: Search Bar, Instagram Stories Tray & Filter Pills -->
+<!-- 4. Top Header: Search Bar, Instagram Stories Tray & Filter Pills -->
 <div class="top-container">
   <!-- Search -->
   <div class="search-bar solid">
@@ -932,14 +968,14 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 </div>
 
-<!-- 4. Floating Map Controls (GPS, Public Feed, Theme) -->
+<!-- 5. Floating Map Controls (GPS, Public Feed, Theme) -->
 <div class="map-controls-group">
   <button id="locateBtn" class="fab-btn" title="موقعیت مکانی من (GPS)"><i class="fa-solid fa-location-crosshairs"></i></button>
   <button id="themeToggleBtn" class="fab-btn" title="تغییر حالت شب/روز" onclick="toggleTheme()"><i id="mapThemeIcon" class="fa-solid fa-moon"></i></button>
   <button id="publicChatFab" class="fab-btn" title="چت عمومی منطقه" onclick="togglePublicDrawer()"><i class="fa-solid fa-bullhorn" style="color:var(--blue)"></i></button>
 </div>
 
-<!-- 5. Bottom Navigation -->
+<!-- 6. Bottom Navigation -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="nav('map', this)"><i class="fa-solid fa-map-location-dot"></i><span>نقشه</span></div>
   <div class="nav-item" onclick="nav('chats', this)"><i class="fa-solid fa-comment-dots"></i><span>پیام‌ها</span></div>
@@ -1004,13 +1040,37 @@ input:checked + .slider:before { transform: translateX(20px); }
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
+      <button class="composer-icon-btn" onclick="startNavigationToUser(state.activeConversationUser)" title="مسیریابی زنده رو نقشه"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i></button>
       <button class="composer-icon-btn" onclick="startCall('voice')" title="تماس صوتی"><i class="fa-solid fa-phone"></i></button>
       <button class="composer-icon-btn" onclick="startCall('video')" title="تماس تصویری"><i class="fa-solid fa-video"></i></button>
     </div>
   </div>
 
-  <div id="chatMessagesScroll" class="chat-messages-scroll">
+  <div id="chatMessagesScroll" class="chat-messages-scroll" onscroll="onChatScroll(this)">
     <!-- Messages loaded dynamically -->
+  </div>
+
+  <!-- Scroll-to-Bottom FAB -->
+  <button id="scrollBottomFab" class="scroll-bottom-fab" onclick="scrollChatToBottom()"><i class="fa-solid fa-chevron-down"></i></button>
+
+  <!-- Telegram Emoji Drawer -->
+  <div id="emojiDrawer" class="emoji-drawer">
+    <button class="emoji-btn" onclick="insertEmoji('😀')">😀</button>
+    <button class="emoji-btn" onclick="insertEmoji('😂')">😂</button>
+    <button class="emoji-btn" onclick="insertEmoji('🥰')">🥰</button>
+    <button class="emoji-btn" onclick="insertEmoji('😍')">😍</button>
+    <button class="emoji-btn" onclick="insertEmoji('😎')">😎</button>
+    <button class="emoji-btn" onclick="insertEmoji('🤔')">🤔</button>
+    <button class="emoji-btn" onclick="insertEmoji('🤫')">🤫</button>
+    <button class="emoji-btn" onclick="insertEmoji('🥳')">🥳</button>
+    <button class="emoji-btn" onclick="insertEmoji('❤️')">❤️</button>
+    <button class="emoji-btn" onclick="insertEmoji('🔥')">🔥</button>
+    <button class="emoji-btn" onclick="insertEmoji('👍')">👍</button>
+    <button class="emoji-btn" onclick="insertEmoji('👎')">👎</button>
+    <button class="emoji-btn" onclick="insertEmoji('👏')">👏</button>
+    <button class="emoji-btn" onclick="insertEmoji('🙏')">🙏</button>
+    <button class="emoji-btn" onclick="insertEmoji('🚀')">🚀</button>
+    <button class="emoji-btn" onclick="insertEmoji('🎉')">🎉</button>
   </div>
 
   <div class="chat-composer">
@@ -1025,8 +1085,9 @@ input:checked + .slider:before { transform: translateX(20px); }
 
     <!-- Main Input Row -->
     <div class="composer-row">
+      <button class="composer-icon-btn" onclick="toggleEmojiDrawer()" title="ایموجی‌ها"><i class="fa-regular fa-face-smile"></i></button>
       <button class="composer-icon-btn" onclick="$('chatAttachmentInput').click()" title="ارسال فایل/عکس"><i class="fa-solid fa-paperclip"></i></button>
-      <input id="chatAttachmentInput" type="file" hidden accept="image/*,video/*,audio/*" onchange="handleChatAttachment(event)">
+      <input id="chatAttachmentInput" type="file" hidden accept="image/*,video/*" onchange="handleChatAttachment(event)">
       <button class="composer-icon-btn" onclick="shareMyLocationInChat()" title="ارسال موقعیت مکانی"><i class="fa-solid fa-location-dot"></i></button>
       
       <input id="chatMsgInput" class="composer-input" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendDirectMessage()">
@@ -1043,7 +1104,7 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div id="storyProgressBarContainer" class="story-progress-bar-container"></div>
 
   <!-- Top Info Header -->
-  <div class="story-top-info">
+  <div class="story-top-info" id="storyTopInfo">
     <div class="story-user-meta">
       <img id="storyViewerAvatar" src="">
       <div>
@@ -1063,7 +1124,7 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div id="storyStickersLayer" class="story-stickers-layer"></div>
 
   <!-- Story Bottom Interaction Bar -->
-  <div class="story-bottom-bar">
+  <div class="story-bottom-bar" id="storyBottomBar">
     <input id="storyReplyInput" class="story-reply-input" placeholder="ارسال پیام به استوری..." onkeypress="if(event.key==='Enter')submitStoryReply()">
     <button class="story-action-btn" id="storyLikeBtn" onclick="likeCurrentStory(event)"><i class="fa-regular fa-heart"></i></button>
     <button class="story-action-btn" onclick="submitStoryReply()"><i class="fa-solid fa-paper-plane"></i></button>
@@ -1084,7 +1145,6 @@ input:checked + .slider:before { transform: translateX(20px); }
     </div>
 
     <div style="display:flex;gap:8px">
-      <button class="composer-icon-btn" style="color:#fff" onclick="toggleStudioStickers()"><i class="fa-solid fa-face-smile"></i></button>
       <button class="composer-icon-btn" style="color:#fff" onclick="clearStudioCanvas()"><i class="fa-solid fa-rotate-left"></i></button>
     </div>
   </div>
@@ -1095,9 +1155,12 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 
   <div class="studio-tools-bottom">
-    <button class="btn-secondary" style="width:auto;padding:8px 14px;border-radius:20px" onclick="$('studioFileInput').click()"><i class="fa-solid fa-image"></i> تغییر عکس</button>
+    <button class="btn-secondary" style="width:auto;padding:8px 14px;border-radius:20px" onclick="$('studioFileInput').click()"><i class="fa-solid fa-image"></i> عکس</button>
     <input id="studioFileInput" type="file" hidden accept="image/*" onchange="handleStudioFileSelect(event)">
-    <input id="studioCaptionInput" class="composer-input" style="max-width:180px;background:rgba(0,0,0,0.6);color:#fff" placeholder="توضیح استوری...">
+    <label style="display:flex;align-items:center;gap:6px;color:#2ecc71;font-size:11px;font-weight:700">
+      <input type="checkbox" id="studioCloseFriendsCheck"> کلوز فرندز 🟢
+    </label>
+    <input id="studioCaptionInput" class="composer-input" style="max-width:140px;background:rgba(0,0,0,0.6);color:#fff" placeholder="توضیح...">
     <button class="btn-primary" style="width:auto;padding:8px 18px;border-radius:20px" onclick="publishStudioStory()"><i class="fa-solid fa-paper-plane"></i> انتشار</button>
   </div>
 </div>
@@ -1207,13 +1270,13 @@ input:checked + .slider:before { transform: translateX(20px); }
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:6px">
         <button class="btn-primary" onclick="startChatWithOtherUser()"><i class="fa-solid fa-comments"></i> ارسال پیام</button>
-        <button class="btn-secondary" id="followUserBtn" onclick="toggleFollowOtherUser()"><i class="fa-solid fa-user-plus"></i> دنبال کردن</button>
+        <button class="btn-secondary" onclick="startNavigationToUser(state.activeSelectedUser)"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i> مسیریابی زنده</button>
       </div>
     </div>
 
     <!-- Media Tab Grid -->
     <div class="profile-media-tabs-header">
-      <button class="profile-tab-btn active"><i class="fa-solid fa-images"></i> تصاویر و ویدیوها</button>
+      <button class="profile-tab-btn active"><i class="fa-solid fa-images"></i> تصاویر و رسانه‌ها</button>
     </div>
     <div id="otherUserMediaGrid" class="media-grid-3col" style="padding:10px 0"></div>
   </div>
@@ -1224,9 +1287,11 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div style="text-align:center">
     <img id="callAvatar" src="" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--blue);box-shadow:0 0 25px var(--blue-glow);margin-bottom:14px">
     <h3 id="callName" style="font-size:20px;font-weight:700"></h3>
-    <div id="callStatusText" style="color:var(--green);font-size:13px;margin-top:6px">در حال برقراری ارتباط رمزنگاری شده...</div>
+    <div id="callStatusText" style="color:var(--green);font-size:13px;margin-top:6px">در حال برقراری ارتباط...</div>
+    <div id="callTimerText" style="font-size:16px;font-weight:700;margin-top:10px;display:none">00:00</div>
   </div>
   <div style="display:flex;gap:20px">
+    <button class="fab-btn" id="callMuteBtn" onclick="toggleCallMute()"><i class="fa-solid fa-microphone"></i></button>
     <button class="btn-danger" style="width:60px;height:60px;border-radius:50%;padding:0;font-size:22px" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></button>
   </div>
 </div>
@@ -1235,7 +1300,6 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div id="msgContextMenu" class="ctx-menu">
   <button onclick="ctxActionReply()"><i class="fa-solid fa-reply"></i> پاسخ (Reply)</button>
   <button onclick="ctxActionCopy()"><i class="fa-solid fa-copy"></i> کپی متن</button>
-  <button onclick="ctxActionForward()"><i class="fa-solid fa-share"></i> فوروارد</button>
   <button id="ctxDeleteBtn" onclick="ctxActionDelete()" style="color:var(--danger)"><i class="fa-solid fa-trash"></i> حذف پیام</button>
 </div>
 
@@ -1292,6 +1356,7 @@ let state = {
   stories: [],
   publicMessages: [],
   activeConversationUser: null,
+  activeSelectedUser: null,
   activeMessages: [],
   selectedMessage: null,
   replyMessage: null,
@@ -1305,7 +1370,10 @@ let state = {
   tempCoords: null,
   drawingCanvasCtx: null,
   isDrawing: false,
-  drawingColor: '#ffffff'
+  drawingColor: '#ffffff',
+  activeRouteLine: null,
+  callTimerInterval: null,
+  callSeconds: 0
 };
 
 const $ = id => document.getElementById(id);
@@ -1313,6 +1381,31 @@ const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const toast = m => { const e = $('toast'); if (e) { e.innerHTML = m; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 3800); } };
 const dist = (a, b, c, d) => { const R = 6371, p = Math.PI / 180, dl = (c - a) * p, dg = (d - b) * p, x = Math.sin(dl / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin(dg / 2) ** 2; return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
 const online = p => p?.online === true || (p?.last_seen && Date.now() - new Date(p.last_seen).getTime() < 180000);
+
+// Synthesized Web Audio FX Engine
+function playHapticSound(type = 'pop') {
+  if (!state.soundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+
+    if (type === 'pop') {
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+      osc.start(); osc.stop(ctx.currentTime + 0.05);
+    } else if (type === 'sent') {
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+      osc.start(); osc.stop(ctx.currentTime + 0.08);
+    }
+  } catch {}
+}
 
 function formatLastSeen(lastSeen, isOnline) {
   if (isOnline) return 'آنلاین 🟢';
@@ -1391,9 +1484,9 @@ function registerOrUpdateUser(u) {
 }
 
 // ----------------------------------------------------
-// Leaflet Map & Spatial Clustering
+// Leaflet Map & Navigation Engine
 // ----------------------------------------------------
-let map, myMarker, userLayer, radiusCircleLayer;
+let map, myMarker, userLayer;
 
 function initMap() {
   if (typeof L === 'undefined') { setTimeout(initMap, 200); return; }
@@ -1424,7 +1517,6 @@ function renderMyMarker() {
 function renderMarkers() {
   if (!map || !userLayer) return;
   userLayer.clearLayers();
-  const zoom = map.getZoom();
 
   const activeUsers = state.pins.filter(p => {
     if (!p?.id || p.id === state.user?.id) return false;
@@ -1438,10 +1530,16 @@ function renderMarkers() {
   $('statNearbyCount').textContent = activeUsers.length;
 
   activeUsers.forEach(p => {
-    const hasStory = state.stories.some(s => s.user_id === p.id);
+    const userStory = state.stories.find(s => s.user_id === p.id);
+    const hasStory = !!userStory;
+    const isCloseFriends = userStory?.audience === 'close_friends';
+
+    let storyClass = '';
+    if (hasStory) storyClass = isCloseFriends ? 'has-cf-story' : 'has-story';
+
     let iconHtml = `
       <div class="user-marker">
-        <div class="pin-body ${hasStory ? 'has-story' : ''}">
+        <div class="pin-body ${storyClass}">
           <img src="${esc(p.avatar || DEFAULT_AVATAR)}">
           <i class="led ${online(p) ? 'online' : 'offline'}"></i>
         </div>
@@ -1460,11 +1558,49 @@ function setFilterRadius(km, btn) {
   document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   state.radius = km;
+  playHapticSound('pop');
   renderMarkers();
   if (map) {
     if (km < 500) map.flyTo([state.coords.lat, state.coords.lng], km <= 5 ? 15 : (km <= 25 ? 13 : 11));
     else map.flyTo([state.coords.lat, state.coords.lng], 9);
   }
+}
+
+// Live Navigation Polyline Route
+function startNavigationToUser(user) {
+  if (!user || !map) return;
+  closeAllModals();
+  clearActiveRoute();
+
+  const userCoords = [Number(user.lat), Number(user.lng)];
+  const myCoords = [state.coords.lat, state.coords.lng];
+
+  state.activeRouteLine = L.polyline([myCoords, userCoords], {
+    color: '#2aabee',
+    weight: 4,
+    opacity: 0.9,
+    dashArray: '8, 8'
+  }).addTo(map);
+
+  map.fitBounds([myCoords, userCoords], { padding: [80, 80] });
+
+  const distanceKm = dist(myCoords[0], myCoords[1], userCoords[0], userCoords[1]);
+  const walkMinutes = Math.round(distanceKm * 12);
+  const driveMinutes = Math.max(2, Math.round(distanceKm * 1.8));
+
+  $('routeTargetName').textContent = user.name;
+  $('routeEtaText').textContent = `فاصله: ${distanceKm.toFixed(1)} کیلومتر • 🚗 ${driveMinutes} دقیقه • 🚶 ${walkMinutes} دقیقه`;
+  $('navRouteHud').classList.add('active');
+  playHapticSound('sent');
+  toast(`مسیریابی زنده به سمت ${user.name} فعال شد 🧭`);
+}
+
+function clearActiveRoute() {
+  if (state.activeRouteLine && map) {
+    map.removeLayer(state.activeRouteLine);
+    state.activeRouteLine = null;
+  }
+  $('navRouteHud').classList.remove('active');
 }
 
 // ----------------------------------------------------
@@ -1529,13 +1665,13 @@ function cancelManualLocation(showToast = true) {
 }
 
 // ----------------------------------------------------
-// Instagram Stories Engine (Tray + Viewer + Studio)
+// Instagram Stories Engine (Tray + Viewer + Gestures)
 // ----------------------------------------------------
 function renderStoriesTray() {
   const tray = $('storiesTray');
   tray.innerHTML = '';
 
-  // 1. My Story / Add Story Slot
+  // My Story Slot
   const myStory = document.createElement('div');
   myStory.className = 'story-item';
   myStory.innerHTML = `
@@ -1545,13 +1681,14 @@ function renderStoriesTray() {
   myStory.onclick = openStoryCreator;
   tray.appendChild(myStory);
 
-  // 2. Active Stories from Others
+  // Other Stories
   state.stories.forEach((s, idx) => {
     const item = document.createElement('div');
     item.className = 'story-item';
     const isUnseen = !s.views?.some(v => (typeof v === 'string' ? v === state.user?.id : v.user_id === state.user?.id));
+    const isCF = s.audience === 'close_friends';
     item.innerHTML = `
-      <div class="story-ring ${isUnseen ? 'unviewed' : 'viewed'}"><img src="${esc(s.user_avatar || DEFAULT_AVATAR)}"></div>
+      <div class="story-ring ${isCF ? 'close-friends' : ''} ${isUnseen ? 'unviewed' : 'viewed'}"><img src="${esc(s.user_avatar || DEFAULT_AVATAR)}"></div>
       <span>${esc(s.user_name)}</span>
     `;
     item.onclick = () => openStoryViewer(idx);
@@ -1566,11 +1703,11 @@ function openStoryViewer(idx) {
   clearTimeout(state.storyTimer);
 
   $('storyViewerAvatar').src = s.user_avatar || DEFAULT_AVATAR;
-  $('storyViewerName').textContent = s.user_name;
+  $('storyViewerName').textContent = s.user_name + (s.audience === 'close_friends' ? ' 🟢 (دوستان نزدیک)' : '');
   $('storyViewerTime').textContent = new Date(s.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
   $('storyViewerImg').src = s.media_url;
 
-  // Render Segmented Progress Bars
+  // Segmented Progress Bars
   const pContainer = $('storyProgressBarContainer');
   pContainer.innerHTML = state.stories.map((_, i) => `
     <div class="story-progress-segment">
@@ -1586,26 +1723,9 @@ function openStoryViewer(idx) {
     });
   }
 
-  // Interactive Poll Sticker
-  const stickersBox = $('storyStickersLayer');
-  stickersBox.innerHTML = '';
-  if (s.stickers && s.stickers.length > 0) {
-    const poll = s.stickers.find(st => st.type === 'poll');
-    if (poll) {
-      stickersBox.innerHTML = `
-        <div class="interactive-sticker-poll">
-          <div class="poll-question">${esc(poll.question)}</div>
-          <div class="poll-options-box">
-            <button class="poll-opt-btn" onclick="voteStoryPoll('${s.id}', 0)"><span>${esc(poll.option1 || 'بله')}</span><i class="fa-solid fa-check"></i></button>
-            <button class="poll-opt-btn" onclick="voteStoryPoll('${s.id}', 1)"><span>${esc(poll.option2 || 'خیر')}</span><i class="fa-solid fa-xmark"></i></button>
-          </div>
-        </div>
-      `;
-    }
-  }
-
   $('storyViewer').classList.add('active');
   state.storyTimer = setTimeout(nextStorySlide, CFG.storyDuration);
+  setupStoryViewerGestures();
 
   // Record View
   fetch('/api/stories/view', {
@@ -1613,6 +1733,48 @@ function openStoryViewer(idx) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ story_id: s.id, user_id: state.user?.id, user_name: state.profile?.name, user_avatar: state.profile?.avatar })
   }).catch(() => {});
+}
+
+function setupStoryViewerGestures() {
+  const mediaBox = $('storyMediaBox');
+  let lastTap = 0, pressTimer = null;
+
+  mediaBox.onmousedown = mediaBox.ontouchstart = () => {
+    pressTimer = setTimeout(() => {
+      clearTimeout(state.storyTimer);
+      $('storyTopInfo').style.opacity = '0';
+      $('storyBottomBar').style.opacity = '0';
+      $('storyProgressBarContainer').style.opacity = '0';
+    }, 200);
+  };
+
+  mediaBox.onmouseup = mediaBox.ontouchend = e => {
+    clearTimeout(pressTimer);
+    $('storyTopInfo').style.opacity = '1';
+    $('storyBottomBar').style.opacity = '1';
+    $('storyProgressBarContainer').style.opacity = '1';
+
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      // Double tap to like
+      triggerDoubleTapHeart();
+      likeCurrentStory();
+    } else {
+      const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
+      if (clientX < window.innerWidth * 0.35) prevStorySlide();
+      else if (clientX > window.innerWidth * 0.65) nextStorySlide();
+    }
+    lastTap = now;
+  };
+}
+
+function triggerDoubleTapHeart() {
+  const heart = document.createElement('div');
+  heart.className = 'heart-explosion';
+  heart.innerHTML = '<i class="fa-solid fa-heart"></i>';
+  $('storyViewer').appendChild(heart);
+  playHapticSound('pop');
+  setTimeout(() => heart.remove(), 800);
 }
 
 function nextStorySlide() {
@@ -1665,6 +1827,7 @@ function spawnHeartParticle() {
   p.style.left = (window.innerWidth / 2 + (Math.random() * 80 - 40)) + 'px';
   p.style.top = (window.innerHeight * 0.7) + 'px';
   document.body.appendChild(p);
+  playHapticSound('sent');
   setTimeout(() => p.remove(), 1200);
 }
 
@@ -1689,8 +1852,8 @@ function initStudioDrawingCanvas() {
   const draw = e => {
     if (!state.isDrawing) return;
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || e.touches[0].clientX) - rect.left;
-    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
     state.drawingCanvasCtx.strokeStyle = state.drawingColor;
     state.drawingCanvasCtx.lineTo(x, y);
     state.drawingCanvasCtx.stroke();
@@ -1703,7 +1866,7 @@ function initStudioDrawingCanvas() {
   canvas.onmousemove = canvas.ontouchmove = draw;
 }
 
-function setDrawingColor(c) { state.drawingColor = c; }
+function setDrawingColor(c) { state.drawingColor = c; playHapticSound('pop'); }
 function clearStudioCanvas() {
   if (state.drawingCanvasCtx) {
     const c = $('studioDrawingCanvas');
@@ -1729,7 +1892,6 @@ async function publishStudioStory() {
   canvas.height = 1280;
   const ctx = canvas.getContext('2d');
 
-  // Fill Background
   ctx.fillStyle = '#17212b';
   ctx.fillRect(0, 0, 720, 1280);
 
@@ -1739,21 +1901,23 @@ async function publishStudioStory() {
   const drawCanvas = $('studioDrawingCanvas');
   ctx.drawImage(drawCanvas, 0, 0, 720, 1280);
 
-  const mediaUrl = canvas.toDataURL('image/jpeg', 0.85);
+  const isCF = $('studioCloseFriendsCheck')?.checked;
   const newStory = {
     id: 'st_' + Date.now(),
     user_id: state.user.id,
     user_name: state.profile?.name || 'من',
     user_avatar: state.profile?.avatar || DEFAULT_AVATAR,
-    media_url: mediaUrl,
+    media_url: canvas.toDataURL('image/jpeg', 0.85),
     caption: $('studioCaptionInput').value.trim(),
+    audience: isCF ? 'close_friends' : 'all',
     created_at: new Date().toISOString()
   };
 
   state.stories.unshift(newStory);
   renderStoriesTray();
   closeStoryCreator();
-  toast('استوری شما با موفقیت منتشر شد 🚀');
+  playHapticSound('sent');
+  toast(isCF ? 'استوری کلوز فرندز منتشر شد 🟢' : 'استوری شما با موفقیت منتشر شد 🚀');
 
   fetch('/api/stories', {
     method: 'POST',
@@ -1854,14 +2018,17 @@ function renderDirectMessages() {
     const timeStr = new Date(m.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
 
     let contentHtml = '';
+    if (m.media_url) {
+      contentHtml = `<img class="msg-image-attachment" src="${esc(m.media_url)}" onclick="openImageLightbox('${esc(m.media_url)}')">`;
+    }
     if (m.audio_url) {
-      contentHtml = `
+      contentHtml += `
         <div class="voice-msg-player" id="voiceMsg_${m.id}">
           <button class="voice-play-btn" onclick="playVoiceAudio(event, '${m.id}', '${m.audio_url}')"><i class="fa-solid fa-play"></i></button>
-          <div class="waveform-bars">
+          <div class="waveform-bars" onclick="seekVoiceAudio(event, '${m.id}')">
             <span class="waveform-bar" style="height:6px"></span>
             <span class="waveform-bar" style="height:14px"></span>
-            <span class="waveform-bar" style="height:18px"></span>
+            <span class="waveform-bar" style="height:20px"></span>
             <span class="waveform-bar" style="height:10px"></span>
             <span class="waveform-bar" style="height:16px"></span>
           </div>
@@ -1869,12 +2036,12 @@ function renderDirectMessages() {
         </div>
       `;
     } else if (m.location) {
-      contentHtml = `
+      contentHtml += `
         <div style="font-weight:700;margin-bottom:4px"><i class="fa-solid fa-location-dot" style="color:var(--danger)"></i> موقعیت مکانی زنده</div>
         <div style="font-size:11px">${m.location.lat.toFixed(4)}, ${m.location.lng.toFixed(4)}</div>
       `;
-    } else {
-      contentHtml = `
+    } else if (m.text) {
+      contentHtml += `
         ${m.reply_text ? `<div class="reply-preview-box"><div>${esc(m.reply_text)}</div></div>` : ''}
         <div>${esc(m.text)}</div>
       `;
@@ -1891,7 +2058,30 @@ function renderDirectMessages() {
     bubble.oncontextmenu = e => { e.preventDefault(); openMessageCtx(e, m); };
     box.appendChild(bubble);
   });
+  scrollChatToBottom();
+}
+
+function onChatScroll(el) {
+  const fab = $('scrollBottomFab');
+  if (el.scrollHeight - el.scrollTop - el.clientHeight > 120) {
+    fab.style.display = 'grid';
+  } else {
+    fab.style.display = 'none';
+  }
+}
+function scrollChatToBottom() {
+  const box = $('chatMessagesScroll');
   box.scrollTop = box.scrollHeight;
+}
+
+function toggleEmojiDrawer() {
+  $('emojiDrawer').classList.toggle('open');
+  playHapticSound('pop');
+}
+function insertEmoji(e) {
+  $('chatMsgInput').value += e;
+  $('chatMsgInput').focus();
+  playHapticSound('pop');
 }
 
 async function sendDirectMessage() {
@@ -1913,6 +2103,7 @@ async function sendDirectMessage() {
   cancelReply();
   state.activeMessages.push(newMsg);
   renderDirectMessages();
+  playHapticSound('sent');
 
   fetch('/api/messages', {
     method: 'POST',
@@ -1921,16 +2112,41 @@ async function sendDirectMessage() {
   }).catch(() => {});
 }
 
+function handleChatAttachment(e) {
+  const file = e.target.files?.[0];
+  if (!file || !state.activeConversationUser || !state.user) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const newMsg = {
+      id: 'dm_' + Date.now(),
+      sender_id: state.user.id,
+      receiver_id: state.activeConversationUser.id,
+      media_url: ev.target.result,
+      created_at: new Date().toISOString()
+    };
+    state.activeMessages.push(newMsg);
+    renderDirectMessages();
+    playHapticSound('sent');
+    fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMsg)
+    }).catch(() => {});
+  };
+  reader.readAsDataURL(file);
+}
+
 function handleIncomingDM(msg) {
   if (state.activeConversationUser && (msg.sender_id === state.activeConversationUser.id || msg.receiver_id === state.activeConversationUser.id)) {
     if (!state.activeMessages.some(m => m.id === msg.id)) {
       state.activeMessages.push(msg);
       renderDirectMessages();
+      playHapticSound('pop');
     }
   }
 }
 
-// Voice Note Recording
+// Voice Recording
 async function toggleVoiceRecording() {
   const btn = $('voiceRecordBtn');
   if (!state.isRecordingVoice) {
@@ -1948,7 +2164,8 @@ async function toggleVoiceRecording() {
       state.mediaRecorder.start();
       state.isRecordingVoice = true;
       btn.classList.add('recording');
-      toast('در حال ضبط صدا... برای پایان دوباره لمس کنید 🎙️');
+      playHapticSound('pop');
+      toast('در حال ضبط صدا... 🎙️');
     } catch { toast('دسترسی میکروفون برقرار نشد'); }
   } else {
     state.mediaRecorder?.stop();
@@ -1968,6 +2185,7 @@ function sendVoiceDirectMessage(audioDataUrl) {
   };
   state.activeMessages.push(newMsg);
   renderDirectMessages();
+  playHapticSound('sent');
   fetch('/api/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1995,12 +2213,52 @@ function shareMyLocationInChat() {
   };
   state.activeMessages.push(newMsg);
   renderDirectMessages();
+  playHapticSound('sent');
   toast('موقعیت مکانی شما در چت ارسال شد 📍');
   fetch('/api/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(newMsg)
   }).catch(() => {});
+}
+
+// ----------------------------------------------------
+// Call Studio & Web Audio Ringtone Simulation
+// ----------------------------------------------------
+function startCall(type) {
+  if (!state.activeConversationUser) return;
+  $('callAvatar').src = state.activeConversationUser.avatar || DEFAULT_AVATAR;
+  $('callName').textContent = state.activeConversationUser.name;
+  $('callStatusText').textContent = type === 'voice' ? 'تماس صوتی...' : 'تماس تصویری...';
+  $('callTimerText').style.display = 'none';
+  $('callModal').classList.add('open');
+  playHapticSound('sent');
+
+  // Simulated Answer after 2.5s
+  setTimeout(() => {
+    $('callStatusText').textContent = 'متصل شد 🟢 (کیفیت HD)';
+    $('callTimerText').style.display = 'block';
+    state.callSeconds = 0;
+    clearInterval(state.callTimerInterval);
+    state.callTimerInterval = setInterval(() => {
+      state.callSeconds++;
+      const m = String(Math.floor(state.callSeconds / 60)).padStart(2, '0');
+      const s = String(state.callSeconds % 60).padStart(2, '0');
+      $('callTimerText').textContent = `${m}:${s}`;
+    }, 1000);
+  }, 2500);
+}
+
+function endCall() {
+  clearInterval(state.callTimerInterval);
+  $('callModal').classList.remove('open');
+  playHapticSound('pop');
+  toast('تماس پایان یافت');
+}
+function toggleCallMute() {
+  const btn = $('callMuteBtn');
+  btn.classList.toggle('active');
+  playHapticSound('pop');
 }
 
 // ----------------------------------------------------
@@ -2014,6 +2272,7 @@ function nav(tab, el) {
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
   if (el) el.classList.add('active');
   closeAllModals();
+  playHapticSound('pop');
 
   if (tab === 'chats') { $('chatsModal').classList.add('open'); renderChatsList(); }
   else if (tab === 'people') { $('peopleModal').classList.add('open'); renderPeopleList(); }
@@ -2031,6 +2290,7 @@ function openProfileModal() {
 
 function openOtherUserProfile(user) {
   if (!user) return;
+  state.activeSelectedUser = user;
   $('otherUserAvatar').src = user.avatar || DEFAULT_AVATAR;
   $('otherUserName').textContent = user.name;
   $('otherUserUsername').textContent = user.username ? `@${user.username}` : '';
@@ -2041,17 +2301,8 @@ function openOtherUserProfile(user) {
 
 function startChatWithOtherUser() {
   $('otherUserModal').classList.remove('open');
-  openChatRoom(state.activeConversationUser);
+  openChatRoom(state.activeSelectedUser);
 }
-
-function startCall(type) {
-  if (!state.activeConversationUser) return;
-  $('callAvatar').src = state.activeConversationUser.avatar || DEFAULT_AVATAR;
-  $('callName').textContent = state.activeConversationUser.name;
-  $('callStatusText').textContent = type === 'voice' ? 'تماس صوتی با کیفیت بالا...' : 'تماس تصویری زنده...';
-  $('callModal').classList.add('open');
-}
-function endCall() { $('callModal').classList.remove('open'); }
 
 function toggleGhostMode(isGhost) {
   state.profile.ghost = isGhost;
@@ -2068,6 +2319,7 @@ function toggleTheme() {
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('geosocial_theme', next);
   $('mapThemeIcon').className = next === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+  playHapticSound('pop');
   toast(next === 'dark' ? 'حالت شب فعال شد 🌙' : 'حالت روز فعال شد ☀️');
 }
 
@@ -2082,6 +2334,7 @@ async function requestOtp() {
   $('authStep1').style.display = 'none';
   $('authStep2').style.display = 'flex';
   $('authOtpInput').value = '1234';
+  playHapticSound('sent');
   toast('📱 کد تایید آزمایشی: <b>1234</b>');
 }
 
@@ -2104,7 +2357,6 @@ function confirmOtp() {
     online: true,
     last_seen: new Date().toISOString()
   };
-
   completeLogin(user);
 }
 
@@ -2130,6 +2382,7 @@ function completeLogin(user) {
   state.profile = user;
   localStorage.setItem('geosocial_user', JSON.stringify(user));
   $('authScreen').classList.remove('open');
+  playHapticSound('sent');
   toast(`خوش آمدید ${user.name}! 🌟`);
   renderMyMarker();
   syncUserToServer();
@@ -2190,6 +2443,7 @@ async function sendPublicMsg() {
   input.value = '';
   state.publicMessages.push(newMsg);
   renderPublicMessages();
+  playHapticSound('sent');
   fetch('/api/public_messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
