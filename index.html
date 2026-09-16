@@ -10,6 +10,9 @@
 <!-- Telegram WebApp SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+<!-- MQTT Realtime Cloud Sync SDK -->
+<script src="https://unpkg.com/mqtt@5.3.4/dist/mqtt.min.js"></script>
+
 <!-- Leaflet Map CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -462,41 +465,11 @@ input:checked + .slider:before { transform: translateX(20px); }
     <!-- Step 1: Enter Phone Number -->
     <div id="authStep1">
       <h2 style="font-size:18px">ورود با شماره موبایل</h2>
-      <p style="color:var(--muted);font-size:12px;line-height:1.6;margin:6px 0 12px">شماره موبایل خود را وارد کنید تا کد تایید برای شما ارسال شود.</p>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6;margin:6px 0 16px">شماره موبایل خود را وارد کنید تا کد تایید برای شما ارسال شود.</p>
 
-      <!-- Quick Test Accounts -->
-      <div class="quick-accounts" style="grid-template-columns:1fr 1fr 1fr 1fr">
-        <div class="quick-acc-btn" onclick="quickPhoneLogin('09121111111', 'غفارنژاد', 37.9392, 46.1566)">
-          <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80">
-          <b>غفارنژاد</b>
-          <span>تبریز 📍</span>
-        </div>
-        <div class="quick-acc-btn" onclick="quickPhoneLogin('09122222222', 'کاربر ۲', 37.9412, 46.1585)">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80">
-          <b>کاربر ۲</b>
-          <span>تبریز 📍</span>
-        </div>
-        <div class="quick-acc-btn" onclick="quickPhoneLogin('09123333333', 'سارا تهرانی', 35.6972, 51.3950)">
-          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80">
-          <b>سارا تهرانی</b>
-          <span>تهران 📍</span>
-        </div>
-        <div class="quick-acc-btn" onclick="quickPhoneLogin('09124444444', 'رضا کریمی', 35.6822, 51.3980)">
-          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80">
-          <b>رضا کریمی</b>
-          <span>تهران 📍</span>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:10px;margin:10px 0 14px">
-        <div style="flex:1;height:1px;background:var(--border)"></div>
-        <span style="font-size:11px;color:var(--muted)">یا شماره دلخواه خودتان</span>
-        <div style="flex:1;height:1px;background:var(--border)"></div>
-      </div>
-
-      <input id="authPhoneInput" type="tel" placeholder="۰۹۱۲۳۴۵۶۷۸۹" maxlength="14" style="direction:ltr;text-align:center;font-size:16px;letter-spacing:2px" onkeydown="if(event.key==='Enter')requestOtp()">
+      <input id="authPhoneInput" type="tel" placeholder="۰۹۱۲۳۴۵۶۷۸۹" maxlength="14" style="direction:ltr;text-align:center;font-size:18px;letter-spacing:2px;margin-bottom:12px" onkeydown="if(event.key==='Enter')requestOtp()">
       
-      <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;flex-direction:column;gap:10px">
         <button class="primary" onclick="requestOtp()"><i class="fa-solid fa-paper-plane"></i> دریافت کد تایید</button>
         
         <div style="display:flex;align-items:center;gap:10px;margin:4px 0">
@@ -733,29 +706,7 @@ input:checked + .slider:before { transform: translateX(20px); }
       </div>
     </div>
 
-    <!-- Quick Switch User Account for Testing -->
-    <div class="setting-group" style="padding:14px 16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700">
-          <i class="fa-solid fa-mobile-screen-button" style="color:var(--blue)"></i>
-          <span>سوئیچ سریع بین اکانت‌های تستی</span>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="secondary" style="font-size:11px;padding:8px" onclick="quickPhoneLogin('09121111111', 'غفارنژاد', 37.9392, 46.1566)">
-          <i class="fa-solid fa-user"></i> غفارنژاد (تبریز)
-        </button>
-        <button class="secondary" style="font-size:11px;padding:8px" onclick="quickPhoneLogin('09122222222', 'کاربر ۲', 37.9412, 46.1585)">
-          <i class="fa-solid fa-user"></i> کاربر ۲ (تبریز)
-        </button>
-        <button class="secondary" style="font-size:11px;padding:8px" onclick="quickPhoneLogin('09123333333', 'سارا تهرانی', 35.6972, 51.3950)">
-          <i class="fa-solid fa-user"></i> سارا (تهران)
-        </button>
-        <button class="secondary" style="font-size:11px;padding:8px" onclick="quickPhoneLogin('09124444444', 'رضا کریمی', 35.6822, 51.3980)">
-          <i class="fa-solid fa-user"></i> رضا (تهران)
-        </button>
-      </div>
-    </div>
+
 
     <!-- Server Connection Settings -->
     <div class="setting-group" style="padding:14px 16px">
@@ -907,64 +858,8 @@ const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80'
 ];
 
-const DEFAULT_SEED_USERS = [
-  {
-    id: 'usr_09121111111',
-    phone: '09121111111',
-    name: 'غفارنژاد',
-    username: 'ghaffarnezhad',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    bio: 'توسعه‌دهنده ژئوسوشیال 🌍',
-    city: 'تبریز',
-    lat: 37.9392,
-    lng: 46.1566,
-    ghost: false,
-    online: true,
-    last_seen: new Date().toISOString()
-  },
-  {
-    id: 'usr_09122222222',
-    phone: '09122222222',
-    name: 'کاربر ۲ (تستی)',
-    username: 'user_two',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    bio: 'حساب دوم جهت آزمایش چت و نقشه 📱',
-    city: 'تبریز',
-    lat: 37.9412,
-    lng: 46.1585,
-    ghost: false,
-    online: true,
-    last_seen: new Date().toISOString()
-  },
-  {
-    id: 'usr_09123333333',
-    phone: '09123333333',
-    name: 'سارا تهرانی',
-    username: 'sara_t',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    bio: 'علاقه‌مند به عکاسی و کافه‌گردی ☕',
-    city: 'تهران',
-    lat: 35.6972,
-    lng: 51.3950,
-    ghost: false,
-    online: true,
-    last_seen: new Date().toISOString()
-  },
-  {
-    id: 'usr_09124444444',
-    phone: '09124444444',
-    name: 'رضا کریمی',
-    username: 'reza_k',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    bio: 'برنامه‌نویس و عاشق تکنولوژی 💻',
-    city: 'تهران',
-    lat: 35.6822,
-    lng: 51.3980,
-    ghost: false,
-    online: true,
-    last_seen: new Date().toISOString()
-  }
-];
+// Real dynamic seed configuration (No fake mock users)
+const DEFAULT_SEED_USERS = [];
 
 // ----------------------------------------------------
 // State
@@ -997,7 +892,142 @@ const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const toast = m => { const e = $('toast'); if (e) { e.innerHTML = m; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 3800); } };
 const dist = (a, b, c, d) => { const R = 6371, p = Math.PI / 180, dl = (c - a) * p, dg = (d - b) * p, x = Math.sin(dl / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin(dg / 2) ** 2; return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
-const online = p => p?.online === true || (p?.last_seen && Date.now() - new Date(p.last_seen).getTime() < 180000);
+const online = p => p?.online === true || (p?.last_seen && Date.now() - new Date(p.last_seen).getTime() < 300000);
+
+function registerOrUpdateUser(userObj) {
+  if (!userObj || !userObj.id) return;
+  if (state.user && userObj.id === state.user.id) return;
+
+  const idx = state.pins.findIndex(u => u.id === userObj.id);
+  if (idx >= 0) {
+    state.pins[idx] = { ...state.pins[idx], ...userObj };
+  } else {
+    state.pins.push(userObj);
+  }
+  renderMarkers();
+  renderPeople();
+  renderChats();
+  $('peopleBadge').textContent = `${state.pins.length} فرد`;
+  if ($('statNearby')) $('statNearby').textContent = state.pins.length;
+}
+
+// ----------------------------------------------------
+// Universal Multi-Device Cloud Realtime Sync (MQTT Engine)
+// ----------------------------------------------------
+let mqttClient = null;
+const MQTT_TOPIC_PREFIX = 'geosocial/reza_net_v3';
+
+function initCloudSync() {
+  if (typeof mqtt === 'undefined') {
+    setTimeout(initCloudSync, 500);
+    return;
+  }
+  if (mqttClient && mqttClient.connected) return;
+
+  try {
+    const clientId = 'geo_' + (state.user?.id || 'guest_' + Math.random().toString(36).substring(2, 8));
+    const brokerUrls = [
+      'wss://broker.emqx.io:8084/mqtt',
+      'wss://broker.hivemq.com:8884/mqtt'
+    ];
+    const brokerUrl = brokerUrls[Math.floor(Math.random() * brokerUrls.length)];
+
+    mqttClient = mqtt.connect(brokerUrl, {
+      clientId: clientId,
+      clean: true,
+      connectTimeout: 7000,
+      reconnectPeriod: 3000
+    });
+
+    mqttClient.on('connect', () => {
+      console.log('⚡ Connected to Cloud Sync Broker:', brokerUrl);
+      const badge = $('serverStatusBadge');
+      if (badge) {
+        badge.textContent = 'همگام‌سازی ابری فعال 🟢';
+        badge.style.color = 'var(--green)';
+        badge.style.borderColor = 'rgba(46,204,113,0.3)';
+        badge.style.background = 'rgba(46,204,113,0.18)';
+      }
+
+      mqttClient.subscribe(`${MQTT_TOPIC_PREFIX}/#`, { qos: 0 });
+
+      // Request all online accounts to announce themselves
+      mqttClient.publish(`${MQTT_TOPIC_PREFIX}/discover`, JSON.stringify({ requester: state.user?.id || 'init' }));
+      
+      if (state.user) {
+        announceSelfToCloud();
+      }
+    });
+
+    mqttClient.on('message', (topic, payload) => {
+      try {
+        const data = JSON.parse(payload.toString());
+        if (!data) return;
+
+        if (topic.endsWith('/discover')) {
+          if (data.requester !== state.user?.id && state.user) {
+            announceSelfToCloud();
+          }
+        } else if (topic.endsWith('/user_sync')) {
+          if (data.id && data.id !== state.user?.id) {
+            registerOrUpdateUser(data);
+          }
+        } else if (topic.endsWith('/dm_msg')) {
+          if (data.receiver_id === state.user?.id || data.sender_id === state.user?.id) {
+            if (!state.activeMessages.some(m => m.id === data.id)) {
+              if (state.activeConversation === data.sender_id || state.activeConversation === data.receiver_id) {
+                state.activeMessages.push(data);
+                renderMessages();
+              }
+              if (data.sender_id !== state.user?.id) {
+                playBeep('receive');
+                toast(`💬 پیام از <b>${esc(data.sender_name || 'کاربر')}</b>: ${esc((data.text || 'صدا').slice(0, 30))}`);
+              }
+            }
+          }
+        } else if (topic.endsWith('/public_msg')) {
+          if (!state.public.some(m => m.id === data.id)) {
+            state.public.push(data);
+            renderPublic();
+            if (data.sender_id !== state.user?.id) playBeep('receive');
+          }
+        } else if (topic.endsWith('/story')) {
+          if (!state.stories.some(s => s.id === data.id)) {
+            state.stories.unshift(data);
+            renderStories();
+          }
+        }
+      } catch (err) {}
+    });
+
+  } catch (e) {}
+}
+
+function announceSelfToCloud() {
+  if (!state.user) return;
+  const payload = {
+    ...state.profile,
+    id: state.user.id,
+    phone: state.user.phone,
+    name: state.profile?.name || state.user.name,
+    avatar: state.profile?.avatar || state.user.avatar,
+    bio: state.profile?.bio || state.user.bio,
+    city: state.profile?.city || state.user.city || 'ایران',
+    lat: state.coords.lat,
+    lng: state.coords.lng,
+    ghost: !!state.profile?.ghost,
+    online: true,
+    last_seen: new Date().toISOString()
+  };
+
+  broadcastLocalEvent('USER_SYNC', payload);
+
+  if (mqttClient && mqttClient.connected) {
+    try {
+      mqttClient.publish(`${MQTT_TOPIC_PREFIX}/user_sync`, JSON.stringify(payload));
+    } catch {}
+  }
+}
 
 // ----------------------------------------------------
 // Cross-Tab Instant Synchronization Bus (BroadcastChannel)
@@ -1007,14 +1037,10 @@ try {
   syncBus = new BroadcastChannel('geosocial_sync_bus');
   syncBus.onmessage = (e) => {
     const { type, data } = e.data || {};
-    if (!type) return;
+    if (!type || !data) return;
 
     if (type === 'USER_SYNC') {
-      const idx = state.pins.findIndex(u => u.id === data.id);
-      if (idx >= 0) state.pins[idx] = data;
-      else if (data.id !== state.user?.id) state.pins.push(data);
-      renderMarkers();
-      renderPeople();
+      registerOrUpdateUser(data);
     } else if (type === 'NEW_DM') {
       if ((data.receiver_id === state.user?.id && state.activeConversation === data.sender_id) ||
           (data.sender_id === state.user?.id && state.activeConversation === data.receiver_id)) {
@@ -1346,30 +1372,26 @@ function toggleSound(on) {
 // Authentication Flow & Multi-User Switch
 // ----------------------------------------------------
 async function ensureSession() {
+  const sessionSaved = sessionStorage.getItem('geosocial_session_user');
+  if (sessionSaved) {
+    try {
+      state.user = JSON.parse(sessionSaved);
+      state.profile = state.user;
+      state.coords = { lat: Number(state.user.lat) || CFG.defaultCoords.lat, lng: Number(state.user.lng) || CFG.defaultCoords.lng };
+      return true;
+    } catch {}
+  }
   const localSaved = localStorage.getItem('geosocial_user');
   if (localSaved) {
     try {
       state.user = JSON.parse(localSaved);
       state.profile = state.user;
       state.coords = { lat: Number(state.user.lat) || CFG.defaultCoords.lat, lng: Number(state.user.lng) || CFG.defaultCoords.lng };
+      sessionStorage.setItem('geosocial_session_user', JSON.stringify(state.user));
       return true;
-    } catch {
-      return false;
-    }
+    } catch {}
   }
   return false;
-}
-
-// Quick login with Demo Accounts (Instant 1-Click for Multi-Device Testing)
-async function quickPhoneLogin(phone, name, optLat, optLng) {
-  $('authPhoneInput').value = phone;
-  if (optLat && optLng) {
-    state.coords = { lat: optLat, lng: optLng };
-  }
-  await requestOtp(phone, name);
-  setTimeout(() => {
-    confirmOtp('1234');
-  }, 250);
 }
 
 async function requestOtp(targetPhone, optName) {
@@ -1465,15 +1487,14 @@ async function confirmOtp(manualCode) {
   }
 
   if (!loggedUser) {
-    const seed = DEFAULT_SEED_USERS.find(u => u.phone === state.pendingPhone);
-    loggedUser = seed ? { ...seed, name: name || seed.name } : {
+    loggedUser = {
       id: 'usr_' + state.pendingPhone,
       phone: state.pendingPhone,
       name: name || `کاربر ${state.pendingPhone.slice(-4)}`,
       username: 'user_' + state.pendingPhone.slice(-6),
       avatar: DEFAULT_AVATAR,
       bio: 'عضو جدید GeoSocial 📱',
-      city: 'تبریز',
+      city: 'ایران',
       lat: state.coords.lat,
       lng: state.coords.lng,
       ghost: false,
@@ -1485,6 +1506,7 @@ async function confirmOtp(manualCode) {
   state.user = loggedUser;
   state.profile = loggedUser;
   state.coords = { lat: Number(loggedUser.lat), lng: Number(loggedUser.lng) };
+  sessionStorage.setItem('geosocial_session_user', JSON.stringify(loggedUser));
   localStorage.setItem('geosocial_user', JSON.stringify(loggedUser));
 
   $('auth').style.display = 'none';
@@ -1495,7 +1517,7 @@ async function confirmOtp(manualCode) {
   drawRadiusCircle();
   await syncUserToServer();
   await bootData();
-  broadcastLocalEvent('USER_SYNC', loggedUser);
+  announceSelfToCloud();
 }
 
 // Direct Telegram Login
@@ -1546,7 +1568,7 @@ async function onTelegramAuth(user) {
       username: user.username || 'tg_' + user.id,
       avatar: user.photo_url || DEFAULT_AVATAR,
       bio: user.username ? `@${user.username} 📱` : 'عضو تلگرامی GeoSocial 📱',
-      city: 'تبریز',
+      city: 'ایران',
       lat: state.coords.lat,
       lng: state.coords.lng,
       ghost: false,
@@ -1558,6 +1580,7 @@ async function onTelegramAuth(user) {
   state.user = loggedUser;
   state.profile = loggedUser;
   state.coords = { lat: Number(loggedUser.lat), lng: Number(loggedUser.lng) };
+  sessionStorage.setItem('geosocial_session_user', JSON.stringify(loggedUser));
   localStorage.setItem('geosocial_user', JSON.stringify(loggedUser));
 
   $('auth').style.display = 'none';
@@ -1567,7 +1590,7 @@ async function onTelegramAuth(user) {
   renderMyMarker();
   drawRadiusCircle();
   await bootData();
-  broadcastLocalEvent('USER_SYNC', loggedUser);
+  announceSelfToCloud();
 }
 
 function openTelegramBot() {
@@ -1588,7 +1611,7 @@ async function syncUserToServer() {
     last_seen: new Date().toISOString()
   };
 
-  broadcastLocalEvent('USER_SYNC', payload);
+  announceSelfToCloud();
 
   try {
     const res = await fetch(apiUrl('/api/users/sync'), {
@@ -1599,13 +1622,22 @@ async function syncUserToServer() {
     const d = await res.json();
     if (d.success && d.user) {
       state.profile = { ...state.profile, ...d.user };
+      sessionStorage.setItem('geosocial_session_user', JSON.stringify(state.profile));
       localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
     }
   } catch {}
 }
 
 function logout() {
+  sessionStorage.removeItem('geosocial_session_user');
   localStorage.removeItem('geosocial_user');
+  state.user = null;
+  state.profile = null;
+  closeModals();
+  $('authStep2').style.display = 'none';
+  $('authStep1').style.display = 'block';
+  $('auth').style.display = 'flex';
+}
   closeModals();
   $('authStep2').style.display = 'none';
   $('authStep1').style.display = 'block';
@@ -1770,6 +1802,9 @@ async function submitNewStory() {
   state.stories.unshift(newStoryObj);
   renderStories();
   broadcastLocalEvent('NEW_STORY', newStoryObj);
+  if (mqttClient && mqttClient.connected) {
+    try { mqttClient.publish(`${MQTT_TOPIC_PREFIX}/story`, JSON.stringify(newStoryObj)); } catch {}
+  }
   $('createStoryModal').classList.remove('open');
   toast('استوری شما با موفقیت منتشر شد 🚀');
 
@@ -2039,6 +2074,9 @@ async function sendPublic() {
   state.public.push(msg);
   renderPublic();
   broadcastLocalEvent('PUBLIC_MSG', msg);
+  if (mqttClient && mqttClient.connected) {
+    try { mqttClient.publish(`${MQTT_TOPIC_PREFIX}/public_msg`, JSON.stringify(msg)); } catch {}
+  }
 
   try {
     await fetch(apiUrl('/api/public_messages'), {
@@ -2147,6 +2185,9 @@ async function sendMessage() {
   state.activeMessages.push(newMsg);
   renderMessages();
   broadcastLocalEvent('NEW_DM', newMsg);
+  if (mqttClient && mqttClient.connected) {
+    try { mqttClient.publish(`${MQTT_TOPIC_PREFIX}/dm_msg`, JSON.stringify(newMsg)); } catch {}
+  }
 
   try {
     await fetch(apiUrl('/api/messages'), {
@@ -2318,9 +2359,9 @@ async function loadUsers() {
     }
   } catch {}
 
-  // Merge with default seed users so map is always populated with real active accounts
   const mergedMap = new Map();
-  DEFAULT_SEED_USERS.forEach(u => {
+  // Retain all dynamic discovered peers in state.pins
+  state.pins.forEach(u => {
     if (u.id !== state.user?.id) mergedMap.set(u.id, u);
   });
   loaded.forEach(u => {
@@ -2329,8 +2370,14 @@ async function loadUsers() {
 
   state.pins = Array.from(mergedMap.values());
   renderMarkers();
+  renderPeople();
+  renderChats();
   $('peopleBadge').textContent = `${state.pins.length} فرد`;
   if ($('statNearby')) $('statNearby').textContent = state.pins.length;
+
+  if (state.user) {
+    announceSelfToCloud();
+  }
 }
 
 let evtSource = null;
@@ -2397,19 +2444,21 @@ function initRealtimeStream() {
   }
 }
 
-// Background sync fallback every 10s
+// Background sync heartbeat every 8s
 setInterval(() => {
   if (state.user) {
     loadUsers();
     loadStories();
+    announceSelfToCloud();
   }
-}, 10000);
+}, 8000);
 
 async function bootData() {
   await loadUsers();
   await loadStories();
   await loadPublic();
   initRealtimeStream();
+  initCloudSync();
 }
 
 async function checkTelegramMiniApp() {
@@ -2436,6 +2485,7 @@ async function checkTelegramMiniApp() {
 
 async function init() {
   initMap();
+  initCloudSync();
   $('locateBtn').addEventListener('click', () => locateMe());
   applyTheme(state.theme);
   $('radius').value = state.radius;

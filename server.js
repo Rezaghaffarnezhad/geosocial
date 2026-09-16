@@ -29,59 +29,10 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(__dirname));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Initial Seed Users with Phone Numbers
-const defaultUsers = [
-  {
-    id: 'usr_09121111111',
-    phone: '09121111111',
-    name: 'حساب اول (کاربر ۱)',
-    username: 'user_09121111111',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    bio: 'حساب اول وارد شده با شماره موبایل 📱',
-    city: 'تهران - ولیعصر',
-    lat: 35.6982,
-    lng: 51.4020,
-    ghost: false,
-    online: true,
-    last_seen: new Date().toISOString()
-  },
-  {
-    id: 'usr_09122222222',
-    phone: '09122222222',
-    name: 'حساب دوم (کاربر ۲)',
-    username: 'user_09122222222',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    bio: 'حساب دوم وارد شده با شماره موبایل 📱',
-    city: 'تهران - انقلاب',
-    lat: 35.6882,
-    lng: 51.3910,
-    ghost: false,
-    online: true,
-    last_seen: new Date().toISOString()
-  }
-];
-
-const defaultPublicMessages = [
-  { id: 'pub_1', sender_id: 'sys', sender_name: 'سیستم GeoSocial', text: 'به چت عمومی محیطی خوش آمدید! ورود با شماره موبایل فعال شد 📱', created_at: new Date().toISOString() }
-];
-
-const defaultStories = [
-  {
-    id: 'st_demo1',
-    user_id: 'usr_09121111111',
-    user_name: 'حساب اول (کاربر ۱)',
-    user_avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    media_url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&auto=format&fit=crop&q=80',
-    media_type: 'image',
-    caption: 'استوری تستی حساب موبایل ☕',
-    created_at: new Date().toISOString(),
-    expires_at: new Date(Date.now() + 86400000).toISOString(),
-    likes: ['usr_09122222222'],
-    comments: [
-      { user_name: 'کاربر ۲', text: 'درود، تست عالی کار میکنه!' }
-    ]
-  }
-];
+// Real Dynamic Users (No fake seed users)
+const defaultUsers = [];
+const defaultPublicMessages = [];
+const defaultStories = [];
 
 let users = [...defaultUsers];
 let publicMessages = [...defaultPublicMessages];
