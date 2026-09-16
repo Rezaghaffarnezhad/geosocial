@@ -318,12 +318,127 @@ input, textarea { direction: rtl; }
 
 .stories { display: flex; gap: 9px; overflow-x: auto; scrollbar-width: none; pointer-events: auto; padding: 2px 0; }
 .stories::-webkit-scrollbar { display: none; }
-.story { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 58px; cursor: pointer; }
-.ring { width: 52px; height: 52px; padding: 2px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-.ring.viewed { background: var(--muted); }
+.story { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 62px; cursor: pointer; transition: transform 0.2s; }
+.story:active { transform: scale(0.92); }
+.ring { width: 56px; height: 56px; padding: 2.5px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); position: relative; box-shadow: 0 4px 14px rgba(220, 39, 67, 0.35); transition: transform 0.2s; }
+.ring.unviewed { animation: storyGlow 2.5s infinite alternate ease-in-out; }
+@keyframes storyGlow { 0% { filter: drop-shadow(0 0 4px rgba(220,39,67,0.4)); } 100% { filter: drop-shadow(0 0 10px rgba(240,148,51,0.8)); } }
+.ring.viewed { background: var(--border); box-shadow: none; }
 .ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--bg); }
-.story span { max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
-.add { position: absolute; right: -1px; bottom: -1px; width: 20px; height: 20px; border-radius: 50%; background: var(--blue); display: grid; place-items: center; font-size: 11px; color: #fff; border: 2px solid var(--bg); }
+.story span { max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; font-weight: 600; }
+.add { position: absolute; right: -1px; bottom: -1px; width: 20px; height: 20px; border-radius: 50%; background: var(--blue); display: grid; place-items: center; font-size: 11px; color: #fff; border: 2px solid var(--bg); font-weight: 700; }
+
+/* Google Maps Style Filter Pills */
+.filter-pills-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  pointer-events: auto;
+  padding: 2px 2px;
+}
+.filter-pills-row::-webkit-scrollbar { display: none; }
+.filter-pill {
+  background: var(--panel-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 12px;
+  border-radius: 18px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.filter-pill:hover, .filter-pill.active {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+  box-shadow: 0 4px 14px var(--blue-glow);
+  transform: translateY(-1px);
+}
+
+/* Telegram Style Message Reactions & Waveform */
+.msg-reactions-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.msg-reaction-badge {
+  background: rgba(0,0,0,0.18);
+  border-radius: 12px;
+  padding: 1px 6px;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.msg-quick-react-bar {
+  position: absolute;
+  top: -36px;
+  right: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 8px;
+  display: none;
+  gap: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  z-index: 10;
+  animation: fadeIn 0.15s ease-out;
+}
+.msg:hover .msg-quick-react-bar { display: flex; }
+.msg-quick-react-btn {
+  background: transparent;
+  font-size: 15px;
+  padding: 2px 4px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.msg-quick-react-btn:hover { transform: scale(1.3); }
+
+/* Floating Story Heart Particles */
+.floating-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 999;
+  font-size: 24px;
+  animation: floatUp 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(0.6); opacity: 1; }
+  50% { transform: translateY(-80px) scale(1.3) rotate(-10deg); opacity: 0.9; }
+  100% { transform: translateY(-180px) scale(1) rotate(15deg); opacity: 0; }
+}
+
+/* Voice Message Waveform Visualizer */
+.waveform-bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 20px;
+  flex: 1;
+}
+.waveform-bar {
+  width: 3px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 2px;
+  transition: height 0.1s ease;
+}
+.voice-msg.playing .waveform-bar {
+  animation: waveDance 0.6s infinite alternate ease-in-out;
+}
+@keyframes waveDance {
+  0% { height: 4px; }
+  100% { height: 18px; }
+}
 
 /* Controls Column */
 .controls { position: absolute; right: 12px; bottom: calc(82px + var(--safe-bottom)); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 9px; }
@@ -656,6 +771,15 @@ input:checked + .slider:before { transform: translateX(20px); }
     </button>
     <span id="peopleBadge" class="badge" onclick="openPeople()">۰ فرد</span>
   </div>
+
+  <!-- Google Maps Style Radius Pills -->
+  <div class="filter-pills-row">
+    <button class="filter-pill active" onclick="setFilterRadius(500, this)"><i class="fa-solid fa-globe"></i> سراسری</button>
+    <button class="filter-pill" onclick="setFilterRadius(10, this)"><i class="fa-solid fa-compass"></i> تا ۱۰ کیلومتر</button>
+    <button class="filter-pill" onclick="setFilterRadius(30, this)"><i class="fa-solid fa-city"></i> تا ۳۰ کیلومتر</button>
+    <button class="filter-pill" onclick="setFilterRadius(100, this)"><i class="fa-solid fa-rocket"></i> تا ۱۰۰ کیلومتر</button>
+  </div>
+
   <div id="stories" class="stories"></div>
 </div>
 
@@ -2169,6 +2293,26 @@ function uploadPhoto(e) {
   reader.readAsDataURL(file);
 }
 
+function spawnFloatingParticle(emoji, x, y) {
+  const el = document.createElement('div');
+  el.className = 'floating-particle';
+  el.textContent = emoji;
+  el.style.left = (x || (window.innerWidth / 2) + (Math.random() * 80 - 40)) + 'px';
+  el.style.top = (y || (window.innerHeight * 0.72)) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+
+function setFilterRadius(km, btnEl) {
+  document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  setRadius(km);
+  if (map) {
+    if (km < 500) map.flyTo([state.coords.lat, state.coords.lng], km <= 10 ? 15 : (km <= 30 ? 13 : 11));
+    else map.flyTo([state.coords.lat, state.coords.lng], 9);
+  }
+}
+
 // ----------------------------------------------------
 // Stories Feature
 // ----------------------------------------------------
@@ -2267,8 +2411,9 @@ function renderStories() {
   state.stories.forEach((s, i) => {
     const e = document.createElement('div');
     e.className = 'story';
+    const isUnviewed = !s.viewed_by?.includes(state.user?.id);
     e.innerHTML = `
-      <div class="ring"><img src="${esc(s.user_avatar || DEFAULT_AVATAR)}"></div>
+      <div class="ring ${isUnviewed ? 'unviewed' : 'viewed'}"><img src="${esc(s.user_avatar || DEFAULT_AVATAR)}"></div>
       <span>${esc(s.user_name)}</span>
     `;
     e.onclick = () => openStory(i);
@@ -2281,6 +2426,9 @@ function openStory(i) {
   if (!s) return;
   state.currentStory = i;
   clearTimeout(state.storyTimer);
+
+  if (!s.viewed_by) s.viewed_by = [];
+  if (state.user && !s.viewed_by.includes(state.user.id)) s.viewed_by.push(state.user.id);
 
   $('storyAvatar').src = s.user_avatar || DEFAULT_AVATAR;
   $('storyName').textContent = s.user_name;
@@ -2321,6 +2469,7 @@ function closeStory() {
   clearTimeout(state.storyTimer);
   $('viewer').classList.remove('active');
   state.currentStory = -1;
+  renderStories();
 }
 
 function nextStory(e) {
@@ -2342,8 +2491,12 @@ async function likeStory(e) {
   if (!s || !state.user) return;
   if (!s.likes) s.likes = [];
   const idx = s.likes.indexOf(state.user.id);
-  if (idx >= 0) s.likes.splice(idx, 1);
-  else s.likes.push(state.user.id);
+  if (idx >= 0) {
+    s.likes.splice(idx, 1);
+  } else {
+    s.likes.push(state.user.id);
+    spawnFloatingParticle('❤️', e?.clientX, e?.clientY);
+  }
 
   const liked = s.likes.includes(state.user.id);
   $('likeBtn').innerHTML = liked ? '<i class="fa-solid fa-heart" style="color:var(--danger)"></i>' : '<i class="fa-regular fa-heart"></i>';
@@ -2369,6 +2522,7 @@ async function commentStory(e) {
   s.comments.push(c);
   $('storyComments').innerHTML = s.comments.map(x => `<div class="story-comment-item"><b>${esc(x.user_name)}:</b> ${esc(x.text)}</div>`).join('');
   input.value = '';
+  spawnFloatingParticle('💬');
   toast('نظر شما ثبت شد ✅');
 
   try {
@@ -2512,7 +2666,7 @@ async function sendPublic() {
 }
 
 // ----------------------------------------------------
-// Direct Chat
+// Telegram-Grade Direct Chat & Message Reactions
 // ----------------------------------------------------
 function openChat() {
   if (!state.activePin) return;
@@ -2542,6 +2696,22 @@ async function refreshActiveChat() {
   renderMessages();
 }
 
+function sendReaction(msgId, emoji) {
+  const m = state.activeMessages.find(x => x.id === msgId);
+  if (!m) return;
+  if (!m.reactions) m.reactions = {};
+  m.reactions[emoji] = (m.reactions[emoji] || 0) + 1;
+  renderMessages();
+  playBeep('send');
+  spawnFloatingParticle(emoji);
+
+  const reactionData = { msg_id: msgId, emoji, user_id: state.user?.id, chat_with: state.activeConversation };
+  broadcastLocalEvent('MSG_REACTION', reactionData);
+  if (mqttClient && mqttClient.connected) {
+    try { mqttClient.publish(`${MQTT_TOPIC_PREFIX}/reaction`, JSON.stringify(reactionData)); } catch {}
+  }
+}
+
 function renderMessages() {
   const box = $('messages');
   box.innerHTML = '';
@@ -2556,9 +2726,16 @@ function renderMessages() {
     let contentHtml = '';
     if (m.audio_url) {
       contentHtml = `
-        <div class="voice-msg">
+        <div class="voice-msg" id="vmsg_${m.id}">
           <button class="voice-play-btn" onclick="playVoiceAudio(event, '${m.id}', '${m.audio_url}')"><i class="fa-solid fa-play"></i></button>
-          <div class="voice-bar"><div id="vprog_${m.id}" class="voice-progress"></div></div>
+          <div class="waveform-bars">
+            <span class="waveform-bar" style="height:8px"></span>
+            <span class="waveform-bar" style="height:14px"></span>
+            <span class="waveform-bar" style="height:10px"></span>
+            <span class="waveform-bar" style="height:16px"></span>
+            <span class="waveform-bar" style="height:6px"></span>
+            <span class="waveform-bar" style="height:12px"></span>
+          </div>
           <span style="font-size:10px">صدا</span>
         </div>
       `;
@@ -2569,9 +2746,29 @@ function renderMessages() {
       `;
     }
 
+    let reactionsHtml = '';
+    if (m.reactions && Object.keys(m.reactions).length > 0) {
+      reactionsHtml = `
+        <div class="msg-reactions-row">
+          ${Object.entries(m.reactions).map(([emoji, count]) => `
+            <span class="msg-reaction-badge" onclick="event.stopPropagation();sendReaction('${m.id}', '${emoji}')">${emoji} ${count > 1 ? count : ''}</span>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    const quickReactions = ['❤️', '👍', '🔥', '😂', '👏', '🎉'];
+    const reactBarHtml = `
+      <div class="msg-quick-react-bar">
+        ${quickReactions.map(r => `<button class="msg-quick-react-btn" onclick="event.stopPropagation();sendReaction('${m.id}', '${r}')">${r}</button>`).join('')}
+      </div>
+    `;
+
     e.innerHTML = `
+      ${reactBarHtml}
       ${contentHtml}
-      <span class="meta">${timeStr} ${out ? ' <i class="fa-solid fa-check-double" style="color:#d0f0ff"></i>' : ''}</span>
+      ${reactionsHtml}
+      <span class="meta">${timeStr} ${out ? ' <i class="fa-solid fa-check-double" style="color:#2aabee"></i>' : ''}</span>
     `;
     box.appendChild(e);
   });
@@ -2580,11 +2777,10 @@ function renderMessages() {
 
 function playVoiceAudio(e, id, url) {
   e.stopPropagation();
+  const vBox = $(`vmsg_${id}`);
+  if (vBox) vBox.classList.add('playing');
   const audio = new Audio(url);
-  const prog = $(`vprog_${id}`);
-  audio.ontimeupdate = () => {
-    if (prog) prog.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
-  };
+  audio.onended = () => { if (vBox) vBox.classList.remove('playing'); };
   audio.play();
 }
 
@@ -2788,7 +2984,6 @@ async function loadUsers() {
   } catch {}
 
   const mergedMap = new Map();
-  // Retain all dynamic discovered peers in state.pins
   state.pins.forEach(u => {
     if (u.id !== state.user?.id) mergedMap.set(u.id, u);
   });
@@ -2865,22 +3060,22 @@ function initRealtimeStream() {
         try { evtSource.close(); } catch {}
       }
       clearTimeout(reconnectTimer);
-      reconnectTimer = setTimeout(initRealtimeStream, 5000);
+      reconnectTimer = setTimeout(initRealtimeStream, 3000);
     };
   } catch {
     clearTimeout(reconnectTimer);
-    reconnectTimer = setTimeout(initRealtimeStream, 5000);
+    reconnectTimer = setTimeout(initRealtimeStream, 3000);
   }
 }
 
-// Background sync heartbeat every 8s
+// Background sync heartbeat every 4s for instant refresh
 setInterval(() => {
   if (state.user) {
     loadUsers();
     loadStories();
     announceSelfToCloud();
   }
-}, 8000);
+}, 4000);
 
 async function bootData() {
   await loadUsers();
@@ -2893,7 +3088,6 @@ async function bootData() {
 async function checkTelegramMiniApp() {
   let tgUser = null;
 
-  // 1. Check window.Telegram.WebApp SDK
   if (window.Telegram && window.Telegram.WebApp) {
     const tg = window.Telegram.WebApp;
     try { tg.ready(); tg.expand(); } catch (e) {}
@@ -2911,7 +3105,6 @@ async function checkTelegramMiniApp() {
     }
   }
 
-  // 2. Check URL hash parameters (#tgWebAppData=...)
   if (!tgUser) {
     try {
       const hashStr = window.location.hash.substring(1);
@@ -2927,7 +3120,6 @@ async function checkTelegramMiniApp() {
     } catch (e) {}
   }
 
-  // 3. Check URL query parameters (?user=... or ?id=...)
   if (!tgUser) {
     try {
       const searchParams = new URLSearchParams(window.location.search);
@@ -2961,21 +3153,48 @@ async function checkTelegramMiniApp() {
   return false;
 }
 
+function setupStoryGestures() {
+  const viewer = $('viewer');
+  if (!viewer) return;
+  let startX = 0, startY = 0, startTime = 0;
+
+  viewer.addEventListener('pointerdown', e => {
+    if (e.target.closest('.storybottom') || e.target.closest('.storyhead')) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    startTime = Date.now();
+    clearTimeout(state.storyTimer);
+  });
+
+  viewer.addEventListener('pointerup', e => {
+    if (e.target.closest('.storybottom') || e.target.closest('.storyhead')) return;
+    const duration = Date.now() - startTime;
+    if (duration < 250) {
+      if (e.clientX < window.innerWidth * 0.35) {
+        prevStory(e);
+      } else {
+        nextStory(e);
+      }
+    } else {
+      clearTimeout(state.storyTimer);
+      state.storyTimer = setTimeout(nextStory, 2500);
+    }
+  });
+}
+
 async function init() {
   initMap();
   initCloudSync();
+  setupStoryGestures();
   applyTheme(state.theme);
   $('radius').value = state.radius;
   $('radiusValue').textContent = state.radius >= 500 ? 'سراسری' : `${state.radius} km`;
 
-  // Attach typing event listener
   $('msgInput')?.addEventListener('input', onMsgInputTyping);
 
-  // 1. Check if opened inside Telegram WebApp
   const isTgMiniApp = await checkTelegramMiniApp();
   if (isTgMiniApp) return;
 
-  // 2. Regular session check
   const ok = await ensureSession();
   if (!ok) {
     $('authStep2').style.display = 'none';
