@@ -1235,8 +1235,10 @@ input:checked + .slider:before { transform: translateX(20px); }
     <div class="composer-row">
       <button class="composer-icon-btn" onclick="toggleElementsDrawer()" title="افزودن المنت به چت" style="color:var(--blue);font-size:20px"><i class="fa-solid fa-plus"></i></button>
       <button class="composer-icon-btn" onclick="toggleEmojiDrawer()" title="ایموجی‌ها"><i class="fa-regular fa-face-smile"></i></button>
+      <button class="composer-icon-btn" onclick="$('chatAttachmentInput').click()" title="ارسال فایل/عکس"><i class="fa-solid fa-paperclip"></i></button>
       
       <input id="chatAttachmentInput" type="file" hidden accept="image/*,video/*" onchange="handleChatAttachment(event)">
+      <button class="composer-icon-btn" onclick="shareMyLocationInChat()" title="ارسال موقعیت مکانی"><i class="fa-solid fa-location-dot"></i></button>
       <input id="chatDocumentInput" type="file" hidden accept=".pdf,.doc,.docx,.zip,.rar,.txt" onchange="handleDocumentAttachment(event)">
       <input id="chatAudioInput" type="file" hidden accept="audio/*" onchange="handleAudioAttachment(event)">
       
@@ -1473,6 +1475,35 @@ input:checked + .slider:before { transform: translateX(20px); }
   <button onclick="ctxActionReply()"><i class="fa-solid fa-reply"></i> پاسخ (Reply)</button>
   <button onclick="ctxActionCopy()"><i class="fa-solid fa-copy"></i> کپی متن</button>
   <button id="ctxDeleteBtn" onclick="ctxActionDelete()" style="color:var(--danger)"><i class="fa-solid fa-trash"></i> حذف پیام</button>
+</div>
+
+<!-- Fullscreen Image Lightbox -->
+<div id="imageLightboxModal" class="modal-overlay" style="background:rgba(0,0,0,0.92);justify-content:center;align-items:center" onclick="closeImageLightbox()">
+  <button class="composer-icon-btn" style="position:absolute;top:16px;right:16px;color:#fff;font-size:20px" onclick="closeImageLightbox()"><i class="fa-solid fa-xmark"></i></button>
+  <img id="lightboxImg" src="" style="max-width:92%;max-height:85vh;border-radius:12px;object-fit:contain;box-shadow:0 10px 30px rgba(0,0,0,0.8)">
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal-overlay" style="z-index:210">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-user-pen" style="color:var(--blue)"></i> ویرایش مشخصات فردی</h3>
+    <button class="composer-icon-btn" onclick="$('editProfileModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="padding:16px 20px;display:flex;flex-direction:column;gap:14px">
+    <div>
+      <label style="font-size:12px;color:var(--muted);margin-bottom:6px;display:block">نام نمایشی</label>
+      <input id="editNameInput" class="btn-secondary" placeholder="نام شما...">
+    </div>
+    <div>
+      <label style="font-size:12px;color:var(--muted);margin-bottom:6px;display:block">نام کاربری (آیدی @)</label>
+      <input id="editUsernameInput" class="btn-secondary" style="direction:ltr;text-align:left" placeholder="username">
+    </div>
+    <div>
+      <label style="font-size:12px;color:var(--muted);margin-bottom:6px;display:block">بیوگرافی و درباره شما</label>
+      <textarea id="editBioInput" class="btn-secondary" style="height:80px;resize:none;font-family:inherit" placeholder="درباره خود بنویسید..."></textarea>
+    </div>
+    <button class="btn-primary" onclick="saveProfileDetails()"><i class="fa-solid fa-check"></i> ذخیره تغییرات</button>
+  </div>
 </div>
 
 <!-- Toast Notification -->
@@ -2373,14 +2404,14 @@ function renderDirectMessages() {
   box.innerHTML = '';
 
   state.activeMessages.forEach(m => {
-    const isOut = m.sender_id === state.user.id;
+    const isOut = m.sender_id === state.user?.id;
     const bubble = document.createElement('div');
     bubble.className = `msg-bubble ${isOut ? 'out' : 'in'}`;
     const timeStr = new Date(m.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
 
     let contentHtml = '';
     if (m.media_url) {
-      contentHtml = `<img class="msg-image-attachment" src="${esc(m.media_url)}" onclick="openImageLightbox('${esc(m.media_url)}')">`;
+      contentHtml += `<img class="msg-image-attachment" src="${esc(m.media_url)}" onclick="openImageLightbox('${esc(m.media_url)}')">`;
     }
     if (m.poll) {
       // Calculate total votes and % per option
@@ -2429,7 +2460,7 @@ function renderDirectMessages() {
       contentHtml += `
         <div class="voice-msg-player" id="voiceMsg_${m.id}">
           <button class="voice-play-btn" onclick="playVoiceAudio(event, '${m.id}', '${m.audio_url}')"><i class="fa-solid fa-play"></i></button>
-          <div class="waveform-bars">
+          <div class="waveform-bars" onclick="seekVoiceAudio(event, '${m.id}')">
             <span class="waveform-bar" style="height:6px"></span>
             <span class="waveform-bar" style="height:14px"></span>
             <span class="waveform-bar" style="height:20px"></span>
@@ -2464,6 +2495,70 @@ function renderDirectMessages() {
     box.appendChild(bubble);
   });
   scrollChatToBottom();
+}
+
+function openImageLightbox(url) {
+  $('lightboxImg').src = url;
+  $('imageLightboxModal').classList.add('open');
+  playHapticSound('pop');
+}
+function closeImageLightbox() {
+  $('imageLightboxModal').classList.remove('open');
+}
+
+function openMessageCtx(e, msg) {
+  state.selectedMessage = msg;
+  const menu = $('msgContextMenu');
+  menu.style.top = `${Math.min(e.clientY, window.innerHeight - 150)}px`;
+  menu.style.left = `${Math.min(e.clientX, window.innerWidth - 180)}px`;
+  menu.classList.add('open');
+  const deleteBtn = $('ctxDeleteBtn');
+  if (deleteBtn) deleteBtn.style.display = msg.sender_id === state.user?.id ? 'flex' : 'none';
+}
+
+document.addEventListener('click', () => {
+  $('msgContextMenu')?.classList.remove('open');
+});
+
+function ctxActionReply() {
+  if (!state.selectedMessage) return;
+  state.replyMessage = state.selectedMessage;
+  $('chatReplyBar').style.display = 'flex';
+  $('chatReplyText').textContent = state.selectedMessage.text || 'رسانه پیوست شده';
+  $('chatMsgInput').focus();
+  playHapticSound('pop');
+}
+
+function cancelReply() {
+  state.replyMessage = null;
+  const bar = $('chatReplyBar');
+  if (bar) bar.style.display = 'none';
+}
+
+function ctxActionCopy() {
+  if (state.selectedMessage?.text) {
+    navigator.clipboard.writeText(state.selectedMessage.text).catch(() => {});
+    toast('متن کپی شد 📋');
+    playHapticSound('pop');
+  }
+}
+
+function ctxActionDelete() {
+  if (!state.selectedMessage || !state.activeConversationUser) return;
+  const id = state.selectedMessage.id;
+  state.activeMessages = state.activeMessages.filter(m => m.id !== id);
+  renderDirectMessages();
+  playHapticSound('pop');
+  toast('پیام حذف شد 🗑️');
+  fetch(`/api/messages/${id}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user1: state.user.id, user2: state.activeConversationUser.id })
+  }).catch(() => {});
+}
+
+function seekVoiceAudio(e, id) {
+  toast('پخش صوت در حال اجراست 🎧');
 }
 
 function onChatScroll(el) {
@@ -2692,6 +2787,85 @@ function openProfileModal() {
   $('myProfileBio').textContent = state.profile?.bio || 'بیوگرافی ثبت نشده است.';
   $('ghostSwitch').checked = !!state.profile?.ghost;
   $('profileModal').classList.add('open');
+}
+
+function openEditProfileModal() {
+  if (!state.profile) return;
+  $('editNameInput').value = state.profile.name || '';
+  $('editUsernameInput').value = state.profile.username || '';
+  $('editBioInput').value = state.profile.bio || '';
+  $('editProfileModal').classList.add('open');
+  playHapticSound('pop');
+}
+
+function saveProfileDetails() {
+  if (!state.profile || !state.user) return;
+  const name = $('editNameInput').value.trim() || state.user.name;
+  const username = $('editUsernameInput').value.trim().replace(/^@/, '');
+  const bio = $('editBioInput').value.trim();
+
+  state.profile.name = name;
+  state.profile.username = username;
+  state.profile.bio = bio;
+  state.user.name = name;
+  state.user.username = username;
+  state.user.bio = bio;
+
+  localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
+  $('editProfileModal').classList.remove('open');
+  openProfileModal();
+  syncUserToServer();
+  playHapticSound('sent');
+  toast('مشخصات شما با موفقیت ذخیره شد ✅');
+}
+
+function openAvatarSelector() {
+  const url = prompt('لینک عکس پروفایل خود را وارد کنید یا اینتر بزنید تا عکس پیش‌فرض تنظیم شود:', state.profile?.avatar || DEFAULT_AVATAR);
+  if (url !== null && state.profile) {
+    state.profile.avatar = url.trim() || DEFAULT_AVATAR;
+    state.user.avatar = state.profile.avatar;
+    localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
+    openProfileModal();
+    renderMyMarker();
+    syncUserToServer();
+    playHapticSound('pop');
+    toast('عکس پروفایل تغییر یافت 📸');
+  }
+}
+
+function toggleFollowOtherUser() {
+  if (!state.activeSelectedUser || !state.user) return;
+  toast(`کاربر ${state.activeSelectedUser.name} دنبال شد 🌟`);
+  playHapticSound('pop');
+}
+
+async function searchPlace(e) {
+  if (e.key !== 'Enter') return;
+  const q = $('searchInput').value.trim();
+  if (!q) return;
+  
+  const matchUser = state.pins.find(u => (u.name && u.name.includes(q)) || (u.username && u.username.includes(q)));
+  if (matchUser) {
+    state.map.flyTo([Number(matchUser.lat), Number(matchUser.lng)], 16);
+    openOtherUserProfile(matchUser);
+    toast(`کاربر ${matchUser.name} روی نقشه پیدا شد 🎯`);
+    return;
+  }
+
+  try {
+    toast('در حال جستجوی موقعیت... 🔍');
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const { lat, lon, display_name } = data[0];
+      state.map.flyTo([parseFloat(lat), parseFloat(lon)], 14);
+      toast(`موقعیت "${display_name.split(',')[0]}" پیدا شد 📍`);
+    } else {
+      toast('موقعیتی با این نام یافت نشد');
+    }
+  } catch {
+    toast('خطا در ارتباط با سرور نقشه');
+  }
 }
 
 function openOtherUserProfile(user) {
