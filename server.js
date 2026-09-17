@@ -831,7 +831,13 @@ app.post('/api/stories/view', (req, res) => {
     pgInsertStory(story);
     broadcastSSE('story_view', { story_id, views_count: story.views.length });
   }
-  res.json({ success: true, views_count: story.views.length });
+  res.json({ success: true, views_count: story.views.length, views: story.views });
+});
+
+app.get('/api/stories/:id/views', (req, res) => {
+  const story = stories.find(s => s.id === req.params.id);
+  if (!story) return res.status(404).json({ success: false, error: 'Story not found' });
+  res.json({ success: true, views: story.views || [] });
 });
 
 app.post('/api/stories/like', (req, res) => {
@@ -978,7 +984,7 @@ app.post('/api/public_messages', (req, res) => {
   const { sender_id, sender_name, text, lat, lng, radius } = req.body || {};
   if (!text || !text.trim()) return res.status(400).json({ success: false, error: 'Empty text' });
   const msg = {
-    id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+    id: (req.body && req.body.id) || ('pub_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
     sender_id: sender_id || 'anonymous',
     sender_name: sender_name || 'کاربر',
     text: text.trim(),
@@ -1013,7 +1019,7 @@ app.post('/api/messages', (req, res) => {
   if (!directMessages[key]) directMessages[key] = [];
   
   const msg = {
-    id: 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+    id: (req.body && req.body.id) || ('dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
     sender_id,
     receiver_id,
     text: text ? text.trim() : null,

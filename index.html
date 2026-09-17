@@ -137,8 +137,27 @@ input, textarea { direction: rtl; }
   border-radius: 50%;
   border: 2px solid var(--panel);
 }
-.led.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.led.offline { background: var(--muted); }
+.led {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.led.online {
+  background: #2ecc71;
+  box-shadow: 0 0 10px #2ecc71, 0 0 3px #ffffff;
+  animation: ledPulse 2s infinite ease-in-out;
+}
+.led.offline {
+  background: #7f8c8d;
+  box-shadow: none;
+}
+@keyframes ledPulse {
+  0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1.2); }
+  50% { opacity: 0.65; transform: scale(0.85); filter: brightness(0.8); }
+}
 .user-marker .pin-stem {
   width: 2px;
   height: 8px;
@@ -175,10 +194,9 @@ input, textarea { direction: rtl; }
   backdrop-filter: blur(20px);
   border: 1.5px solid var(--blue);
   border-radius: 18px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   display: none;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 20px var(--blue-glow);
   animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -477,36 +495,38 @@ input, textarea { direction: rtl; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* نوار پایینی در حالت نمایشی (تغییر وضعیت باز و بسته) */
+/* نوار پایینی در حالت نمایشی (باز شدن و بسته شدن روان از کنار به وسط) */
 .public-overlay-composer {
   display: flex;
   align-items: center;
-  background: rgba(23, 33, 43, 0.85);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 20px;
+  background: var(--panel-glass-heavy);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
   padding: 3px 6px;
   pointer-events: auto;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
-  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  transition: width 0.35s cubic-bezier(0.34, 1.4, 0.64, 1), background 0.25s, border-radius 0.25s, box-shadow 0.25s;
   width: 100%;
   max-width: 270px;
+  overflow: hidden;
+  transform-origin: left center;
 }
 .public-overlay-toggle-btn {
   background: transparent;
   border: 0;
   color: var(--blue);
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   cursor: pointer;
   flex-shrink: 0;
-  transition: transform 0.2s;
+  transition: all 0.25s ease;
 }
 .public-overlay-toggle-btn:hover {
-  transform: scale(1.15);
+  transform: scale(1.1);
 }
 .public-composer-input-wrap {
   display: flex;
@@ -514,18 +534,29 @@ input, textarea { direction: rtl; }
   gap: 6px;
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  transition: all 0.25s ease;
+  transition: opacity 0.2s ease, transform 0.25s ease;
+  transform-origin: left center;
 }
 .public-overlay-composer.collapsed {
-  width: 36px !important;
-  min-width: 36px !important;
-  padding: 3px !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
   border-radius: 50% !important;
   justify-content: center;
+  background: var(--blue);
+  border-color: transparent;
+  box-shadow: 0 4px 16px var(--blue-glow);
 }
 .public-overlay-composer.collapsed .public-composer-input-wrap {
+  opacity: 0;
+  pointer-events: none;
   display: none !important;
+}
+.public-overlay-composer.collapsed .public-overlay-toggle-btn {
+  width: 100%;
+  height: 100%;
+  color: #ffffff;
 }
 .public-overlay-composer.collapsed #publicComposerIcon {
   color: #ffffff;
@@ -865,27 +896,37 @@ input, textarea { direction: rtl; }
   position: relative;
 }
 .msg-bubble {
-  max-width: 82%;
-  padding: 9px 12px 6px;
-  border-radius: 16px;
+  max-width: 80%;
+  min-width: 70px;
+  padding: 8px 12px 6px;
   position: relative;
   font-size: 13px;
   line-height: 1.5;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.16);
   word-break: break-word;
 }
 .msg-bubble.in {
   align-self: flex-start;
-  background: var(--chat-in);
-  border-bottom-left-radius: 4px;
-  color: var(--text);
+  margin-left: auto;
+  margin-right: 0;
+  background: var(--card-bg);
   border: 1px solid var(--border);
+  border-radius: 18px 18px 18px 4px;
+  color: var(--text);
 }
 .msg-bubble.out {
   align-self: flex-end;
-  background: var(--chat-out);
-  border-bottom-right-radius: 4px;
-  color: #fff;
+  margin-right: auto;
+  margin-left: 0;
+  background: linear-gradient(135deg, #2b5278, #1f3b56);
+  border-radius: 18px 18px 4px 18px;
+  color: #ffffff;
+  border: 1px solid rgba(42, 171, 238, 0.3);
+  box-shadow: 0 4px 12px rgba(42, 171, 238, 0.15);
+}
+[data-theme="light"] .msg-bubble.out {
+  background: linear-gradient(135deg, #2aabee, #0088cc);
+  color: #ffffff;
 }
 .msg-meta-row {
   display: flex;
@@ -1241,7 +1282,18 @@ input, textarea { direction: rtl; }
 .ctx-menu button:hover { background: rgba(42, 171, 238, 0.15); color: var(--blue); }
 
 /* Telegram Profile & Settings View */
-.profile-content-scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.profile-content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 16px calc(90px + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+}
 .profile-header-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -1807,18 +1859,26 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div class="center-pin-shadow"></div>
 </div>
 
-<!-- 2. Live Route Navigation HUD (Google Maps Style) -->
+<!-- 2. Live Route Navigation HUD (Google Maps Style + App Switcher) -->
 <div id="navRouteHud" class="nav-route-hud">
-  <div style="display:flex;align-items:center;gap:12px">
-    <div style="width:40px;height:40px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;font-size:18px">
-      <i class="fa-solid fa-location-arrow"></i>
+  <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;font-size:16px;flex-shrink:0">
+        <i class="fa-solid fa-diamond-turn-right"></i>
+      </div>
+      <div style="min-width:0">
+        <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">مسیر به <span id="routeTargetName"></span></div>
+        <div style="font-size:11px;color:var(--muted)" id="routeEtaText">فاصله: -- کیلومتر</div>
+      </div>
     </div>
-    <div>
-      <div style="font-weight:700;font-size:13px">مسیر زنده به <span id="routeTargetName"></span></div>
-      <div style="font-size:11px;color:var(--muted)" id="routeEtaText">فاصله: -- کیلومتر</div>
-    </div>
+    <button class="badge" style="background:var(--danger);color:#fff;border:0;padding:6px 12px;border-radius:10px;flex-shrink:0" onclick="clearActiveRoute()"><i class="fa-solid fa-xmark"></i> پایان</button>
   </div>
-  <button class="badge" style="background:var(--danger);color:#fff;border:0" onclick="clearActiveRoute()"><i class="fa-solid fa-xmark"></i> پایان</button>
+  <div style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);width:100%;overflow-x:auto">
+    <button class="badge" style="background:var(--card-bg);border:1px solid var(--border);color:var(--text);font-size:11px;white-space:nowrap" onclick="openExternalNav('neshan')">🗺️ نشان</button>
+    <button class="badge" style="background:var(--card-bg);border:1px solid var(--border);color:var(--text);font-size:11px;white-space:nowrap" onclick="openExternalNav('balad')">🧭 بلد</button>
+    <button class="badge" style="background:var(--card-bg);border:1px solid var(--border);color:var(--text);font-size:11px;white-space:nowrap" onclick="openExternalNav('google')">🌍 گوگل‌مپ</button>
+    <button class="badge" style="background:var(--card-bg);border:1px solid var(--border);color:var(--text);font-size:11px;white-space:nowrap" onclick="openExternalNav('waze')">🚗 ویز</button>
+  </div>
 </div>
 
 <!-- 3. Manual Location Picking Floating Bar -->
@@ -1989,6 +2049,18 @@ input:checked + .slider:before { transform: translateX(20px); }
     <button onclick="toggleMuteChat(); toggleChatOptionsMenu(false);"><i class="fa-solid fa-bell-slash"></i> بی‌صدا کردن اعلان‌ها</button>
     <button onclick="clearChatHistory(); toggleChatOptionsMenu(false);"><i class="fa-solid fa-broom"></i> پاک کردن تاریخچه چت</button>
     <button onclick="deleteActiveChat(); toggleChatOptionsMenu(false);" style="color:var(--danger)"><i class="fa-solid fa-trash"></i> حذف کامل گفتگو</button>
+  </div>
+
+  <!-- Message Request Banner (Instagram style) -->
+  <div id="chatRequestBanner" style="display:none;background:var(--card-bg);border:1px solid var(--border);padding:10px 14px;border-radius:14px;margin:8px 12px;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2)">
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--text)"><i class="fa-solid fa-user-plus" style="color:var(--blue);margin-left:4px"></i> درخواست گفتگو</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">این کاربر مایل به شروع گفتگو با شماست.</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="badge" style="background:var(--green);color:#fff;border:0;padding:6px 12px" onclick="acceptChatRequest()">قبول</button>
+      <button class="badge" style="background:var(--danger);color:#fff;border:0;padding:6px 12px" onclick="declineChatRequest()">رد</button>
+    </div>
   </div>
 
   <div id="chatMessagesScroll" class="chat-messages-scroll" onscroll="onChatScroll(this)">
@@ -2976,6 +3048,12 @@ function startNavigationToUser(user) {
   const userCoords = [Number(user.lat), Number(user.lng)];
   const myCoords = [state.coords.lat, state.coords.lng];
 
+  state.currentNavTarget = {
+    lat: Number(user.lat),
+    lng: Number(user.lng),
+    name: user.name || 'کاربر'
+  };
+
   state.activeRouteLine = L.polyline([myCoords, userCoords], {
     color: '#2aabee',
     weight: 4,
@@ -2996,11 +3074,28 @@ function startNavigationToUser(user) {
   toast(`مسیریابی زنده به سمت ${user.name} فعال شد 🧭`);
 }
 
+function openExternalNav(app) {
+  if (!state.currentNavTarget) return;
+  const { lat, lng } = state.currentNavTarget;
+  let url = '';
+  if (app === 'neshan') {
+    url = `https://neshan.org/maps/@${lat},${lng},15z`;
+  } else if (app === 'balad') {
+    url = `https://balad.ir/location?latitude=${lat}&longitude=${lng}`;
+  } else if (app === 'google') {
+    url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  } else if (app === 'waze') {
+    url = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+  }
+  if (url) window.open(url, '_blank');
+}
+
 function clearActiveRoute() {
   if (state.activeRouteLine && map) {
     map.removeLayer(state.activeRouteLine);
     state.activeRouteLine = null;
   }
+  state.currentNavTarget = null;
   $('navRouteHud').classList.remove('active');
 }
 
@@ -3022,49 +3117,66 @@ function setupLocateButton() {
 
   const onPointerDown = (e) => {
     isDraggingRadius = false;
+    hasLongPressed = false;
     startY = e.clientY;
     startRadius = state.radius || 25;
     try { btn.setPointerCapture(e.pointerId); } catch {}
+
+    // Tap & Hold (Long Press for 550ms) to start manual location picking (Snapp style)
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => {
+      if (!isDraggingRadius) {
+        hasLongPressed = true;
+        closeRadiusDial();
+        playHapticSound('pop');
+        startManualLocationPick();
+      }
+    }, 550);
   };
 
   const onPointerMove = (e) => {
     const deltaY = startY - e.clientY; // positive = dragging UP, negative = dragging DOWN
-    if (Math.abs(deltaY) > 5 || isDraggingRadius) {
-      isDraggingRadius = true;
-      $('radiusPullDial')?.classList.add('active');
+    if (Math.abs(deltaY) > 8) {
+      clearTimeout(pressTimer); // Cancel long press if user is dragging for radius
+      if (!hasLongPressed) {
+        isDraggingRadius = true;
+        $('radiusPullDial')?.classList.add('active');
 
-      // Dragging UP increases radius, dragging DOWN decreases radius
-      let newKm = Math.round(startRadius + (deltaY * 0.75));
-      if (newKm >= 190) {
-        newKm = 500;
-        const valEl = $('radiusPullValue');
-        if (valEl) valEl.textContent = 'سراسری';
-        const fillEl = $('radiusPullFill');
-        if (fillEl) fillEl.style.height = '100%';
-        if (radiusCircle && map) {
-          map.removeLayer(radiusCircle);
-          radiusCircle = null;
-        }
-      } else {
-        newKm = Math.min(150, Math.max(1, newKm));
-        const valEl = $('radiusPullValue');
-        if (valEl) valEl.textContent = `${newKm} km`;
-        const fillEl = $('radiusPullFill');
-        if (fillEl) fillEl.style.height = `${Math.round((newKm / 150) * 100)}%`;
-        if (radiusCircle && map) {
-          radiusCircle.setRadius(newKm * 1000);
+        // Dragging UP increases radius, dragging DOWN decreases radius
+        let newKm = Math.round(startRadius + (deltaY * 0.75));
+        if (newKm >= 190) {
+          newKm = 500;
+          const valEl = $('radiusPullValue');
+          if (valEl) valEl.textContent = 'سراسری';
+          const fillEl = $('radiusPullFill');
+          if (fillEl) fillEl.style.height = '100%';
+          if (radiusCircle && map) {
+            map.removeLayer(radiusCircle);
+            radiusCircle = null;
+          }
         } else {
-          state.radius = newKm;
-          renderRadiusCircle();
+          newKm = Math.min(150, Math.max(1, newKm));
+          const valEl = $('radiusPullValue');
+          if (valEl) valEl.textContent = `${newKm} km`;
+          const fillEl = $('radiusPullFill');
+          if (fillEl) fillEl.style.height = `${Math.round((newKm / 150) * 100)}%`;
+          if (radiusCircle && map) {
+            radiusCircle.setRadius(newKm * 1000);
+          } else {
+            state.radius = newKm;
+            renderRadiusCircle();
+          }
         }
+        state.radius = newKm;
+        renderMarkers();
       }
-      state.radius = newKm;
-      renderMarkers();
     }
   };
 
   const onPointerUp = (e) => {
     try { btn.releasePointerCapture(e.pointerId); } catch {}
+    clearTimeout(pressTimer);
+    if (hasLongPressed) return;
     if (isDraggingRadius) {
       closeRadiusDial();
       playHapticSound('pop');
@@ -3080,6 +3192,7 @@ function setupLocateButton() {
 
   const onPointerCancel = (e) => {
     try { btn.releasePointerCapture(e.pointerId); } catch {}
+    clearTimeout(pressTimer);
     closeRadiusDial();
   };
 
@@ -3185,22 +3298,31 @@ function renderPublicOverlayMessages() {
   if (!box) return;
   box.innerHTML = '';
   const filtered = state.publicMessages.filter(isMsgInRadius);
-  const recent = filtered.slice(-30);
+  const recent = filtered.slice(-35);
   recent.forEach(m => {
     const item = document.createElement('div');
-    item.className = 'public-overlay-msg-item';
-    item.innerHTML = `<span>${esc(m.text || '')}</span>`;
+    const isMe = m.sender_id === state.user?.id;
+    item.className = 'public-overlay-msg-item' + (isMe ? ' my-msg' : '');
+    const senderName = isMe ? 'من' : (m.sender_name || 'کاربر');
+    item.innerHTML = `<b style="color:${isMe ? 'var(--blue)' : '#2ecc71'};font-weight:700;margin-left:5px;font-size:11px">${esc(senderName)}:</b><span>${esc(m.text || '')}</span>`;
     box.appendChild(item);
   });
   box.scrollTop = box.scrollHeight;
 }
 
-function togglePublicChatComposer() {
+function togglePublicChatComposer(forceState) {
   const composer = $('publicOverlayComposer');
   if (!composer) return;
-  composer.classList.toggle('collapsed');
+  if (typeof forceState === 'boolean') {
+    if (forceState) composer.classList.add('collapsed');
+    else composer.classList.remove('collapsed');
+  } else {
+    composer.classList.toggle('collapsed');
+  }
   const isCollapsed = composer.classList.contains('collapsed');
   localStorage.setItem('geosocial_public_composer_collapsed', isCollapsed ? '1' : '0');
+  const icon = $('publicComposerIcon');
+  if (icon) icon.className = isCollapsed ? 'fa-solid fa-comments' : 'fa-solid fa-xmark';
   playHapticSound('pop');
 }
 
@@ -3329,34 +3451,59 @@ function openStoryViewer(idx) {
 
 function setupStoryViewerGestures() {
   const mediaBox = $('storyMediaBox');
-  let lastTap = 0, pressTimer = null;
+  if (!mediaBox) return;
+  let lastTap = 0, holdTimer = null, isHolding = false;
 
-  mediaBox.onmousedown = mediaBox.ontouchstart = () => {
-    pressTimer = setTimeout(() => {
+  mediaBox.onpointerdown = (e) => {
+    isHolding = false;
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(() => {
+      isHolding = true;
       clearTimeout(state.storyTimer);
       $('storyTopInfo').style.opacity = '0';
       $('storyBottomBar').style.opacity = '0';
       $('storyProgressBarContainer').style.opacity = '0';
-    }, 200);
+    }, 180);
   };
 
-  mediaBox.onmouseup = mediaBox.ontouchend = e => {
-    clearTimeout(pressTimer);
+  mediaBox.onpointerup = (e) => {
+    clearTimeout(holdTimer);
     $('storyTopInfo').style.opacity = '1';
     $('storyBottomBar').style.opacity = '1';
     $('storyProgressBarContainer').style.opacity = '1';
 
+    if (isHolding) {
+      isHolding = false;
+      clearTimeout(state.storyTimer);
+      state.storyTimer = setTimeout(nextStorySlide, 3000);
+      return;
+    }
+
     const now = Date.now();
     if (now - lastTap < 300) {
-      // Double tap to like
       triggerDoubleTapHeart();
       likeCurrentStory();
     } else {
-      const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
-      if (clientX < window.innerWidth * 0.35) prevStorySlide();
-      else if (clientX > window.innerWidth * 0.65) nextStorySlide();
+      const clientX = e.clientX;
+      if (clientX < window.innerWidth * 0.35) {
+        prevStorySlide();
+      } else if (clientX > window.innerWidth * 0.65) {
+        nextStorySlide();
+      }
     }
     lastTap = now;
+  };
+
+  mediaBox.onpointercancel = () => {
+    clearTimeout(holdTimer);
+    $('storyTopInfo').style.opacity = '1';
+    $('storyBottomBar').style.opacity = '1';
+    $('storyProgressBarContainer').style.opacity = '1';
+    if (isHolding) {
+      isHolding = false;
+      clearTimeout(state.storyTimer);
+      state.storyTimer = setTimeout(nextStorySlide, 3000);
+    }
   };
 }
 
@@ -3607,12 +3754,53 @@ function updateChatRoomStatus() {
   }
 }
 
+function isChatAccepted(userId) {
+  if (!userId) return true;
+  try {
+    const accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
+    return accepted.includes(userId);
+  } catch { return true; }
+}
+
+function acceptChatRequest() {
+  if (!state.activeConversationUser) return;
+  try {
+    const accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
+    if (!accepted.includes(state.activeConversationUser.id)) {
+      accepted.push(state.activeConversationUser.id);
+      localStorage.setItem('geosocial_accepted_chats', JSON.stringify(accepted));
+    }
+  } catch {}
+  const banner = $('chatRequestBanner');
+  if (banner) banner.style.display = 'none';
+  toast('درخواست گفتگو پذیرفته شد ✅');
+  playHapticSound('sent');
+}
+
+function declineChatRequest() {
+  const banner = $('chatRequestBanner');
+  if (banner) banner.style.display = 'none';
+  closeChatRoom();
+  toast('درخواست رد شد ❌');
+  playHapticSound('pop');
+}
+
 function openChatRoom(user) {
   state.activeConversationUser = user;
   $('chatRoomAvatar').src = user.avatar || DEFAULT_AVATAR;
   $('chatRoomName').textContent = user.name;
   updateChatRoomStatus();
   $('chatRoom').classList.add('open');
+
+  // Hide public stream overlay when inside direct chat
+  const pubOverlay = $('publicChatOverlay');
+  if (pubOverlay) pubOverlay.style.display = 'none';
+
+  // Message request check (Instagram style)
+  const reqBanner = $('chatRequestBanner');
+  if (reqBanner) {
+    reqBanner.style.display = isChatAccepted(user.id) ? 'none' : 'flex';
+  }
 
   cancelReply();
   cancelEditMessage();
@@ -3647,6 +3835,12 @@ function closeChatRoom() {
   cancelEditMessage();
   closeChatSearch();
   toggleChatOptionsMenu(false);
+
+  // Restore public stream chat overlay if on map
+  const pubOverlay = $('publicChatOverlay');
+  if (pubOverlay && !document.querySelector('.modal-overlay.open')) {
+    pubOverlay.style.display = 'flex';
+  }
 }
 
 async function loadDirectMessages() {
@@ -3894,6 +4088,12 @@ function renderDirectMessages() {
     }).join('');
 
     let contentHtml = '';
+
+    // Sender name display on incoming messages
+    if (!isOut) {
+      const senderName = state.activeConversationUser?.name || 'مخاطب';
+      contentHtml += `<div class="msg-sender-name" style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:3px">${esc(senderName)}</div>`;
+    }
 
     // Forward indicator
     if (m.forward_from) {
@@ -4541,45 +4741,63 @@ function reportCurrentStory() {
 function openStoryViewersList() {
   const s = state.stories[state.currentStoryIndex];
   if (!s) return;
+  clearTimeout(state.storyTimer);
   const list = $('storyViewersList');
   const countEl = $('storyViewersModalCount');
   if (!list) return;
   list.innerHTML = '';
 
-  const views = s.views || [];
-  if (countEl) countEl.textContent = views.length;
-
-  if (views.length === 0) {
-    list.innerHTML = `
-      <div style="padding:30px;text-align:center;color:var(--muted)">
-        <i class="fa-solid fa-eye-slash" style="font-size:36px;margin-bottom:8px;display:block;opacity:0.4"></i>
-        هنوز کسی استوری شما را ندیده است
-      </div>
-    `;
-  } else {
-    views.forEach(v => {
-      const item = document.createElement('div');
-      item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)';
-      const avatar = typeof v === 'object' ? (v.user_avatar || DEFAULT_AVATAR) : DEFAULT_AVATAR;
-      const name = typeof v === 'object' ? (v.user_name || 'کاربر') : 'کاربر';
-      const time = typeof v === 'object' && v.created_at ? new Date(v.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : 'امروز';
-      item.innerHTML = `
-        <img src="${esc(avatar)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border)">
-        <div style="flex:1">
-          <b style="font-size:13px">${esc(name)}</b>
-          <div style="font-size:10px;color:var(--muted)">${time}</div>
+  const renderList = (views) => {
+    if (countEl) countEl.textContent = views.length;
+    if (views.length === 0) {
+      list.innerHTML = `
+        <div style="padding:30px;text-align:center;color:var(--muted)">
+          <i class="fa-solid fa-eye-slash" style="font-size:36px;margin-bottom:8px;display:block;opacity:0.4"></i>
+          هنوز کسی استوری شما را ندیده است
         </div>
-        <i class="fa-solid fa-heart" style="color:#ff3366;font-size:14px"></i>
       `;
-      list.appendChild(item);
-    });
-  }
+    } else {
+      list.innerHTML = '';
+      views.forEach(v => {
+        const item = document.createElement('div');
+        item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)';
+        const avatar = typeof v === 'object' ? (v.user_avatar || DEFAULT_AVATAR) : DEFAULT_AVATAR;
+        const name = typeof v === 'object' ? (v.user_name || 'کاربر') : 'کاربر';
+        const time = typeof v === 'object' && v.created_at ? new Date(v.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : 'امروز';
+        item.innerHTML = `
+          <img src="${esc(avatar)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border)">
+          <div style="flex:1">
+            <b style="font-size:13px">${esc(name)}</b>
+            <div style="font-size:10px;color:var(--muted)">${time}</div>
+          </div>
+          <i class="fa-solid fa-heart" style="color:#ff3366;font-size:14px"></i>
+        `;
+        list.appendChild(item);
+      });
+    }
+  };
 
+  renderList(s.views || []);
   $('storyViewersModal')?.classList.add('open');
+
+  // Fetch latest view list from backend
+  fetch(apiUrl(`/api/stories/${s.id}/views`))
+    .then(r => r.json())
+    .then(d => {
+      if (d.success && Array.isArray(d.views)) {
+        s.views = d.views;
+        renderList(d.views);
+        const countSpan = $('storyViewersCount');
+        if (countSpan) countSpan.textContent = d.views.length;
+      }
+    })
+    .catch(() => {});
 }
 
 function closeStoryViewersList() {
   $('storyViewersModal')?.classList.remove('open');
+  clearTimeout(state.storyTimer);
+  state.storyTimer = setTimeout(nextStorySlide, 3500);
 }
 
 // =============================================
@@ -4708,11 +4926,26 @@ function initSSE() {
     sseConn.addEventListener('public_msg', e => {
       try {
         const data = JSON.parse(e.data);
-        if (!state.publicMessages.some(m => m.id === data.id)) {
-          state.publicMessages.push(data);
-          renderPublicOverlayMessages();
-          if ($('publicDrawer')?.classList.contains('open')) renderPublicMessages();
+        const existingIdx = state.publicMessages.findIndex(m => m.id === data.id);
+        if (existingIdx >= 0) {
+          state.publicMessages[existingIdx] = data;
+          return;
         }
+        // Deduplicate if sent by me within last 8 seconds
+        if (data.sender_id === state.user?.id) {
+          const recentMy = state.publicMessages.find(m => 
+            m.sender_id === state.user?.id && 
+            m.text === data.text && 
+            Math.abs(new Date(m.created_at || Date.now()).getTime() - new Date(data.created_at || Date.now()).getTime()) < 8000
+          );
+          if (recentMy) {
+            recentMy.id = data.id;
+            return;
+          }
+        }
+        state.publicMessages.push(data);
+        renderPublicOverlayMessages();
+        if ($('publicDrawer')?.classList.contains('open')) renderPublicMessages();
       } catch {}
     });
 
@@ -5033,17 +5266,40 @@ function handleIncomingDM(msg) {
   if (msg.receiver_id !== state.user.id && msg.sender_id !== state.user.id) return;
 
   if (state.activeConversationUser && (msg.sender_id === state.activeConversationUser.id || msg.receiver_id === state.activeConversationUser.id)) {
-    if (!state.activeMessages.some(m => m.id === msg.id)) {
-      state.activeMessages.push(msg);
+    // 1. Prevent duplicate by exact ID
+    const existingById = state.activeMessages.find(m => m.id === msg.id);
+    if (existingById) {
+      existingById.status = msg.status || 'delivered';
+      if (msg.seen) existingById.seen = true;
+      if (msg.reactions) existingById.reactions = msg.reactions;
       renderDirectMessages();
-      playHapticSound('pop');
-      if (msg.sender_id === state.activeConversationUser.id && state.user) {
-        fetch('/api/messages/seen', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user1: state.user.id, user2: state.activeConversationUser.id, reader_id: state.user.id })
-        }).catch(() => {});
+      return;
+    }
+
+    // 2. Prevent duplicate if sender is myself and text/media matches recent message
+    if (msg.sender_id === state.user.id) {
+      const existingMine = state.activeMessages.find(m => 
+        m.sender_id === state.user.id && 
+        ((m.text && m.text === msg.text) || (m.media_url && m.media_url === msg.media_url)) &&
+        Math.abs(new Date(m.created_at || Date.now()).getTime() - new Date(msg.created_at || Date.now()).getTime()) < 10000
+      );
+      if (existingMine) {
+        existingMine.id = msg.id;
+        existingMine.status = 'delivered';
+        renderDirectMessages();
+        return;
       }
+    }
+
+    state.activeMessages.push(msg);
+    renderDirectMessages();
+    playHapticSound('pop');
+    if (msg.sender_id === state.activeConversationUser.id && state.user) {
+      fetch('/api/messages/seen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user1: state.user.id, user2: state.activeConversationUser.id, reader_id: state.user.id })
+      }).catch(() => {});
     }
   } else if (msg.receiver_id === state.user.id) {
     playHapticSound('pop');
@@ -5250,6 +5506,10 @@ function toggleCallMute() {
 // ----------------------------------------------------
 function closeAllModals() {
   document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+  if (!$('chatRoom')?.classList.contains('open')) {
+    const pubOverlay = $('publicChatOverlay');
+    if (pubOverlay) pubOverlay.style.display = 'flex';
+  }
 }
 
 function nav(tab, el) {
@@ -5257,6 +5517,13 @@ function nav(tab, el) {
   if (el) el.classList.add('active');
   closeAllModals();
   playHapticSound('pop');
+
+  const pubOverlay = $('publicChatOverlay');
+  if (tab === 'map') {
+    if (pubOverlay) pubOverlay.style.display = 'flex';
+  } else {
+    if (pubOverlay) pubOverlay.style.display = 'none';
+  }
 
   if (tab === 'chats') { $('chatsModal').classList.add('open'); renderChatsList(); }
   else if (tab === 'people') { $('peopleModal').classList.add('open'); renderPeopleList(); }
@@ -5382,14 +5649,49 @@ function toggleGhostMode(isGhost) {
   toast(isGhost ? 'حالت روح فعال شد (مخفی شدید) 👻' : 'موقعیت شما روی نقشه نمایان شد 📍');
 }
 
-function toggleTheme() {
-  const next = state.theme === 'dark' ? 'light' : 'dark';
-  state.theme = next;
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('geosocial_theme', next);
-  $('mapThemeIcon').className = next === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+function applySystemTheme() {
+  const mode = localStorage.getItem('geosocial_theme_mode') || 'auto';
+  let activeTheme = 'dark';
+  if (mode === 'auto') {
+    activeTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+  } else {
+    activeTheme = mode;
+  }
+  state.theme = activeTheme;
+  document.documentElement.setAttribute('data-theme', activeTheme);
+  const icon = $('mapThemeIcon');
+  if (icon) {
+    if (mode === 'auto') icon.className = 'fa-solid fa-circle-half-stroke';
+    else icon.className = activeTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+  }
+}
+
+function toggleTheme(explicitMode) {
+  let mode = localStorage.getItem('geosocial_theme_mode') || 'auto';
+  if (explicitMode) {
+    mode = explicitMode;
+  } else {
+    if (mode === 'auto') mode = 'dark';
+    else if (mode === 'dark') mode = 'light';
+    else mode = 'auto';
+  }
+  localStorage.setItem('geosocial_theme_mode', mode);
+  applySystemTheme();
   playHapticSound('pop');
-  toast(next === 'dark' ? 'حالت شب فعال شد 🌙' : 'حالت روز فعال شد ☀️');
+  if (mode === 'auto') toast('تم خودکار (هماهنگ با سیستم) فعال شد ⚙️');
+  else if (mode === 'dark') toast('حالت شب فعال شد 🌙');
+  else toast('حالت روز فعال شد ☀️');
+}
+
+// Realtime system theme change listener
+if (typeof window !== 'undefined' && window.matchMedia) {
+  try {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if ((localStorage.getItem('geosocial_theme_mode') || 'auto') === 'auto') {
+        applySystemTheme();
+      }
+    });
+  } catch {}
 }
 
 // ----------------------------------------------------
@@ -5540,6 +5842,7 @@ function renderPublicMessages() {
 // App Initialization
 // ----------------------------------------------------
 window.addEventListener('DOMContentLoaded', () => {
+  applySystemTheme();
   if (localStorage.getItem('geosocial_public_composer_collapsed') === '1') {
     $('publicOverlayComposer')?.classList.add('collapsed');
   }
