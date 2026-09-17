@@ -424,16 +424,53 @@ input, textarea { direction: rtl; }
   left: 12px;
   width: 48vw;
   max-width: 260px;
-  min-width: 170px;
+  min-width: 160px;
   height: 33vh;
   max-height: 250px;
-  min-height: 180px;
   z-index: 18;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   pointer-events: auto;
   gap: 6px;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.public-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(23, 33, 43, 0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 14px;
+  padding: 5px 10px;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.public-overlay-header:hover {
+  background: rgba(23, 33, 43, 0.95);
+  border-color: var(--blue);
+}
+.public-overlay-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 6px;
+  overflow: hidden;
+}
+.public-chat-overlay.collapsed {
+  height: auto !important;
+  max-height: none !important;
+}
+.public-chat-overlay.collapsed .public-overlay-body {
+  display: none !important;
+}
+.public-chat-overlay.collapsed #publicToggleChevron {
+  transform: rotate(180deg);
 }
 .public-overlay-messages {
   flex: 1;
@@ -457,11 +494,6 @@ input, textarea { direction: rtl; }
   word-break: break-word;
   padding: 1px 0;
 }
-.public-overlay-msg-sender {
-  font-weight: 800;
-  color: var(--blue);
-  margin-left: 4px;
-}
 .public-overlay-composer {
   display: flex;
   align-items: center;
@@ -471,6 +503,7 @@ input, textarea { direction: rtl; }
   border: 1px solid rgba(255,255,255,0.18);
   border-radius: 18px;
   padding: 3px 8px;
+  flex-shrink: 0;
 }
 .public-overlay-input {
   flex: 1;
@@ -1815,22 +1848,30 @@ input:checked + .slider:before { transform: translateX(20px); }
   <i class="fa-solid fa-location-crosshairs"></i>
 </button>
 
-<!-- 6. Live Public Stream Chat Overlay (پایین سمت چپ: بدون پس‌زمینه، نصف صفحه افقی، یک سوم عمودی، محو از بالا) -->
+<!-- 6. Live Public Stream Chat Overlay (پایین سمت چپ: بدون پس‌زمینه، نصف صفحه افقی، یک سوم عمودی، محو از بالا، باز و بسته با یک کلیک) -->
 <div id="publicChatOverlay" class="public-chat-overlay">
-  <div id="publicOverlayMessages" class="public-overlay-messages">
-    <!-- Dynamic public messages -->
+  <div class="public-overlay-header" onclick="togglePublicChatOverlay()" title="برای باز یا بسته شدن کلیک کنید">
+    <div style="display:flex;align-items:center;gap:6px">
+      <i class="fa-solid fa-comments" style="color:var(--blue);font-size:12px"></i>
+      <span style="font-size:11px;font-weight:700">چت عمومی منطقه</span>
+    </div>
+    <i id="publicToggleChevron" class="fa-solid fa-chevron-down" style="font-size:11px;color:var(--muted);transition:transform 0.25s"></i>
   </div>
-  <div class="public-overlay-composer">
-    <input id="publicOverlayInput" class="public-overlay-input" placeholder="پیام به افراد منطقه..." onkeypress="if(event.key==='Enter')sendPublicOverlayMsg()">
-    <button class="public-overlay-send" onclick="sendPublicOverlayMsg()" title="ارسال"><i class="fa-solid fa-paper-plane"></i></button>
+  <div class="public-overlay-body">
+    <div id="publicOverlayMessages" class="public-overlay-messages">
+      <!-- Dynamic public messages -->
+    </div>
+    <div class="public-overlay-composer">
+      <input id="publicOverlayInput" class="public-overlay-input" placeholder="پیام به افراد منطقه..." onkeypress="if(event.key==='Enter')sendPublicOverlayMsg()">
+      <button class="public-overlay-send" onclick="sendPublicOverlayMsg()" title="ارسال"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
   </div>
 </div>
 
-<!-- 6. Bottom Navigation -->
+<!-- 6. Bottom Navigation (سه تب کاربردی: نقشه، پیام‌ها، پروفایل) -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="nav('map', this)"><i class="fa-solid fa-map-location-dot"></i><span>نقشه</span></div>
   <div class="nav-item" onclick="nav('chats', this)"><i class="fa-solid fa-comment-dots"></i><span>پیام‌ها</span></div>
-  <div class="nav-item" onclick="nav('people', this)"><i class="fa-solid fa-users"></i><span>افراد نزدیک</span></div>
   <div class="nav-item" onclick="nav('profile', this)"><i class="fa-solid fa-circle-user"></i><span>پروفایل</span></div>
 </div>
 
@@ -2221,26 +2262,132 @@ input:checked + .slider:before { transform: translateX(20px); }
 
     <!-- Telegram Settings Menu List -->
     <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <!-- 1. انتخاب دستی موقعیت مکانی (اسنپ) -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="closeAllModals();startManualLocationPick()">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-map-pin" style="color:var(--danger)"></i>
+          <div>
+            <div style="font-size:13px;font-weight:600">انتخاب دستی موقعیت روی نقشه (اسنپ)</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">تنظیم موقعیت دقیق با جابجایی نقشه</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+      </div>
+
+      <!-- 2. بروزرسانی مکان‌یاب GPS -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="locateMe(true)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-location-crosshairs" style="color:var(--blue)"></i>
+          <div>
+            <div style="font-size:13px;font-weight:600">بروزرسانی موقعیت مکانی (GPS زنده)</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">دریافت مختصات فعلی دستگاه</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+      </div>
+
+      <!-- 3. تنظیم شعاع دید افراد -->
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <i class="fa-solid fa-arrows-to-circle" style="color:#e67e22"></i>
+            <span style="font-size:13px;font-weight:600">شعاع نمایش افراد</span>
+          </div>
+          <span id="profileRadiusValue" style="font-size:12px;font-weight:700;color:var(--blue)">۲۵ کیلومتر</span>
+        </div>
+        <input type="range" id="profileRadiusRange" min="1" max="150" value="25" style="width:100%;accent-color:var(--blue);cursor:pointer" oninput="onProfileRadiusChange(this.value)">
+      </div>
+
+      <!-- 4. تنظیمات اتصال سرور و رندر (Render Backend) -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openServerConfigModal()">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-server" style="color:var(--blue)"></i>
+          <div>
+            <div style="font-size:13px;font-weight:600">تنظیمات اتصال سرور (Render)</div>
+            <div id="profileCurrentServerLabel" style="font-size:11px;color:var(--muted);margin-top:2px;direction:ltr">سرور پیش‌فرض متصل است</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+      </div>
+
+      <!-- 5. حالت شب و روز -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)">
         <div style="display:flex;align-items:center;gap:10px"><i class="fa-solid fa-moon" style="color:var(--blue)"></i><span>حالت شب / روز</span></div>
         <label class="switch"><input type="checkbox" id="themeSwitch" onchange="toggleTheme()"><span class="slider"></span></label>
       </div>
 
+      <!-- 6. صدای پیام‌ها -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)">
         <div style="display:flex;align-items:center;gap:10px"><i class="fa-solid fa-volume-high" style="color:var(--green)"></i><span>صدای پیام‌ها</span></div>
         <label class="switch"><input type="checkbox" id="soundSwitch" checked onchange="state.soundEnabled=this.checked"><span class="slider"></span></label>
       </div>
 
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="locateMe()">
-        <div style="display:flex;align-items:center;gap:10px"><i class="fa-solid fa-location-crosshairs" style="color:var(--blue)"></i><span>بروزرسانی موقعیت مکان‌یاب (GPS)</span></div>
+      <!-- 7. نمایش آنلاین بودن به دیگران -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-shield-halved" style="color:#9b59b6"></i>
+          <div>
+            <div style="font-size:13px;font-weight:600">نمایش آنلاین بودن به دیگران</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">مشاهده وضعیت آنلاین روی نقشه</div>
+          </div>
+        </div>
+        <label class="switch"><input type="checkbox" id="onlineVisibilitySwitch" checked onchange="toggleOnlineVisibility(this.checked)"><span class="slider"></span></label>
+      </div>
+
+      <!-- 8. پاکسازی کش و حافظه موقت -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="clearAppDataCache()">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-broom" style="color:#f39c12"></i>
+          <div>
+            <div style="font-size:13px;font-weight:600">پاکسازی کش و حافظه موقت</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">بارگذاری مجدد داده‌ها از سرور</div>
+          </div>
+        </div>
         <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
       </div>
 
+      <!-- 9. نسخه اپلیکیشن -->
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <i class="fa-solid fa-circle-info" style="color:var(--blue)"></i>
+          <span>نسخه اپلیکیشن</span>
+        </div>
+        <span style="direction:ltr;font-weight:600">GeoSocial v3.2.0 (Pro)</span>
+      </div>
+
+      <!-- 10. خروج از حساب -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;color:var(--danger)" onclick="logout()">
         <div style="display:flex;align-items:center;gap:10px"><i class="fa-solid fa-right-from-bracket"></i><span>خروج از حساب کاربری</span></div>
         <i class="fa-solid fa-chevron-left" style="font-size:12px"></i>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Server & Render Backend Config Modal -->
+<div id="serverConfigModal" class="modal-overlay" style="z-index:220">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-server" style="color:var(--blue)"></i> تنظیمات اتصال به سرور</h3>
+    <button class="composer-icon-btn" onclick="$('serverConfigModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+    <div style="font-size:12px;line-height:1.6;color:var(--muted)">
+      اگر سرور بک‌اند را روی <b>Render</b> یا سرور اختصاصی مستقر کرده‌اید، آدرس سرور (URL) را در کادر زیر وارد کنید تا تمام پیام‌ها، استوری‌ها و موقعیت مکانی لحظه‌ای با سرور همگام‌سازی شوند.
+    </div>
+
+    <div>
+      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">آدرس سرور بک‌اند (Backend URL):</label>
+      <input id="serverUrlInput" class="composer-input" style="direction:ltr;font-family:monospace;font-size:13px;padding:12px" placeholder="https://geosocial-backend.onrender.com">
+    </div>
+
+    <div id="serverTestStatus" style="font-size:12px;min-height:20px;display:flex;align-items:center;gap:6px"></div>
+
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn-secondary" style="flex:1" onclick="testServerConnection()"><i class="fa-solid fa-wifi"></i> تست اتصال</button>
+      <button class="btn-primary" style="flex:1" onclick="saveServerConfig()"><i class="fa-solid fa-floppy-disk"></i> ذخیره و اتصال</button>
+    </div>
+
+    <button class="badge" style="width:100%;margin-top:8px;padding:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted)" onclick="resetServerConfig()"><i class="fa-solid fa-rotate-left"></i> بازنشانی به سرور پیش‌فرض (لوکال / فعلی)</button>
   </div>
 </div>
 
@@ -2404,6 +2551,38 @@ input:checked + .slider:before { transform: translateX(20px); }
      JAVASCRIPT CORE ENGINE
      ==================================================== -->
 <script>
+// =============================================
+// Server URL & Global Fetch Interceptor (Render / Custom Backend)
+// =============================================
+const originalFetch = window.fetch;
+function getServerUrl() {
+  const custom = localStorage.getItem('geosocial_server_url');
+  if (custom && custom.trim()) {
+    return custom.trim().replace(/\/+$/, '');
+  }
+  if (window.location.origin && window.location.origin !== 'null' && window.location.origin !== 'file://') {
+    return window.location.origin;
+  }
+  return 'http://localhost:3000';
+}
+
+function apiUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:') || path.startsWith('data:')) {
+    return path;
+  }
+  const base = getServerUrl();
+  const cleanPath = path.startsWith('/') ? path : '/' + path;
+  return `${base}${cleanPath}`;
+}
+
+window.fetch = function(input, init) {
+  if (typeof input === 'string' && input.startsWith('/api/')) {
+    input = apiUrl(input);
+  }
+  return originalFetch.call(this, input, init);
+};
+
 // State Management & Config
 const CFG = {
   defaultCoords: { lat: 35.6892, lng: 51.3890 }, // Tehran / Iran Center
@@ -2455,7 +2634,7 @@ const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const toast = m => { const e = $('toast'); if (e) { e.innerHTML = m; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 3800); } };
 const dist = (a, b, c, d) => { const R = 6371, p = Math.PI / 180, dl = (c - a) * p, dg = (d - b) * p, x = Math.sin(dl / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin(dg / 2) ** 2; return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
-const online = p => p?.online === true || (p?.last_seen && Date.now() - new Date(p.last_seen).getTime() < 180000);
+const online = p => p?.online === true;
 
 // Synthesized Web Audio FX Engine
 function playHapticSound(type = 'pop') {
@@ -2618,6 +2797,7 @@ function renderMarkers() {
   const activeUsers = state.pins.filter(p => {
     if (!p?.id || p.id === state.user?.id) return false;
     if (p.ghost) return false;
+    if (!online(p)) return false; // Instantly hide offline users from map
     const pLat = Number(p.lat), pLng = Number(p.lng);
     if (!Number.isFinite(pLat) || !Number.isFinite(pLng)) return false;
     const d = dist(state.coords.lat, state.coords.lng, pLat, pLng);
@@ -2800,29 +2980,37 @@ function clearActiveRoute() {
 }
 
 // ----------------------------------------------------
-// Location Picking & Pull-Up Radius Dial
+// Location Picking & Pull-Up Radius Dial (Pointer Events & Auto-Release)
 // ----------------------------------------------------
 function setupLocateButton() {
   const btn = $('locateBtn');
   if (!btn) return;
   let startY = 0, isDraggingRadius = false, pressTimer = null, hasLongPressed = false;
 
-  const onStart = (e) => {
+  const closeRadiusDial = () => {
+    isDraggingRadius = false;
+    const dial = $('radiusPullDial');
+    if (dial) {
+      dial.classList.remove('active');
+    }
+  };
+
+  const onPointerDown = (e) => {
     hasLongPressed = false;
     isDraggingRadius = false;
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    startY = e.clientY;
+    try { btn.setPointerCapture(e.pointerId); } catch {}
     pressTimer = setTimeout(() => {
       if (!isDraggingRadius) {
         hasLongPressed = true;
+        closeRadiusDial();
         startManualLocationPick();
       }
     }, 650);
   };
 
-  const onMove = (e) => {
-    const curY = e.touches ? e.touches[0].clientY : e.clientY;
-    const deltaY = startY - curY; // pulling upwards
-
+  const onPointerMove = (e) => {
+    const deltaY = startY - e.clientY; // pulling upwards
     if (deltaY > 10) {
       clearTimeout(pressTimer);
       isDraggingRadius = true;
@@ -2857,33 +3045,45 @@ function setupLocateButton() {
     }
   };
 
-  const onEnd = () => {
+  const onPointerUp = (e) => {
+    try { btn.releasePointerCapture(e.pointerId); } catch {}
     clearTimeout(pressTimer);
     if (isDraggingRadius) {
-      isDraggingRadius = false;
-      setTimeout(() => $('radiusPullDial')?.classList.remove('active'), 400);
+      closeRadiusDial();
       playHapticSound('pop');
       if (state.radius < 500 && radiusCircle && map) {
         map.fitBounds(radiusCircle.getBounds(), { padding: [40, 40], maxZoom: 16 });
       }
       toast(`شعاع جستجو: ${state.radius >= 500 ? 'سراسری' : state.radius + ' کیلومتر'} 🎯`);
     } else if (!hasLongPressed && !state.isPickingLocation) {
-      locateMe();
+      closeRadiusDial();
+      locateMe(true);
     }
   };
 
-  btn.addEventListener('mousedown', onStart);
-  window.addEventListener('mousemove', (e) => { if (pressTimer || isDraggingRadius) onMove(e); });
-  window.addEventListener('mouseup', () => { if (pressTimer || isDraggingRadius) onEnd(); });
+  const onPointerCancel = (e) => {
+    try { btn.releasePointerCapture(e.pointerId); } catch {}
+    clearTimeout(pressTimer);
+    closeRadiusDial();
+  };
 
-  btn.addEventListener('touchstart', onStart, { passive: true });
-  btn.addEventListener('touchmove', onMove, { passive: true });
-  btn.addEventListener('touchend', onEnd, { passive: true });
+  btn.onpointerdown = onPointerDown;
+  btn.onpointermove = (e) => { if (pressTimer || isDraggingRadius) onPointerMove(e); };
+  btn.onpointerup = onPointerUp;
+  btn.onpointercancel = onPointerCancel;
+
+  // Global safety release
+  window.addEventListener('pointerup', () => {
+    if (isDraggingRadius) closeRadiusDial();
+  });
+  window.addEventListener('blur', closeRadiusDial);
 }
 
-function locateMe() {
+function locateMe(force = false) {
+  if (state.isPickingLocation && !force) return;
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(pos => {
+      if (state.isPickingLocation && !force) return;
       state.coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
       renderMyMarker();
       renderRadiusCircle();
@@ -2959,10 +3159,19 @@ function renderPublicOverlayMessages() {
   recent.forEach(m => {
     const item = document.createElement('div');
     item.className = 'public-overlay-msg-item';
-    item.innerHTML = `<b class="public-overlay-msg-sender">${esc(m.sender_name || 'کاربر')}:</b> <span>${esc(m.text || '')}</span>`;
+    item.innerHTML = `<span>${esc(m.text || '')}</span>`;
     box.appendChild(item);
   });
   box.scrollTop = box.scrollHeight;
+}
+
+function togglePublicChatOverlay() {
+  const overlay = $('publicChatOverlay');
+  if (!overlay) return;
+  overlay.classList.toggle('collapsed');
+  const isCollapsed = overlay.classList.contains('collapsed');
+  localStorage.setItem('geosocial_public_chat_collapsed', isCollapsed ? '1' : '0');
+  playHapticSound('pop');
 }
 
 async function sendPublicOverlayMsg() {
@@ -4350,14 +4559,15 @@ function updateStoryText(text) {
 }
 
 // =============================================
-// Robust Server-Sent Events (SSE) Engine
+// Robust Server-Sent Events (SSE) Engine & Presence
 // =============================================
 let sseConn = null;
 function initSSE() {
   if (!state.user) return;
   if (sseConn) { try { sseConn.close(); } catch {} }
   try {
-    sseConn = new EventSource('/api/events');
+    const sseUrl = apiUrl(`/api/events?user_id=${encodeURIComponent(state.user.id)}`);
+    sseConn = new EventSource(sseUrl);
 
     sseConn.addEventListener('dm_msg', e => {
       try { handleIncomingDM(JSON.parse(e.data)); } catch {}
@@ -4485,6 +4695,152 @@ function initSSE() {
       setTimeout(initSSE, 4000);
     };
   } catch {}
+}
+
+// =============================================
+// Realtime Instant Presence (Enter / Exit / Minimize)
+// =============================================
+function sendOfflineSignal() {
+  if (!state.user?.id) return;
+  const url = apiUrl('/api/users/offline');
+  const payload = JSON.stringify({ user_id: state.user.id });
+  if (navigator.sendBeacon) {
+    try {
+      navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }));
+      return;
+    } catch {}
+  }
+  try {
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload,
+      keepalive: true
+    }).catch(() => {});
+  } catch {}
+}
+
+function sendOnlineSignal() {
+  if (!state.user?.id) return;
+  syncUserToServer();
+  initSSE();
+}
+
+window.addEventListener('beforeunload', () => sendOfflineSignal());
+window.addEventListener('pagehide', () => sendOfflineSignal());
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    sendOfflineSignal();
+  } else if (document.visibilityState === 'visible') {
+    sendOnlineSignal();
+  }
+});
+
+// =============================================
+// Server Config & Render Backend Handlers
+// =============================================
+function openServerConfigModal() {
+  const modal = $('serverConfigModal');
+  if (!modal) return;
+  const current = localStorage.getItem('geosocial_server_url') || '';
+  $('serverUrlInput').value = current;
+  $('serverTestStatus').innerHTML = '';
+  modal.classList.add('open');
+  playHapticSound('pop');
+}
+
+async function testServerConnection() {
+  const statusEl = $('serverTestStatus');
+  const rawUrl = ($('serverUrlInput').value || '').trim().replace(/\/+$/, '');
+  if (!rawUrl) {
+    statusEl.innerHTML = '<span style="color:var(--danger)">⚠️ لطفاً یک آدرس معتبر وارد کنید</span>';
+    return;
+  }
+  statusEl.innerHTML = '<span style="color:var(--blue)"><i class="fa-solid fa-spinner fa-spin"></i> در حال بررسی اتصال به سرور...</span>';
+  const startTime = Date.now();
+  try {
+    const res = await fetch(`${rawUrl}/api/users`, { method: 'GET', signal: AbortSignal.timeout(6000) });
+    const latency = Date.now() - startTime;
+    if (res.ok) {
+      statusEl.innerHTML = `<span style="color:var(--green)"><i class="fa-solid fa-check"></i> اتصال موفقیت‌آمیز بود (${latency}ms)</span>`;
+    } else {
+      statusEl.innerHTML = `<span style="color:var(--danger)">❌ خطا در پاسخ سرور (کد ${res.status})</span>`;
+    }
+  } catch (err) {
+    statusEl.innerHTML = `<span style="color:var(--danger)">❌ عدم دسترسی به سرور (${err.message || 'خطای شبکه'})</span>`;
+  }
+}
+
+function saveServerConfig() {
+  const rawUrl = ($('serverUrlInput').value || '').trim().replace(/\/+$/, '');
+  if (rawUrl) {
+    localStorage.setItem('geosocial_server_url', rawUrl);
+    toast('آدرس سرور ذخیره شد 🚀');
+  } else {
+    localStorage.removeItem('geosocial_server_url');
+    toast('سرور به حالت پیش‌فرض بازگشت 🔄');
+  }
+  $('serverConfigModal')?.classList.remove('open');
+  updateServerLabelInProfile();
+  initSSE();
+  loadData();
+  playHapticSound('sent');
+}
+
+function resetServerConfig() {
+  localStorage.removeItem('geosocial_server_url');
+  $('serverUrlInput').value = '';
+  $('serverTestStatus').innerHTML = '<span style="color:var(--muted)">بازنشانی شد</span>';
+  toast('تنظیمات سرور بازنشانی شد');
+  updateServerLabelInProfile();
+  initSSE();
+  loadData();
+}
+
+function updateServerLabelInProfile() {
+  const label = $('profileCurrentServerLabel');
+  if (!label) return;
+  const custom = localStorage.getItem('geosocial_server_url');
+  if (custom) {
+    label.textContent = custom;
+    label.style.color = 'var(--green)';
+  } else {
+    label.textContent = 'سرور پیش‌فرض متصل است';
+    label.style.color = 'var(--muted)';
+  }
+}
+
+// =============================================
+// Comprehensive Profile Additional Handlers
+// =============================================
+function onProfileRadiusChange(val) {
+  const km = Number(val);
+  state.radius = km;
+  $('profileRadiusValue').textContent = `${km} کیلومتر`;
+  const valEl = $('radiusPullValue');
+  if (valEl) valEl.textContent = `${km} km`;
+  const fillEl = $('radiusPullFill');
+  if (fillEl) fillEl.style.height = `${Math.round((km / 150) * 100)}%`;
+  renderRadiusCircle();
+  renderMarkers();
+}
+
+function toggleOnlineVisibility(visible) {
+  if (state.profile) {
+    state.profile.ghost = !visible;
+  }
+  syncUserToServer();
+  renderMyMarker();
+  renderMarkers();
+  toast(visible ? 'وضعیت آنلاین شما فعال شد 🟢' : 'حالت مخفی فعال شد 👻');
+}
+
+function clearAppDataCache() {
+  if (confirm('آیا مایل به پاکسازی حافظه موقت و بارگذاری مجدد اطلاعات هستید؟')) {
+    localStorage.removeItem('geosocial_temp_data');
+    loadData();
+    toast('حافظه موقت پاکسازی شد 🧹');
+  }
 }
 
 // 3-Second Active Chat Fallback Polling Guarantee
@@ -4864,7 +5220,13 @@ function openProfileModal() {
   $('myProfileName').textContent = state.profile?.name || 'کاربر گرامی';
   $('myProfileUsername').textContent = state.profile?.username ? `@${state.profile.username}` : (state.profile?.phone || '');
   $('myProfileBio').textContent = state.profile?.bio || 'بیوگرافی ثبت نشده است.';
-  $('ghostSwitch').checked = !!state.profile?.ghost;
+  if ($('ghostSwitch')) $('ghostSwitch').checked = !!state.profile?.ghost;
+  if ($('onlineVisibilitySwitch')) $('onlineVisibilitySwitch').checked = !state.profile?.ghost;
+  if ($('profileRadiusRange')) {
+    $('profileRadiusRange').value = state.radius || 25;
+    $('profileRadiusValue').textContent = `${state.radius || 25} کیلومتر`;
+  }
+  updateServerLabelInProfile();
   $('profileModal').classList.add('open');
 }
 
@@ -5114,11 +5476,12 @@ async function sendPublicMsg() {
 
 function renderPublicMessages() {
   const box = $('publicFeed');
+  if (!box) return;
   box.innerHTML = '';
   state.publicMessages.forEach(m => {
     const item = document.createElement('div');
     item.style.cssText = 'background:var(--card-bg);border:1px solid var(--border);padding:8px 12px;border-radius:12px;font-size:13px';
-    item.innerHTML = `<b style="color:var(--blue);font-size:12px">${esc(m.sender_name)}:</b> <div>${esc(m.text)}</div>`;
+    item.innerHTML = `<div>${esc(m.text || '')}</div>`;
     box.appendChild(item);
   });
   box.scrollTop = box.scrollHeight;
@@ -5128,6 +5491,9 @@ function renderPublicMessages() {
 // App Initialization
 // ----------------------------------------------------
 window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('geosocial_public_chat_collapsed') === '1') {
+    $('publicChatOverlay')?.classList.add('collapsed');
+  }
   initMap();
   const saved = localStorage.getItem('geosocial_user');
   if (saved) {

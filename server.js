@@ -96,19 +96,63 @@ app.get('/api/events', (req, res) => {
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
 
+  const userId = req.query.user_id;
   const clientId = Date.now() + '_' + Math.random().toString(36).substring(2, 6);
-  sseClients.push({ id: clientId, res });
+  sseClients.push({ id: clientId, userId, res });
+
+  if (userId) {
+    const u = users.find(usr => usr.id === userId);
+    if (u) {
+      u.online = true;
+      u.last_seen = new Date().toISOString();
+      persistDB();
+      broadcastSSE('user_update', u);
+      broadcastSSE('user_sync', u);
+    }
+  }
 
   res.write(`event: connected\ndata: ${JSON.stringify({ status: 'connected', time: new Date().toISOString() })}\n\n`);
 
   req.on('close', () => {
     sseClients = sseClients.filter(c => c.id !== clientId);
+    if (userId) {
+      const stillHasConn = sseClients.some(c => c.userId === userId);
+      if (!stillHasConn) {
+        const u = users.find(usr => usr.id === userId);
+        if (u) {
+          u.online = false;
+          u.last_seen = new Date().toISOString();
+          persistDB();
+          broadcastSSE('user_update', u);
+          broadcastSSE('user_sync', u);
+        }
+      }
+    }
   });
+});
+
+// Endpoint for instant offline notification on app unload / minimize
+app.post('/api/users/offline', (req, res) => {
+  let userId = req.body?.user_id;
+  if (!userId && typeof req.body === 'string') {
+    try { userId = JSON.parse(req.body).user_id; } catch {}
+  }
+  if (userId) {
+    const u = users.find(usr => usr.id === userId);
+    if (u) {
+      u.online = false;
+      u.last_seen = new Date().toISOString();
+      persistDB();
+      broadcastSSE('user_update', u);
+      broadcastSSE('user_sync', u);
+    }
+  }
+  res.json({ success: true });
 });
 
 // Alias for /api/sse so both SSE paths work reliably
 app.get('/api/sse', (req, res) => {
-  res.redirect(307, '/api/events');
+  res.redirect(307, '/api/events' + (req.query.user_id ? `?user_id=${req.query.user_id}` : ''));
 });
 
 app.get('/', (req, res) => {
