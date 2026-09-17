@@ -3,59 +3,30 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
+const { Pool } = require('pg');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-const DB_FILE = path.join(__dirname, 'data.json');
+const DATABASE_URL = (process.env.DATABASE_URL || 'postgresql://postgres:Reza.137801@db.dotyhbasvvczsyzdhnko.supabase.co:5432/postgres').replace(/\[|\]/g, '');
 
-// Full permissive CORS for Mobile App / Web / Cross-Origin requests
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
-}));
+let pgPool = null;
+let pgConnected = false;
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
-
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(express.static(__dirname));
-app.use('/public', express.static(path.join(__dirname, 'public')));
-
-// Real Dynamic Users (No fake seed users)
-let users = [];
-let publicMessages = [];
-let directMessages = {};
-let stories = [];
-let highlights = [];
-let posts = [];
-let follows = {}; // { userId: [followingUserIds] }
-let activeOTPs = {}; // { phone: { code: '1234', expires: timestamp } }
-
-// Load persisted DB from disk if available
 try {
-  if (fs.existsSync(DB_FILE)) {
-    const raw = fs.readFileSync(DB_FILE, 'utf8');
-    const parsed = JSON.parse(raw);
-    if (parsed.users && Array.isArray(parsed.users)) users = parsed.users;
-    if (parsed.publicMessages && Array.isArray(parsed.publicMessages)) publicMessages = parsed.publicMessages;
-    if (parsed.directMessages && typeof parsed.directMessages === 'object') directMessages = parsed.directMessages;
-    if (parsed.stories && Array.isArray(parsed.stories)) stories = parsed.stories;
-    if (parsed.highlights && Array.isArray(parsed.highlights)) highlights = parsed.highlights;
-    if (parsed.posts && Array.isArray(parsed.posts)) posts = parsed.posts;
-    if (parsed.follows && typeof parsed.follows === 'object') follows = parsed.follows;
-    console.log('📦 Loaded database from disk:', DB_FILE);
-  }
+  pgPool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 7000
+  });
+
+  pgPool.on('error', (err) => {
+    console.error('PostgreSQL client error:', err.message);
+  });
 } catch (e) {
-  console.error('Error loading database:', e.message);
+  console.error('Failed to initialize PostgreSQL pool:', e.message);
+}
+
+function dist(a, b, c, d) {
+  const R = 6371, p = Math.PI / 180, dl = (c - a) * p, dg = (d - b) * p, x = Math.sin(dl / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin(dg / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
 }
 
 let saveTimeout = null;
@@ -69,6 +40,208 @@ function persistDB() {
       console.error('Error saving database:', e.message);
     }
   }, 1000);
+}
+
+async function initPostgres() {
+  if (!pgPool) return;
+  try {
+    const client = await pgPool.connect();
+    pgConnected = true;
+    console.log('🐘 Connected to Supabase PostgreSQL database successfully!');
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        username TEXT,
+        phone TEXT,
+        avatar TEXT,
+        bio TEXT,
+        lat NUMERIC,
+        lng NUMERIC,
+        ghost BOOLEAN DEFAULT false,
+        online BOOLEAN DEFAULT false,
+        last_seen TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS messages (
+        id TEXT PRIMARY KEY,
+        sender_id TEXT,
+        receiver_id TEXT,
+        conversation_key TEXT,
+        text TEXT,
+        media_url TEXT,
+        audio_url TEXT,
+        media_type TEXT,
+        location JSONB,
+        poll JSONB,
+        contact JSONB,
+        file_info JSONB,
+        reply_to TEXT,
+        reply_text TEXT,
+        forward_from JSONB,
+        reactions JSONB DEFAULT '{}',
+        is_pinned BOOLEAN DEFAULT false,
+        status TEXT DEFAULT 'delivered',
+        seen BOOLEAN DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS public_messages (
+        id TEXT PRIMARY KEY,
+        sender_id TEXT,
+        sender_name TEXT,
+        text TEXT,
+        lat NUMERIC,
+        lng NUMERIC,
+        radius NUMERIC DEFAULT 25,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS stories (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        user_name TEXT,
+        user_avatar TEXT,
+        media_url TEXT,
+        media_type TEXT DEFAULT 'image',
+        caption TEXT,
+        likes JSONB DEFAULT '[]',
+        comments JSONB DEFAULT '[]',
+        views JSONB DEFAULT '[]',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // Sync users from PG
+    const uRes = await client.query('SELECT * FROM users');
+    if (uRes.rows.length > 0) {
+      uRes.rows.forEach(r => {
+        const u = {
+          ...r,
+          lat: r.lat != null ? Number(r.lat) : 35.6892,
+          lng: r.lng != null ? Number(r.lng) : 51.3890,
+          ghost: Boolean(r.ghost),
+          online: Boolean(r.online)
+        };
+        const idx = users.findIndex(x => x.id === u.id);
+        if (idx >= 0) users[idx] = { ...users[idx], ...u };
+        else users.push(u);
+      });
+      console.log(`🐘 Synced ${uRes.rows.length} users from PostgreSQL`);
+    }
+
+    // Sync public messages from PG
+    const pRes = await client.query('SELECT * FROM public_messages ORDER BY created_at DESC LIMIT 100');
+    if (pRes.rows.length > 0) {
+      const dbPubs = pRes.rows.reverse().map(r => ({
+        ...r,
+        lat: r.lat != null ? Number(r.lat) : null,
+        lng: r.lng != null ? Number(r.lng) : null,
+        radius: r.radius != null ? Number(r.radius) : 25
+      }));
+      publicMessages = dbPubs;
+      console.log(`🐘 Synced ${dbPubs.length} public messages from PostgreSQL`);
+    }
+
+    // Sync direct messages from PG
+    const mRes = await client.query('SELECT * FROM messages ORDER BY created_at ASC');
+    if (mRes.rows.length > 0) {
+      mRes.rows.forEach(r => {
+        const key = r.conversation_key || [r.sender_id, r.receiver_id].sort().join('_');
+        if (!directMessages[key]) directMessages[key] = [];
+        if (!directMessages[key].some(m => m.id === r.id)) {
+          directMessages[key].push(r);
+        }
+      });
+      console.log(`🐘 Synced direct messages from PostgreSQL`);
+    }
+
+    // Sync stories from PG
+    const sRes = await client.query('SELECT * FROM stories ORDER BY created_at DESC LIMIT 50');
+    if (sRes.rows.length > 0) {
+      stories = sRes.rows;
+      console.log(`🐘 Synced ${stories.length} stories from PostgreSQL`);
+    }
+
+    client.release();
+    persistDB();
+  } catch (err) {
+    console.warn('⚠️ Supabase PostgreSQL connection notice:', err.message);
+    console.log('📁 Operating with local database persistence fallback (data.json).');
+  }
+}
+initPostgres();
+
+async function pgUpsertUser(u) {
+  if (!pgPool || !pgConnected || !u?.id) return;
+  try {
+    await pgPool.query(`
+      INSERT INTO users (id, name, username, phone, avatar, bio, lat, lng, ghost, online, last_seen, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
+      ON CONFLICT (id) DO UPDATE SET
+        name = COALESCE(EXCLUDED.name, users.name),
+        username = COALESCE(EXCLUDED.username, users.username),
+        phone = COALESCE(EXCLUDED.phone, users.phone),
+        avatar = COALESCE(EXCLUDED.avatar, users.avatar),
+        bio = COALESCE(EXCLUDED.bio, users.bio),
+        lat = COALESCE(EXCLUDED.lat, users.lat),
+        lng = COALESCE(EXCLUDED.lng, users.lng),
+        ghost = EXCLUDED.ghost,
+        online = EXCLUDED.online,
+        last_seen = EXCLUDED.last_seen,
+        updated_at = NOW()
+    `, [u.id, u.name, u.username || null, u.phone || null, u.avatar || null, u.bio || null, u.lat, u.lng, !!u.ghost, !!u.online, u.last_seen || new Date().toISOString()]);
+  } catch (e) {
+    console.error('PG Upsert User Error:', e.message);
+  }
+}
+
+async function pgInsertMessage(msg, convKey) {
+  if (!pgPool || !pgConnected || !msg?.id) return;
+  try {
+    await pgPool.query(`
+      INSERT INTO messages (id, sender_id, receiver_id, conversation_key, text, media_url, audio_url, media_type, location, poll, contact, file_info, reply_to, reply_text, forward_from, reactions, is_pinned, status, seen, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+      ON CONFLICT (id) DO UPDATE SET
+        reactions = EXCLUDED.reactions,
+        is_pinned = EXCLUDED.is_pinned,
+        status = EXCLUDED.status,
+        seen = EXCLUDED.seen
+    `, [msg.id, msg.sender_id, msg.receiver_id, convKey, msg.text, msg.media_url, msg.audio_url, msg.media_type, JSON.stringify(msg.location || null), JSON.stringify(msg.poll || null), JSON.stringify(msg.contact || null), JSON.stringify(msg.file_info || null), msg.reply_to, msg.reply_text, JSON.stringify(msg.forward_from || null), JSON.stringify(msg.reactions || {}), !!msg.is_pinned, msg.status || 'delivered', !!msg.seen, msg.created_at || new Date().toISOString()]);
+  } catch (e) {
+    console.error('PG Insert Message Error:', e.message);
+  }
+}
+
+async function pgInsertPublicMessage(msg) {
+  if (!pgPool || !pgConnected || !msg?.id) return;
+  try {
+    await pgPool.query(`
+      INSERT INTO public_messages (id, sender_id, sender_name, text, lat, lng, radius, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      ON CONFLICT (id) DO NOTHING
+    `, [msg.id, msg.sender_id, msg.sender_name, msg.text, msg.lat, msg.lng, msg.radius || 25, msg.created_at || new Date().toISOString()]);
+  } catch (e) {
+    console.error('PG Insert Public Message Error:', e.message);
+  }
+}
+
+async function pgInsertStory(s) {
+  if (!pgPool || !pgConnected || !s?.id) return;
+  try {
+    await pgPool.query(`
+      INSERT INTO stories (id, user_id, user_name, user_avatar, media_url, media_type, caption, likes, comments, views, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ON CONFLICT (id) DO UPDATE SET
+        likes = EXCLUDED.likes,
+        comments = EXCLUDED.comments,
+        views = EXCLUDED.views
+    `, [s.id, s.user_id, s.user_name, s.user_avatar, s.media_url, s.media_type || 'image', s.caption, JSON.stringify(s.likes || []), JSON.stringify(s.comments || []), JSON.stringify(s.views || []), s.created_at || new Date().toISOString()]);
+  } catch (e) {
+    console.error('PG Insert Story Error:', e.message);
+  }
 }
 
 // Server-Sent Events (SSE) for Real-Time Instant Broadcast
@@ -106,6 +279,7 @@ app.get('/api/events', (req, res) => {
       u.online = true;
       u.last_seen = new Date().toISOString();
       persistDB();
+      pgUpsertUser(u);
       broadcastSSE('user_update', u);
       broadcastSSE('user_sync', u);
     }
@@ -123,6 +297,7 @@ app.get('/api/events', (req, res) => {
           u.online = false;
           u.last_seen = new Date().toISOString();
           persistDB();
+          pgUpsertUser(u);
           broadcastSSE('user_update', u);
           broadcastSSE('user_sync', u);
         }
@@ -143,6 +318,7 @@ app.post('/api/users/offline', (req, res) => {
       u.online = false;
       u.last_seen = new Date().toISOString();
       persistDB();
+      pgUpsertUser(u);
       broadcastSSE('user_update', u);
       broadcastSSE('user_sync', u);
     }
@@ -590,6 +766,7 @@ app.post('/api/users/sync', (req, res) => {
   }
   const updatedUser = idx >= 0 ? users[idx] : user;
   persistDB();
+  pgUpsertUser(updatedUser);
   broadcastSSE('user_update', updatedUser);
   broadcastSSE('user_sync', updatedUser);
   res.json({ success: true, user: updatedUser });
@@ -632,6 +809,7 @@ app.post('/api/stories', (req, res) => {
 
   stories.unshift(newStory);
   persistDB();
+  pgInsertStory(newStory);
   broadcastSSE('new_story', newStory);
   res.json({ success: true, story: newStory });
 });
@@ -650,69 +828,61 @@ app.post('/api/stories/view', (req, res) => {
       viewed_at: new Date().toISOString()
     });
     persistDB();
+    pgInsertStory(story);
     broadcastSSE('story_view', { story_id, views_count: story.views.length });
   }
-
-  res.json({ success: true, views_count: story.views.length, views: story.views });
+  res.json({ success: true, views_count: story.views.length });
 });
 
 app.post('/api/stories/like', (req, res) => {
   const { story_id, user_id } = req.body;
   const story = stories.find(s => s.id === story_id);
   if (!story) return res.status(404).json({ success: false, error: 'Story not found' });
-  
+
   if (!story.likes) story.likes = [];
   const idx = story.likes.indexOf(user_id);
   if (idx >= 0) story.likes.splice(idx, 1);
   else story.likes.push(user_id);
 
   persistDB();
-  broadcastSSE('story_like', { story_id, likes: story.likes });
-  res.json({ success: true, likes: story.likes });
+  pgInsertStory(story);
+  broadcastSSE('story_like', { story_id, likes_count: story.likes.length });
+  res.json({ success: true, likes_count: story.likes.length, is_liked: idx < 0 });
 });
 
 app.post('/api/stories/comment', (req, res) => {
-  const { story_id, user_id, user_name, user_avatar, text } = req.body;
+  const { story_id, user_id, user_name, text } = req.body;
   const story = stories.find(s => s.id === story_id);
   if (!story) return res.status(404).json({ success: false, error: 'Story not found' });
-  
+
   if (!story.comments) story.comments = [];
-  const comment = {
-    id: 'cm_' + Date.now(),
-    user_id: user_id || 'guest',
-    user_name: user_name || 'کاربر',
-    user_avatar: user_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-    text: text.trim(),
-    created_at: new Date().toISOString()
-  };
+  const comment = { id: 'c_' + Date.now(), user_id, user_name: user_name || 'کاربر', text, created_at: new Date().toISOString() };
   story.comments.push(comment);
 
   persistDB();
+  pgInsertStory(story);
   broadcastSSE('story_comment', { story_id, comment });
-  res.json({ success: true, comments: story.comments });
+  res.json({ success: true, comment });
 });
 
 app.post('/api/stories/vote_poll', (req, res) => {
-  const { story_id, sticker_id, option_index, user_id } = req.body;
+  const { story_id, option_index, user_id } = req.body;
   const story = stories.find(s => s.id === story_id);
   if (!story) return res.status(404).json({ success: false, error: 'Story not found' });
 
   if (!story.poll_votes) story.poll_votes = {};
-  const pollKey = sticker_id || 'default_poll';
-  if (!story.poll_votes[pollKey]) story.poll_votes[pollKey] = {};
-
-  // Remove previous vote by user
-  Object.keys(story.poll_votes[pollKey]).forEach(k => {
-    story.poll_votes[pollKey][k] = (story.poll_votes[pollKey][k] || []).filter(u => u !== user_id);
+  if (!story.poll_votes[option_index]) story.poll_votes[option_index] = [];
+  
+  // Remove user from all options first
+  Object.keys(story.poll_votes).forEach(opt => {
+    story.poll_votes[opt] = story.poll_votes[opt].filter(id => id !== user_id);
   });
-
-  const optKey = String(option_index);
-  if (!story.poll_votes[pollKey][optKey]) story.poll_votes[pollKey][optKey] = [];
-  story.poll_votes[pollKey][optKey].push(user_id);
-
+  
+  story.poll_votes[option_index].push(user_id);
   persistDB();
-  broadcastSSE('story_poll_vote', { story_id, poll_key: pollKey, votes: story.poll_votes[pollKey] });
-  res.json({ success: true, votes: story.poll_votes[pollKey] });
+  pgInsertStory(story);
+  broadcastSSE('story_poll_update', { story_id, poll_votes: story.poll_votes });
+  res.json({ success: true, poll_votes: story.poll_votes });
 });
 
 app.delete('/api/stories/:id', (req, res) => {
@@ -736,20 +906,16 @@ app.get('/api/highlights', (req, res) => {
 
 app.post('/api/highlights', (req, res) => {
   const { user_id, title, cover_url, story_ids } = req.body;
-  if (!user_id || !title) return res.status(400).json({ success: false, error: 'Missing parameters' });
-
   const newHighlight = {
     id: 'hl_' + Date.now(),
     user_id,
-    title: title.trim(),
-    cover_url: cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150',
+    title: title || 'هایلایت',
+    cover_url: cover_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
     story_ids: story_ids || [],
     created_at: new Date().toISOString()
   };
-
   highlights.unshift(newHighlight);
   persistDB();
-  broadcastSSE('new_highlight', newHighlight);
   res.json({ success: true, highlight: newHighlight });
 });
 
@@ -765,53 +931,66 @@ app.delete('/api/highlights/:id', (req, res) => {
   res.status(404).json({ success: false, error: 'Highlight not found' });
 });
 
-// Posts & Shared Media API
+// Profile Posts API (Instagram style)
 app.get('/api/posts', (req, res) => {
   const { user_id } = req.query;
-  const list = user_id ? posts.filter(p => p.user_id === user_id) : posts;
-  res.json({ success: true, posts: list });
+  const userPosts = user_id ? posts.filter(p => p.user_id === user_id) : posts;
+  res.json({ success: true, posts: userPosts });
 });
 
 app.post('/api/posts', (req, res) => {
   const { user_id, user_name, user_avatar, media_url, caption } = req.body;
-  if (!user_id || !media_url) return res.status(400).json({ success: false, error: 'Missing post data' });
-
   const newPost = {
-    id: 'post_' + Date.now(),
+    id: 'p_' + Date.now(),
     user_id,
     user_name: user_name || 'کاربر',
     user_avatar: user_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
     media_url,
     caption: caption || '',
-    created_at: new Date().toISOString(),
     likes: [],
-    comments: []
+    comments: [],
+    created_at: new Date().toISOString()
   };
-
   posts.unshift(newPost);
   persistDB();
-  broadcastSSE('new_post', newPost);
   res.json({ success: true, post: newPost });
 });
 
-// Public Chat API
+// Public Chat API (Filtered by Location Radius)
 app.get('/api/public_messages', (req, res) => {
-  res.json({ success: true, messages: publicMessages.slice(-50) });
+  const { lat, lng, radius } = req.query;
+  let msgs = publicMessages.slice(-100);
+  if (lat != null && lng != null) {
+    const uLat = Number(lat), uLng = Number(lng), uRad = Number(radius) || 25;
+    if (uRad < 500) {
+      msgs = msgs.filter(m => {
+        if (m.lat == null || m.lng == null) return true;
+        const d = dist(uLat, uLng, Number(m.lat), Number(m.lng));
+        const maxR = Math.max(uRad, Number(m.radius) || 25);
+        return d <= maxR;
+      });
+    }
+  }
+  res.json({ success: true, messages: msgs.slice(-50) });
 });
 
 app.post('/api/public_messages', (req, res) => {
-  const { sender_id, sender_name, text } = req.body || {};
+  const { sender_id, sender_name, text, lat, lng, radius } = req.body || {};
   if (!text || !text.trim()) return res.status(400).json({ success: false, error: 'Empty text' });
   const msg = {
     id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: sender_id || 'anonymous',
     sender_name: sender_name || 'کاربر',
     text: text.trim(),
+    lat: lat != null ? Number(lat) : null,
+    lng: lng != null ? Number(lng) : null,
+    radius: radius != null ? Number(radius) : 25,
     created_at: new Date().toISOString()
   };
   publicMessages.push(msg);
-  if (publicMessages.length > 200) publicMessages = publicMessages.slice(-200);
+  if (publicMessages.length > 300) publicMessages = publicMessages.slice(-300);
   persistDB();
+  pgInsertPublicMessage(msg);
   broadcastSSE('public_msg', msg);
   res.json({ success: true, message: msg });
 });
@@ -855,6 +1034,7 @@ app.post('/api/messages', (req, res) => {
   
   directMessages[key].push(msg);
   persistDB();
+  pgInsertMessage(msg, key);
   broadcastSSE('dm_msg', msg);
   res.json({ success: true, message: msg });
 });

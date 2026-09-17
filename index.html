@@ -417,93 +417,118 @@ input, textarea { direction: rtl; }
   opacity: 0.2;
 }
 
-/* Public Chat Stream Overlay (سمت چپ پایین) */
+/* Public Chat Stream Overlay (سمت چپ پایین: بدون کادر بالایی، نیمه افقی، یک سوم عمودی، متن بدون بک‌گراند، محو از بالا با اسکرول کامل) */
 .public-chat-overlay {
   position: absolute;
   bottom: calc(72px + var(--safe-bottom));
   left: 12px;
   width: 48vw;
-  max-width: 260px;
-  min-width: 160px;
+  max-width: 270px;
+  min-width: 170px;
   height: 33vh;
   max-height: 250px;
   z-index: 18;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  pointer-events: auto;
+  pointer-events: none;
   gap: 6px;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.public-overlay-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(23, 33, 43, 0.75);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 14px;
-  padding: 5px 10px;
-  cursor: pointer;
-  user-select: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-.public-overlay-header:hover {
-  background: rgba(23, 33, 43, 0.95);
-  border-color: var(--blue);
-}
-.public-overlay-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  gap: 6px;
-  overflow: hidden;
-}
-.public-chat-overlay.collapsed {
-  height: auto !important;
-  max-height: none !important;
-}
-.public-chat-overlay.collapsed .public-overlay-body {
-  display: none !important;
-}
-.public-chat-overlay.collapsed #publicToggleChevron {
-  transform: rotate(180deg);
 }
 .public-overlay-messages {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  scrollbar-width: none;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   gap: 6px;
-  padding-top: 30px;
-  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 15%, black 40%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 15%, black 40%);
+  padding: 8px 4px 4px 4px;
+  pointer-events: auto;
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 18%, black 40%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 18%, black 40%);
 }
-.public-overlay-messages::-webkit-scrollbar { display: none; }
+.public-overlay-messages > :first-child {
+  margin-top: auto;
+}
+.public-overlay-messages::-webkit-scrollbar {
+  width: 3px;
+}
+.public-overlay-messages::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.25);
+  border-radius: 4px;
+}
 .public-overlay-msg-item {
   background: transparent;
-  font-size: 11px;
+  font-size: 11.5px;
   line-height: 1.35;
   color: #ffffff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9);
   word-break: break-word;
   padding: 1px 0;
+  animation: fadeInMsg 0.2s ease-out;
 }
+@keyframes fadeInMsg {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* نوار پایینی در حالت نمایشی (تغییر وضعیت باز و بسته) */
 .public-overlay-composer {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(23, 33, 43, 0.6);
-  backdrop-filter: blur(12px);
+  background: rgba(23, 33, 43, 0.85);
+  backdrop-filter: blur(14px);
   border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 18px;
-  padding: 3px 8px;
+  border-radius: 20px;
+  padding: 3px 6px;
+  pointer-events: auto;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  width: 100%;
+  max-width: 270px;
+}
+.public-overlay-toggle-btn {
+  background: transparent;
+  border: 0;
+  color: var(--blue);
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  cursor: pointer;
   flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.public-overlay-toggle-btn:hover {
+  transform: scale(1.15);
+}
+.public-composer-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+.public-overlay-composer.collapsed {
+  width: 36px !important;
+  min-width: 36px !important;
+  padding: 3px !important;
+  border-radius: 50% !important;
+  justify-content: center;
+}
+.public-overlay-composer.collapsed .public-composer-input-wrap {
+  display: none !important;
+}
+.public-overlay-composer.collapsed #publicComposerIcon {
+  color: #ffffff;
 }
 .public-overlay-input {
   flex: 1;
@@ -1844,24 +1869,20 @@ input:checked + .slider:before { transform: translateX(20px); }
     <div id="radiusPullFill" class="radius-pull-fill" style="height: 20%;"></div>
   </div>
 </div>
-<button id="locateBtn" class="fab-btn map-locate-fab" title="بروزرسانی موقعیت (لمس) • تنظیم شعاع (کشیدن به بالا) • انتخاب دستی (نگه داشتن)">
+<button id="locateBtn" class="fab-btn map-locate-fab" title="بروزرسانی موقعیت (لمس) • تنظیم شعاع (نگه داشتن و کشیدن بالا/پایین)">
   <i class="fa-solid fa-location-crosshairs"></i>
 </button>
 
-<!-- 6. Live Public Stream Chat Overlay (پایین سمت چپ: بدون پس‌زمینه، نصف صفحه افقی، یک سوم عمودی، محو از بالا، باز و بسته با یک کلیک) -->
+<!-- 6. Live Public Stream Chat Overlay (بدون کادر بالایی، نیمه افقی، یک سوم عمودی، متن بدون پس‌زمینه، محو از بالا با اسکرول کامل، نوار پایینی حالت نمایشی) -->
 <div id="publicChatOverlay" class="public-chat-overlay">
-  <div class="public-overlay-header" onclick="togglePublicChatOverlay()" title="برای باز یا بسته شدن کلیک کنید">
-    <div style="display:flex;align-items:center;gap:6px">
-      <i class="fa-solid fa-comments" style="color:var(--blue);font-size:12px"></i>
-      <span style="font-size:11px;font-weight:700">چت عمومی منطقه</span>
-    </div>
-    <i id="publicToggleChevron" class="fa-solid fa-chevron-down" style="font-size:11px;color:var(--muted);transition:transform 0.25s"></i>
+  <div id="publicOverlayMessages" class="public-overlay-messages">
+    <!-- Dynamic public messages (scrollable) -->
   </div>
-  <div class="public-overlay-body">
-    <div id="publicOverlayMessages" class="public-overlay-messages">
-      <!-- Dynamic public messages -->
-    </div>
-    <div class="public-overlay-composer">
+  <div id="publicOverlayComposer" class="public-overlay-composer">
+    <button id="publicOverlayToggleBtn" class="public-overlay-toggle-btn" onclick="togglePublicChatComposer()" title="نمایش یا بستن ورودی پیام">
+      <i id="publicComposerIcon" class="fa-solid fa-comments"></i>
+    </button>
+    <div id="publicComposerInputWrap" class="public-composer-input-wrap">
       <input id="publicOverlayInput" class="public-overlay-input" placeholder="پیام به افراد منطقه..." onkeypress="if(event.key==='Enter')sendPublicOverlayMsg()">
       <button class="public-overlay-send" onclick="sendPublicOverlayMsg()" title="ارسال"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
@@ -2560,10 +2581,10 @@ function getServerUrl() {
   if (custom && custom.trim()) {
     return custom.trim().replace(/\/+$/, '');
   }
-  if (window.location.origin && window.location.origin !== 'null' && window.location.origin !== 'file://') {
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return window.location.origin;
   }
-  return 'http://localhost:3000';
+  return 'https://geosocial-server-1.onrender.com';
 }
 
 function apiUrl(path) {
@@ -2666,7 +2687,7 @@ function formatLastSeen(lastSeen, isOnline) {
   if (!lastSeen) return 'آفلاین ⚪';
   try {
     const diff = Math.floor((Date.now() - new Date(lastSeen).getTime()) / 1000);
-    if (diff < 180) return 'آنلاین 🟢';
+    if (diff < 60) return 'همین الان آفلاین شد ⚪';
     if (diff < 3600) return `آخرین بازدید ${Math.floor(diff / 60)} دقیقه پیش`;
     if (diff < 86400) return `آخرین بازدید ${Math.floor(diff / 3600)} ساعت پیش`;
     return 'آخرین بازدید به تازگی';
@@ -2732,6 +2753,10 @@ function registerOrUpdateUser(u) {
   const idx = state.pins.findIndex(p => p.id === u.id);
   if (idx >= 0) state.pins[idx] = { ...state.pins[idx], ...u };
   else state.pins.push(u);
+  if (state.activeConversationUser?.id === u.id) {
+    state.activeConversationUser = { ...state.activeConversationUser, ...u };
+    if (typeof updateChatRoomStatus === 'function') updateChatRoomStatus();
+  }
   renderMarkers();
   renderPeopleList();
   renderChatsList();
@@ -2990,34 +3015,27 @@ function setupLocateButton() {
   const closeRadiusDial = () => {
     isDraggingRadius = false;
     const dial = $('radiusPullDial');
-    if (dial) {
-      dial.classList.remove('active');
-    }
+    if (dial) dial.classList.remove('active');
   };
 
+  let startRadius = 25;
+
   const onPointerDown = (e) => {
-    hasLongPressed = false;
     isDraggingRadius = false;
     startY = e.clientY;
+    startRadius = state.radius || 25;
     try { btn.setPointerCapture(e.pointerId); } catch {}
-    pressTimer = setTimeout(() => {
-      if (!isDraggingRadius) {
-        hasLongPressed = true;
-        closeRadiusDial();
-        startManualLocationPick();
-      }
-    }, 650);
   };
 
   const onPointerMove = (e) => {
-    const deltaY = startY - e.clientY; // pulling upwards
-    if (deltaY > 10) {
-      clearTimeout(pressTimer);
+    const deltaY = startY - e.clientY; // positive = dragging UP, negative = dragging DOWN
+    if (Math.abs(deltaY) > 5 || isDraggingRadius) {
       isDraggingRadius = true;
       $('radiusPullDial')?.classList.add('active');
 
-      let newKm = Math.round(1 + (deltaY - 10) * (149 / 170));
-      if (deltaY >= 180) {
+      // Dragging UP increases radius, dragging DOWN decreases radius
+      let newKm = Math.round(startRadius + (deltaY * 0.75));
+      if (newKm >= 190) {
         newKm = 500;
         const valEl = $('radiusPullValue');
         if (valEl) valEl.textContent = 'سراسری';
@@ -3047,7 +3065,6 @@ function setupLocateButton() {
 
   const onPointerUp = (e) => {
     try { btn.releasePointerCapture(e.pointerId); } catch {}
-    clearTimeout(pressTimer);
     if (isDraggingRadius) {
       closeRadiusDial();
       playHapticSound('pop');
@@ -3055,7 +3072,7 @@ function setupLocateButton() {
         map.fitBounds(radiusCircle.getBounds(), { padding: [40, 40], maxZoom: 16 });
       }
       toast(`شعاع جستجو: ${state.radius >= 500 ? 'سراسری' : state.radius + ' کیلومتر'} 🎯`);
-    } else if (!hasLongPressed && !state.isPickingLocation) {
+    } else {
       closeRadiusDial();
       locateMe(true);
     }
@@ -3063,12 +3080,11 @@ function setupLocateButton() {
 
   const onPointerCancel = (e) => {
     try { btn.releasePointerCapture(e.pointerId); } catch {}
-    clearTimeout(pressTimer);
     closeRadiusDial();
   };
 
   btn.onpointerdown = onPointerDown;
-  btn.onpointermove = (e) => { if (pressTimer || isDraggingRadius) onPointerMove(e); };
+  btn.onpointermove = onPointerMove;
   btn.onpointerup = onPointerUp;
   btn.onpointercancel = onPointerCancel;
 
@@ -3151,11 +3167,25 @@ function cancelManualLocation(showToast = true) {
 // ----------------------------------------------------
 // Public Stream Chat Overlay (Bottom-Left)
 // ----------------------------------------------------
+function isMsgInRadius(m) {
+  if (!m) return false;
+  if (m.lat == null || m.lng == null) return true;
+  if (!state.coords) return true;
+  const userLat = Number(state.coords.lat), userLng = Number(state.coords.lng);
+  const mLat = Number(m.lat), mLng = Number(m.lng);
+  if (!Number.isFinite(userLat) || !Number.isFinite(userLng) || !Number.isFinite(mLat) || !Number.isFinite(mLng)) return true;
+  const d = dist(userLat, userLng, mLat, mLng);
+  const userRadius = state.radius >= 500 ? 500 : (state.radius || 25);
+  const msgRadius = Number(m.radius) || 25;
+  return userRadius >= 500 || d <= Math.max(userRadius, msgRadius);
+}
+
 function renderPublicOverlayMessages() {
   const box = $('publicOverlayMessages');
   if (!box) return;
   box.innerHTML = '';
-  const recent = state.publicMessages.slice(-25);
+  const filtered = state.publicMessages.filter(isMsgInRadius);
+  const recent = filtered.slice(-30);
   recent.forEach(m => {
     const item = document.createElement('div');
     item.className = 'public-overlay-msg-item';
@@ -3165,12 +3195,12 @@ function renderPublicOverlayMessages() {
   box.scrollTop = box.scrollHeight;
 }
 
-function togglePublicChatOverlay() {
-  const overlay = $('publicChatOverlay');
-  if (!overlay) return;
-  overlay.classList.toggle('collapsed');
-  const isCollapsed = overlay.classList.contains('collapsed');
-  localStorage.setItem('geosocial_public_chat_collapsed', isCollapsed ? '1' : '0');
+function togglePublicChatComposer() {
+  const composer = $('publicOverlayComposer');
+  if (!composer) return;
+  composer.classList.toggle('collapsed');
+  const isCollapsed = composer.classList.contains('collapsed');
+  localStorage.setItem('geosocial_public_composer_collapsed', isCollapsed ? '1' : '0');
   playHapticSound('pop');
 }
 
@@ -3180,10 +3210,13 @@ async function sendPublicOverlayMsg() {
   const text = input.value.trim();
   if (!text) return;
   const newMsg = {
-    id: 'pub_' + Date.now(),
+    id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: state.user?.id || 'guest',
-    sender_name: state.profile?.name || state.user?.name || 'من',
+    sender_name: state.profile?.name || state.user?.name || 'کاربر',
     text: text,
+    lat: state.coords?.lat || 35.6892,
+    lng: state.coords?.lng || 51.3890,
+    radius: state.radius || 25,
     created_at: new Date().toISOString()
   };
   input.value = '';
@@ -3562,11 +3595,23 @@ function renderPeopleList(q = '') {
   $('peopleListCount').textContent = state.pins.length;
 }
 
+function updateChatRoomStatus() {
+  if (!state.activeConversationUser) return;
+  const statusEl = $('chatRoomStatus');
+  if (!statusEl) return;
+  const isOnline = online(state.activeConversationUser);
+  if (isOnline) {
+    statusEl.innerHTML = '<span style="color:var(--green);font-weight:700">● آنلاین</span>';
+  } else {
+    statusEl.textContent = formatLastSeen(state.activeConversationUser.last_seen, false);
+  }
+}
+
 function openChatRoom(user) {
   state.activeConversationUser = user;
   $('chatRoomAvatar').src = user.avatar || DEFAULT_AVATAR;
   $('chatRoomName').textContent = user.name;
-  $('chatRoomStatus').textContent = formatLastSeen(user.last_seen, online(user));
+  updateChatRoomStatus();
   $('chatRoom').classList.add('open');
 
   cancelReply();
@@ -4983,7 +5028,10 @@ function handleChatAttachment(e) {
 }
 
 function handleIncomingDM(msg) {
-  if (!msg) return;
+  if (!msg || !state.user) return;
+  // Strict private two-way messaging check:
+  if (msg.receiver_id !== state.user.id && msg.sender_id !== state.user.id) return;
+
   if (state.activeConversationUser && (msg.sender_id === state.activeConversationUser.id || msg.receiver_id === state.activeConversationUser.id)) {
     if (!state.activeMessages.some(m => m.id === msg.id)) {
       state.activeMessages.push(msg);
@@ -4997,7 +5045,7 @@ function handleIncomingDM(msg) {
         }).catch(() => {});
       }
     }
-  } else {
+  } else if (msg.receiver_id === state.user.id) {
     playHapticSound('pop');
     const sender = state.pins.find(p => p.id === msg.sender_id);
     toast(`💬 پیام جدید از ${sender?.name || 'کاربر'}`);
@@ -5478,7 +5526,8 @@ function renderPublicMessages() {
   const box = $('publicFeed');
   if (!box) return;
   box.innerHTML = '';
-  state.publicMessages.forEach(m => {
+  const filtered = state.publicMessages.filter(isMsgInRadius);
+  filtered.forEach(m => {
     const item = document.createElement('div');
     item.style.cssText = 'background:var(--card-bg);border:1px solid var(--border);padding:8px 12px;border-radius:12px;font-size:13px';
     item.innerHTML = `<div>${esc(m.text || '')}</div>`;
@@ -5491,8 +5540,8 @@ function renderPublicMessages() {
 // App Initialization
 // ----------------------------------------------------
 window.addEventListener('DOMContentLoaded', () => {
-  if (localStorage.getItem('geosocial_public_chat_collapsed') === '1') {
-    $('publicChatOverlay')?.classList.add('collapsed');
+  if (localStorage.getItem('geosocial_public_composer_collapsed') === '1') {
+    $('publicOverlayComposer')?.classList.add('collapsed');
   }
   initMap();
   const saved = localStorage.getItem('geosocial_user');
