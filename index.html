@@ -2848,9 +2848,11 @@ function getServerUrl() {
   if (custom && custom.trim()) {
     return custom.trim().replace(/\/+$/, '');
   }
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  // If explicitly served by local Node.js server on port 3005
+  if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '3005') {
     return window.location.origin;
   }
+  // Default to official live Render backend
   return 'https://geosocial-server-1.onrender.com';
 }
 
@@ -2865,8 +2867,14 @@ function apiUrl(path) {
 }
 
 window.fetch = function(input, init) {
-  if (typeof input === 'string' && input.startsWith('/api/')) {
-    input = apiUrl(input);
+  if (typeof input === 'string') {
+    if (input.startsWith('/api/') || input.startsWith('api/')) {
+      input = apiUrl(input);
+    }
+  } else if (input instanceof URL) {
+    if (input.pathname.startsWith('/api/')) {
+      input = new URL(apiUrl(input.pathname + input.search));
+    }
   }
   return originalFetch.call(this, input, init);
 };
@@ -5753,7 +5761,23 @@ function insertEmoji(e) {
 async function sendDirectMessage() {
   const input = $('chatMsgInput');
   const text = input.value.trim();
-  if (!text || !state.activeConversationUser || !state.user) return;
+  if (!text) return;
+  if (!state.user?.id) {
+    toast('ابتدا وارد حساب کاربری شوید');
+    $('authScreen')?.classList.add('open');
+    return;
+  }
+  if (!state.activeConversationUser?.id) {
+    toast('مخاطب گفتگو مشخص نیست');
+    return;
+  }
+
+  // Auto-accept request if pending so sender/replier is never blocked
+  if (state.isPreviewRequest) {
+    try {
+      acceptActiveChatRequest();
+    } catch {}
+  }
 
   if (state.editingMessage) {
     const editId = state.editingMessage.id;
@@ -5805,8 +5829,14 @@ async function sendDirectMessage() {
         state.activeMessages[idx] = { ...state.activeMessages[idx], ...d.message, status: 'delivered' };
         renderDirectMessages();
       }
+      syncUserConversations();
+    } else {
+      toast(`خطا در ارسال: ${d.error || 'پاسخ ناموفق از سرور'}`);
     }
-  } catch {}
+  } catch (err) {
+    console.error('Send message network error:', err);
+    toast('عدم دسترسی به سرور: پیام ارسال نشد');
+  }
 }
 
 function handleChatAttachment(e) {
@@ -6221,7 +6251,26 @@ function openOtherUserProfile(user) {
 
 function startChatWithOtherUser() {
   $('otherUserModal').classList.remove('open');
-  openChatRoom(state.activeSelectedUser);
+  const target = state.activeSelectedUser;
+  if (!target) return;
+  try {
+    const accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
+    if (!accepted.includes(target.id)) {
+      accepted.push(target.id);
+      localStorage.setItem('geosocial_accepted_chats', JSON.stringify(accepted));
+    }
+    if (state.user?.id) {
+      fetch('/api/chats/request_action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: state.user.id, other_id: target.id, action: 'accept' })
+      }).catch(() => {});
+    }
+  } catch {}
+  openChatRoom(target);
+  setTimeout(() => {
+    $('chatMsgInput')?.focus();
+  }, 250);
 }
 
 function toggleGhostMode(isGhost) {
