@@ -213,32 +213,35 @@ input, textarea { direction: rtl; }
 .nav-route-hud.active { display: flex; }
 @keyframes slideDown { 0% { transform: translateY(-30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 
-/* Manual Location Picker Floating Bar */
+/* Sleek Floating Manual Location Picker (Snapp / Telegram Style) */
 .manual-location-bar {
   position: absolute;
-  bottom: calc(78px + var(--safe-bottom));
+  bottom: calc(84px + var(--safe-bottom));
   left: 50%;
-  transform: translateX(-50%) translateY(30px);
-  background: var(--panel-glass);
-  backdrop-filter: blur(16px);
-  border: 1.5px solid var(--blue);
-  box-shadow: 0 10px 35px rgba(0,0,0,0.5), 0 0 20px var(--blue-glow);
-  padding: 10px 16px;
-  border-radius: 16px;
+  transform: translateX(-50%) translateY(25px) scale(0.95);
+  background: var(--panel-glass-heavy);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(42, 171, 238, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 15px var(--blue-glow);
+  padding: 6px 10px 6px 14px;
+  border-radius: 30px;
   z-index: 95;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  max-width: 92%;
+  transition: all 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+  width: auto;
+  max-width: min(92vw, 370px);
+  white-space: nowrap;
 }
-.manual-location-bar.active { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+.manual-location-bar.active { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; pointer-events: auto; }
 .temp-pin { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #e74c3c; animation: bouncePin 0.8s infinite alternate ease-in-out; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); }
 @keyframes bouncePin { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
 
-/* Top Header: Search Bar, Stories Tray & Filter Pills */
+/* Top Header: Search Bar, Stories Tray & Frosted Glass Header */
 .top-container {
   position: absolute;
   top: max(10px, var(--safe-top));
@@ -514,25 +517,25 @@ input, textarea { direction: rtl; }
   opacity: 0.2;
 }
 
-/* Public Chat Stream Overlay (سمت چپ پایین: بدون کادر بالایی، نیمه افقی، یک سوم عمودی، متن بدون بک‌گراند، محو از بالا با اسکرول کامل) */
+/* Public Chat Stream Overlay (Sleek Expandable Glass Widget) */
 .public-chat-overlay {
   position: absolute;
   bottom: calc(72px + var(--safe-bottom));
   left: 12px;
-  width: 52vw;
-  max-width: 290px;
-  min-width: 180px;
+  width: 58vw;
+  max-width: 310px;
+  min-width: 200px;
   height: auto;
-  max-height: 42vh;
+  max-height: 44vh;
   z-index: 18;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: flex-start;
   pointer-events: none;
-  gap: 8px;
+  gap: 6px;
   direction: ltr;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 .public-overlay-messages {
@@ -543,7 +546,7 @@ input, textarea { direction: rtl; }
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   padding: 4px 6px;
   pointer-events: auto;
   touch-action: pan-y;
@@ -555,16 +558,10 @@ input, textarea { direction: rtl; }
   opacity: 1;
   transform: translateY(0) scale(1);
   transform-origin: bottom left;
-  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.36s cubic-bezier(0.34, 1.35, 0.64, 1),
-              max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.32s cubic-bezier(0.34, 1.4, 0.64, 1);
   background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
   border: none !important;
   box-shadow: none !important;
-  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 8%, black 22%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 8%, black 22%);
 }
 
 .public-overlay-messages > :first-child {
@@ -579,74 +576,118 @@ input, textarea { direction: rtl; }
   border-radius: 4px;
 }
 
-.public-overlay-msg-item {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border: none !important;
-  border-radius: 0;
-  padding: 2px 4px;
-  font-size: 12px;
-  line-height: 1.4;
-  color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.95), 0 2px 6px rgba(0,0,0,0.9), 0 0 2px #000;
+/* Sent message in Public Chat: strictly on the RIGHT, text only */
+.public-overlay-msg-item.my-msg {
+  align-self: flex-start;
+  margin-left: auto;
+  margin-right: 0;
+  text-align: right;
+  background: rgba(43, 82, 120, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(42, 171, 238, 0.35);
+  border-radius: 14px 14px 2px 14px;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  padding: 5px 10px;
+  font-size: 11.5px;
+  max-width: 84%;
+  cursor: pointer;
+  animation: fadeInMsg 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
   word-break: break-word;
-  animation: fadeInMsg 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
   transition: transform 0.15s ease;
 }
-.public-overlay-msg-item:hover {
-  background: transparent !important;
-  transform: translateX(-3px);
+
+/* Received message in Public Chat: strictly on the LEFT, with sender name */
+.public-overlay-msg-item:not(.my-msg) {
+  align-self: flex-end;
+  margin-right: auto;
+  margin-left: 0;
+  text-align: left;
+  background: rgba(24, 37, 51, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px 14px 14px 2px;
+  color: #f5f5f5 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  padding: 5px 10px;
+  font-size: 11.5px;
+  max-width: 84%;
+  cursor: pointer;
+  animation: fadeInMsg 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
+  word-break: break-word;
+  transition: transform 0.15s ease;
 }
+
+[data-theme="light"] .public-overlay-msg-item.my-msg {
+  background: rgba(42, 171, 238, 0.95);
+  color: #ffffff !important;
+}
+[data-theme="light"] .public-overlay-msg-item:not(.my-msg) {
+  background: rgba(255, 255, 255, 0.96);
+  color: #17212b !important;
+  border: 1px solid var(--border);
+}
+
+.public-overlay-msg-item:hover {
+  transform: scale(1.02);
+}
+
+.public-overlay-msg-sender {
+  font-size: 10px;
+  font-weight: 700;
+  color: #2ecc71;
+  margin-bottom: 2px;
+  display: block;
+}
+[data-theme="light"] .public-overlay-msg-sender {
+  color: #0088cc;
+}
+
 @keyframes fadeInMsg {
   from { opacity: 0; transform: translateY(6px) scale(0.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* با بسته شدن چت، پیام‌ها نیز به طور کامل محو و بسته می‌شوند */
+/* Smooth Expand/Collapse for Public Chat */
 .public-chat-overlay.collapsed .public-overlay-messages {
   opacity: 0 !important;
-  transform: translateY(22px) scale(0.85) !important;
+  transform: translateY(18px) scale(0.85) !important;
   pointer-events: none !important;
   max-height: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
   overflow: hidden !important;
 }
 
-/* نوار پایینی در حالت باز (لوکس و گلس‌مورفیک) */
 .public-overlay-composer {
   display: flex;
   align-items: center;
-  background: rgba(23, 33, 43, 0.84);
+  background: var(--panel-glass-heavy);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 28px;
-  padding: 4px 6px;
+  border-radius: 24px;
+  padding: 3px 6px;
   pointer-events: auto;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.3);
-  transition: width 0.38s cubic-bezier(0.34, 1.35, 0.64, 1),
-              background 0.25s,
-              border-radius 0.3s,
-              box-shadow 0.3s,
-              transform 0.25s;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  transition: all 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
   width: 100%;
   max-width: 290px;
   overflow: hidden;
   direction: ltr;
   transform-origin: left center;
   align-self: flex-start;
+  height: 38px;
 }
 
 .public-overlay-toggle-btn {
   background: rgba(42, 171, 238, 0.18);
   border: 1px solid rgba(42, 171, 238, 0.3);
   color: #2aabee;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -659,68 +700,48 @@ input, textarea { direction: rtl; }
   background: rgba(42, 171, 238, 0.3);
   color: #fff;
 }
-.public-overlay-toggle-btn:active {
-  transform: scale(0.92);
-}
 
 .public-composer-input-wrap {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex: 1;
   min-width: 0;
-  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.32s cubic-bezier(0.34, 1.35, 0.64, 1);
+  transition: opacity 0.28s, transform 0.32s;
   transform-origin: left center;
   direction: ltr;
 }
 
-/* حالت بسته شده (دکمه شناور دایره‌ای زیبا در گوشه سمت چپ) */
+/* Collapsed state: neat compact round button like search widget */
 .public-overlay-composer.collapsed {
-  width: 44px !important;
-  min-width: 44px !important;
-  height: 44px !important;
+  width: 38px !important;
+  min-width: 38px !important;
+  height: 38px !important;
   padding: 0 !important;
   border-radius: 50% !important;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #2aabee 0%, #0088cc 100%) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 8px 24px rgba(42, 171, 238, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  background: var(--panel-glass) !important;
+  border: 1px solid rgba(42, 171, 238, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 10px var(--blue-glow) !important;
   align-self: flex-start;
   cursor: pointer;
-  animation: pulseFabGlow 3s infinite ease-in-out;
 }
-@keyframes pulseFabGlow {
-  0%, 100% { box-shadow: 0 8px 24px rgba(42, 171, 238, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3); }
-  50% { box-shadow: 0 8px 28px rgba(42, 171, 238, 0.7), 0 0 16px rgba(42, 171, 238, 0.4); }
-}
-
 .public-overlay-composer.collapsed:hover {
   transform: scale(1.08);
 }
-.public-overlay-composer.collapsed:active {
-  transform: scale(0.92);
-}
-
 .public-overlay-composer.collapsed .public-composer-input-wrap {
   opacity: 0;
   pointer-events: none;
-  transform: scaleX(0);
   display: none !important;
 }
-
 .public-overlay-composer.collapsed .public-overlay-toggle-btn {
   width: 100%;
   height: 100%;
   background: transparent;
   border: 0;
-  color: #ffffff;
-  font-size: 16px;
-}
-.public-overlay-composer.collapsed #publicComposerIcon {
-  color: #ffffff;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  color: var(--blue);
+  font-size: 15px;
 }
 
 .public-overlay-input {
@@ -739,11 +760,48 @@ input, textarea { direction: rtl; }
   background: transparent;
   border: 0;
   color: var(--blue);
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   padding: 4px;
   display: grid;
   place-items: center;
+}
+
+/* Public Message Context Menu */
+.public-msg-context-menu {
+  position: fixed;
+  z-index: 220;
+  background: var(--panel-glass-heavy);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  min-width: 130px;
+  animation: popIn 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.public-msg-context-menu.open {
+  display: flex;
+}
+.public-msg-context-menu button {
+  padding: 8px 12px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.public-msg-context-menu button:hover {
+  background: rgba(42, 171, 238, 0.15);
+  color: var(--blue);
 }
 
 /* Floating Controls (GPS at Bottom-Right) */
@@ -1061,12 +1119,12 @@ input, textarea { direction: rtl; }
 }
 .msg-bubble {
   max-width: 80%;
-  min-width: 70px;
-  padding: 8px 12px 6px;
+  min-width: 65px;
+  padding: 6px 10px 4px;
   position: relative;
-  font-size: 13px;
-  line-height: 1.5;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.16);
+  font-size: 12.5px;
+  line-height: 1.45;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.14);
   word-break: break-word;
 }
 .msg-bubble.out {
@@ -2128,22 +2186,21 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 </div>
 
-<!-- 3. Manual Location Picking Floating Bar -->
+<!-- 3. Manual Location Picking Floating Bar (Sleek Compact Glass Bar) -->
 <div id="manualLocationBar" class="manual-location-bar">
-  <i class="fa-solid fa-location-crosshairs" style="color:var(--blue);font-size:20px"></i>
-  <div style="flex:1">
-    <div style="font-size:12px;font-weight:700">موقعیت دلخواه را روی نقشه تنظیم کنید</div>
-    <div style="font-size:10px;color:var(--muted)">نقشه را جابجا کنید تا پین در مرکز قرار گیرد</div>
+  <i class="fa-solid fa-location-crosshairs" style="color:var(--blue);font-size:16px;flex-shrink:0"></i>
+  <div style="font-size:11.5px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0">
+    جابجایی نقشه برای انتخاب موقعیت
   </div>
-  <div style="display:flex;gap:6px">
-    <button class="badge" style="background:var(--green);color:#fff;border:0" onclick="confirmManualLocation()"><i class="fa-solid fa-check"></i> تایید</button>
-    <button class="badge" style="background:var(--danger);color:#fff;border:0" onclick="cancelManualLocation()"><i class="fa-solid fa-xmark"></i> لغو</button>
+  <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+    <button class="btn-primary" style="padding:4px 10px;font-size:11px;border-radius:14px;display:flex;align-items:center;gap:4px" onclick="confirmManualLocation()"><i class="fa-solid fa-check"></i> تایید</button>
+    <button class="btn-secondary" style="padding:4px 8px;font-size:11px;border-radius:14px" onclick="cancelManualLocation()"><i class="fa-solid fa-xmark"></i></button>
   </div>
 </div>
 
 <!-- 4. Top Header: Search Bar & Instagram Stories Tray -->
 <div class="top-container">
-  <!-- Top Header Action Row: Expandable Search, Global Toggle, Theme, Online Indicator -->
+  <!-- Top Header Action Row: Expandable Search, Theme, Online Indicator -->
   <div class="top-actions-row">
     <!-- Expandable Search Widget (گزینه ذره‌بین بسته و با زدن باز می‌شود) -->
     <div id="searchWidget" class="search-expand-widget solid">
@@ -2157,12 +2214,6 @@ input:checked + .slider:before { transform: translateX(20px); }
     </div>
 
     <div class="top-right-actions">
-      <!-- Global Radius Toggle (خروج از شعاع محلی و مشاهده سراسری) -->
-      <button id="globalModeBtn" class="top-action-pill solid" onclick="toggleGlobalMode()" title="مشاهده افراد در تمام نقاط (خروج از شعاع)">
-        <i id="globalModeIcon" class="fa-solid fa-earth-americas" style="color:var(--blue)"></i>
-        <span id="globalModeText">شعاع</span>
-      </button>
-
       <!-- Mode Toggle (تغییر مود شب/روز) -->
       <button id="themeToggleBtn" class="top-theme-btn" title="تغییر حالت شب/روز" onclick="toggleTheme()">
         <i id="mapThemeIcon" class="fa-solid fa-moon"></i>
@@ -2196,20 +2247,30 @@ input:checked + .slider:before { transform: translateX(20px); }
   <i class="fa-solid fa-location-crosshairs"></i>
 </button>
 
-<!-- 6. Live Public Stream Chat Overlay (بدون کادر بالایی، نیمه افقی، یک سوم عمودی، متن بدون پس‌زمینه، محو از بالا با اسکرول کامل، نوار پایینی حالت نمایشی) -->
+<!-- 6. Live Public Stream Chat Overlay (Expandable Glass Widget) -->
 <div id="publicChatOverlay" class="public-chat-overlay">
+  <!-- Public Messages Container -->
   <div id="publicOverlayMessages" class="public-overlay-messages">
     <!-- Dynamic public messages (scrollable) -->
   </div>
+  
   <div id="publicOverlayComposer" class="public-overlay-composer">
-    <button id="publicOverlayToggleBtn" class="public-overlay-toggle-btn" onclick="togglePublicChatComposer()" title="نمایش یا بستن ورودی پیام">
+    <button id="publicOverlayToggleBtn" class="public-overlay-toggle-btn" onclick="togglePublicChatComposer()" title="چت عمومی">
       <i id="publicComposerIcon" class="fa-solid fa-comments"></i>
     </button>
     <div id="publicComposerInputWrap" class="public-composer-input-wrap">
-      <input id="publicOverlayInput" class="public-overlay-input" placeholder="پیام به افراد منطقه..." onkeypress="if(event.key==='Enter')sendPublicOverlayMsg()">
+      <input id="publicOverlayInput" class="public-overlay-input" placeholder="پیام به افراد محدوده..." onkeypress="if(event.key==='Enter')sendPublicOverlayMsg()">
       <button class="public-overlay-send" onclick="sendPublicOverlayMsg()" title="ارسال"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
+</div>
+
+<!-- Public Message Floating Context Menu -->
+<div id="publicMsgContextMenu" class="public-msg-context-menu" onclick="event.stopPropagation()">
+  <button onclick="replyActivePublicMsg()"><i class="fa-solid fa-reply" style="color:var(--blue)"></i> پاسخ (ریپلای)</button>
+  <button onclick="copyActivePublicMsg()"><i class="fa-solid fa-copy" style="color:#f1c40f"></i> کپی متن</button>
+  <button id="publicEditBtn" onclick="editActivePublicMsg()" style="display:none"><i class="fa-solid fa-pen" style="color:var(--green)"></i> ویرایش</button>
+  <button id="publicDeleteBtn" onclick="deleteActivePublicMsg()" style="display:none;color:var(--danger)"><i class="fa-solid fa-trash"></i> حذف پیام</button>
 </div>
 
 <!-- 6. Bottom Navigation (۴ تب اصلی: نقشه، پیام‌ها، کانال‌ها، پروفایل) -->
@@ -2261,7 +2322,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 <!-- Telegram Channel / Group Live Chat & Feed Modal -->
 <div id="channelViewModal" class="modal-overlay" style="z-index:70">
   <div class="modal-header">
-    <div style="display:flex;align-items:center;gap:10px;cursor:pointer">
+    <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openChannelInfoModal()" title="مشاهده مشخصات و تنظیمات">
       <img id="activeChannelAvatar" src="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
       <div>
         <h3 id="activeChannelTitle" style="font-size:14px;font-weight:700"></h3>
@@ -2284,6 +2345,55 @@ input:checked + .slider:before { transform: translateX(20px); }
     <div id="channelComposerRow" class="composer-row">
       <input id="channelMsgInput" class="composer-input" placeholder="ارسال پیام یا پست..." onkeypress="if(event.key==='Enter')sendChannelMessage()">
       <button class="btn-primary" style="width:40px;height:40px;border-radius:50%;padding:0" onclick="sendChannelMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- Telegram Channel / Group Info & Settings Modal -->
+<div id="channelInfoModal" class="modal-overlay" style="z-index:85">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-circle-info" style="color:var(--blue)"></i> مشخصات و تنظیمات</h3>
+    <button class="composer-icon-btn" onclick="$('channelInfoModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="profile-content-scroll" style="padding:16px">
+    <div class="profile-header-card" style="align-items:center;text-align:center">
+      <img id="infoChannelAvatar" src="" style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:2px solid var(--blue);box-shadow:0 0 15px var(--blue-glow)">
+      <h3 id="infoChannelTitle" style="font-size:16px;font-weight:700;margin-top:8px"></h3>
+      <div id="infoChannelUsername" style="font-size:12px;color:var(--blue);direction:ltr;margin-top:2px"></div>
+      <div id="infoChannelMembers" style="font-size:11px;color:var(--green);margin-top:4px"></div>
+      <p id="infoChannelDesc" style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5;max-width:90%"></p>
+      
+      <div style="display:flex;gap:8px;width:100%;margin-top:10px">
+        <button class="btn-secondary" style="flex:1" onclick="shareActiveChannelLink()"><i class="fa-solid fa-share-nodes"></i> اشتراک‌گذاری</button>
+        <button class="btn-secondary" style="flex:1" onclick="copyActiveChannelLink()"><i class="fa-solid fa-copy"></i> کپی لینک</button>
+      </div>
+    </div>
+
+    <!-- Owner / Admin Settings Card -->
+    <div id="channelOwnerSettingsCard" style="display:none;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px;flex-direction:column;gap:10px">
+      <div style="font-size:13px;font-weight:700;color:var(--blue)"><i class="fa-solid fa-sliders"></i> مدیریت کانال / گروه</div>
+      <div>
+        <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px">ویرایش عنوان:</label>
+        <input id="editChannelTitleInput" class="composer-input" style="padding:8px 12px;font-size:12px">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px">ویرایش توضیحات:</label>
+        <textarea id="editChannelDescInput" class="btn-secondary" style="height:60px;resize:none;padding:8px 12px;font-size:12px"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-primary" style="flex:1;padding:8px;font-size:12px" onclick="saveChannelSettings()"><i class="fa-solid fa-check"></i> ذخیره تغییرات</button>
+        <button class="badge" style="background:rgba(231,76,60,0.18);color:var(--danger);border:0;padding:8px 12px;border-radius:10px;font-size:12px" onclick="deleteActiveChannel()"><i class="fa-solid fa-trash"></i> حذف</button>
+      </div>
+    </div>
+
+    <!-- Member Actions -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div id="channelLeaveBtnRow" style="display:none;align-items:center;justify-content:space-between;padding:14px 16px;color:var(--danger);cursor:pointer" onclick="leaveActiveChannel()">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span style="font-size:13px;font-weight:600">ترک کانال / گروه</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -2551,7 +2661,7 @@ input:checked + .slider:before { transform: translateX(20px); }
       
       <input id="chatMsgInput" class="composer-input" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendDirectMessage()" oninput="onComposerInput(this.value)">
       
-      <button id="voiceRecordBtn" class="composer-icon-btn voice-record-btn" onclick="toggleVoiceRecording()" title="ضبط صدا"><i class="fa-solid fa-microphone"></i></button>
+      <button id="voiceRecordBtn" class="composer-icon-btn voice-record-btn" onpointerdown="startPushToTalkVoice(event)" onpointerup="stopPushToTalkVoice(event)" onpointercancel="cancelVoiceRecording()" onclick="toggleVoiceRecording()" title="نگه دارید تا ضبط شود، رها کنید تا ارسال شود"><i class="fa-solid fa-microphone"></i></button>
       <button id="chatSendBtn" class="btn-primary" style="width:40px;height:40px;border-radius:50%;padding:0" onclick="sendDirectMessage()"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
@@ -2700,29 +2810,9 @@ input:checked + .slider:before { transform: translateX(20px); }
         <p id="myProfileBio" style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5"></p>
       </div>
 
-      <!-- Stats -->
-      <div class="stats-grid-row">
-        <div class="stat-box"><b id="statNearbyCount">0</b><span>افراد نزدیک</span></div>
-        <div class="stat-box"><b id="statChatsCount">0</b><span>گفتگوها</span></div>
-        <div class="stat-box"><b id="statStoriesCount">0</b><span>استوری‌ها</span></div>
-        <div class="stat-box"><b style="color:var(--green)">GPS</b><span>موقعیت</span></div>
-      </div>
-
       <!-- Action Buttons -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:4px">
-        <button class="btn-primary" onclick="openEditProfileModal()"><i class="fa-solid fa-pen"></i> ویرایش مشخصات</button>
-        <button class="btn-secondary" onclick="openStoryCreator()"><i class="fa-solid fa-plus"></i> ثبت استوری</button>
-      </div>
-    </div>
-
-    <!-- Highlights Carousel -->
-    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:12px 14px">
-      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">هایلایت‌های استوری</div>
-      <div id="highlightsContainer" class="highlights-scroll-row">
-        <div class="highlight-circle-item" onclick="openStoryCreator()">
-          <div class="highlight-circle-ring" style="display:grid;place-items:center;border-style:dashed"><i class="fa-solid fa-plus" style="color:var(--blue)"></i></div>
-          <span>جدید</span>
-        </div>
+      <div style="width:100%;margin-top:8px">
+        <button class="btn-primary" style="width:100%;padding:10px 14px;border-radius:14px;font-size:13px;font-weight:700" onclick="openEditProfileModal()"><i class="fa-solid fa-pen"></i> ویرایش مشخصات</button>
       </div>
     </div>
 
@@ -3364,7 +3454,7 @@ function renderMarkers() {
   } else if ($('peopleBadge')) {
     $('peopleBadge').innerHTML = `<span class="online-led-glow"></span><span>${activeUsers.length}</span>`;
   }
-  $('statNearbyCount').textContent = activeUsers.length;
+  if ($('statNearbyCount')) $('statNearbyCount').textContent = activeUsers.length;
 
   const currentZoom = map.getZoom();
 
@@ -3612,10 +3702,12 @@ function setupLocateButton() {
         isDraggingRadius = true;
         $('radiusPullDial')?.classList.add('active');
 
-        // Dragging UP increases radius, dragging DOWN decreases radius
-        let newKm = Math.round(startRadius + (deltaY * 0.75));
+        // Dragging UP increases radius, dragging DOWN decreases radius (smoothly exits global mode)
+        const baseRadius = startRadius >= 500 ? 170 : startRadius;
+        let newKm = Math.round(baseRadius + (deltaY * 0.75));
         if (newKm >= 190) {
           newKm = 500;
+          state.isGlobalMode = true;
           const valEl = $('radiusPullValue');
           if (valEl) valEl.textContent = 'سراسری';
           const fillEl = $('radiusPullFill');
@@ -3625,6 +3717,7 @@ function setupLocateButton() {
             radiusCircle = null;
           }
         } else {
+          state.isGlobalMode = false;
           newKm = Math.min(150, Math.max(1, newKm));
           const valEl = $('radiusPullValue');
           if (valEl) valEl.textContent = `${newKm} km`;
@@ -3769,15 +3862,14 @@ function cancelManualLocation(showToast = true) {
 // ----------------------------------------------------
 function isMsgInRadius(m) {
   if (!m) return false;
-  if (m.lat == null || m.lng == null) return true;
-  if (!state.coords) return true;
+  if (state.user && m.sender_id === state.user.id) return true; // always show my own messages
+  if (!state.coords) return false;
   const userLat = Number(state.coords.lat), userLng = Number(state.coords.lng);
   const mLat = Number(m.lat), mLng = Number(m.lng);
-  if (!Number.isFinite(userLat) || !Number.isFinite(userLng) || !Number.isFinite(mLat) || !Number.isFinite(mLng)) return true;
+  if (!Number.isFinite(userLat) || !Number.isFinite(userLng) || !Number.isFinite(mLat) || !Number.isFinite(mLng)) return false;
   const d = dist(userLat, userLng, mLat, mLng);
-  const userRadius = state.radius >= 500 ? 500 : (state.radius || 25);
-  const msgRadius = Number(m.radius) || 25;
-  return userRadius >= 500 || d <= Math.max(userRadius, msgRadius);
+  const userRadius = Number(state.radius) || 25;
+  return userRadius >= 500 ? true : (d <= userRadius);
 }
 
 function openProfileFromSenderId(senderId, senderName) {
@@ -3789,21 +3881,103 @@ function openProfileFromSenderId(senderId, senderName) {
   openOtherUserProfile(u);
 }
 
+let activePublicContextMenuMsg = null;
+let editingPublicMsgId = null;
+
 function renderPublicOverlayMessages() {
   const box = $('publicOverlayMessages');
   if (!box) return;
   box.innerHTML = '';
   const filtered = state.publicMessages.filter(isMsgInRadius);
-  const recent = filtered.slice(-35);
+  const recent = filtered.slice(-40);
   recent.forEach(m => {
     const item = document.createElement('div');
-    const isMe = m.sender_id === state.user?.id;
+    const isMe = state.user && m.sender_id === state.user.id;
     item.className = 'public-overlay-msg-item' + (isMe ? ' my-msg' : '');
     const senderName = isMe ? 'من' : (m.sender_name || 'کاربر');
-    item.innerHTML = `<b style="color:${isMe ? 'var(--blue)' : '#2ecc71'};font-weight:700;margin-left:5px;font-size:11.5px;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.95)" onclick="${isMe ? 'openMyProfileModal()' : `openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')`}">${esc(senderName)}:</b><span style="color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.95), 0 0 2px #000">${esc(m.text || '')}</span>`;
+
+    if (isMe) {
+      // Sent message: strictly on the RIGHT, text only without sender name
+      item.innerHTML = `<span style="text-shadow:0 1px 2px rgba(0,0,0,0.5)">${esc(m.text || '')}</span>`;
+    } else {
+      // Received message: strictly on the LEFT, sender name on top with accent color
+      item.innerHTML = `
+        <span class="public-overlay-msg-sender" onclick="event.stopPropagation();openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')">${esc(senderName)}</span>
+        <span style="text-shadow:0 1px 2px rgba(0,0,0,0.5)">${esc(m.text || '')}</span>
+      `;
+    }
+
+    // Attach Context Menu on click / long-press / contextmenu
+    item.onclick = (e) => openPublicMsgContextMenu(m, e);
+    item.oncontextmenu = (e) => { e.preventDefault(); openPublicMsgContextMenu(m, e); };
     box.appendChild(item);
   });
   box.scrollTop = box.scrollHeight;
+}
+
+function openPublicMsgContextMenu(msg, e) {
+  e.stopPropagation();
+  activePublicContextMenuMsg = msg;
+  const menu = $('publicMsgContextMenu');
+  if (!menu) return;
+
+  const isMe = state.user && msg.sender_id === state.user.id;
+  $('publicEditBtn').style.display = isMe ? 'flex' : 'none';
+  $('publicDeleteBtn').style.display = isMe ? 'flex' : 'none';
+
+  const x = Math.min(window.innerWidth - 160, Math.max(12, e.clientX || 20));
+  const y = Math.min(window.innerHeight - 170, Math.max(12, (e.clientY || 120) - 70));
+  menu.style.left = `${x}px`;
+  menu.style.top = `${y}px`;
+  menu.classList.add('open');
+}
+
+function closePublicMsgContextMenu() {
+  $('publicMsgContextMenu')?.classList.remove('open');
+  activePublicContextMenuMsg = null;
+}
+window.addEventListener('click', closePublicMsgContextMenu);
+
+function replyActivePublicMsg() {
+  if (!activePublicContextMenuMsg) return;
+  const input = $('publicOverlayInput');
+  if (input) {
+    input.value = `«پاسخ به ${activePublicContextMenuMsg.sender_name}: ${activePublicContextMenuMsg.text.substring(0, 20)}...» `;
+    input.focus();
+  }
+  closePublicMsgContextMenu();
+}
+
+function copyActivePublicMsg() {
+  if (!activePublicContextMenuMsg) return;
+  navigator.clipboard.writeText(activePublicContextMenuMsg.text).then(() => {
+    toast('متن پیام کپی شد 📋');
+  }).catch(() => {});
+  closePublicMsgContextMenu();
+}
+
+function editActivePublicMsg() {
+  if (!activePublicContextMenuMsg) return;
+  editingPublicMsgId = activePublicContextMenuMsg.id;
+  const input = $('publicOverlayInput');
+  if (input) {
+    input.value = activePublicContextMenuMsg.text;
+    input.focus();
+    toast('متن را ویرایش و مجدد ارسال کنید ✏️');
+  }
+  closePublicMsgContextMenu();
+}
+
+async function deleteActivePublicMsg() {
+  if (!activePublicContextMenuMsg) return;
+  const msgId = activePublicContextMenuMsg.id;
+  state.publicMessages = state.publicMessages.filter(m => m.id !== msgId);
+  renderPublicOverlayMessages();
+  toast('پیام حذف شد 🗑️');
+  closePublicMsgContextMenu();
+  try {
+    await fetch(`/api/public_messages/${msgId}?sender_id=${state.user?.id}`, { method: 'DELETE' });
+  } catch {}
 }
 
 function togglePublicChatComposer(forceState) {
@@ -3832,7 +4006,8 @@ function togglePublicChatComposer(forceState) {
     setTimeout(() => {
       const box = $('publicOverlayMessages');
       if (box) box.scrollTop = box.scrollHeight;
-    }, 160);
+      $('publicOverlayInput')?.focus();
+    }, 180);
   }
   playHapticSound('pop');
 }
@@ -3842,6 +4017,28 @@ async function sendPublicOverlayMsg() {
   if (!input) return;
   const text = input.value.trim();
   if (!text) return;
+
+  // Handle message editing
+  if (editingPublicMsgId) {
+    const editId = editingPublicMsgId;
+    editingPublicMsgId = null;
+    input.value = '';
+    const existing = state.publicMessages.find(m => m.id === editId);
+    if (existing) {
+      existing.text = text;
+      renderPublicOverlayMessages();
+    }
+    toast('پیام ویرایش شد ✏️');
+    try {
+      await fetch(`/api/public_messages/${editId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, sender_id: state.user?.id })
+      });
+    } catch {}
+    return;
+  }
+
   const newMsg = {
     id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: state.user?.id || 'guest',
@@ -5386,14 +5583,25 @@ function getDateLabel(dateStr) {
 let typingTimeout = null;
 function showTypingIndicator(userData) {
   const el = $('typingIndicator');
-  if (!el) return;
-  const avatarEl = $('typingAvatar');
-  const nameEl = $('typingName');
-  if (avatarEl) avatarEl.src = userData.user_avatar || DEFAULT_AVATAR;
-  if (nameEl) nameEl.textContent = `${userData.user_name || 'کاربر'} در حال نوشتن...`;
-  el.classList.add('show');
+  if (el) {
+    const avatarEl = $('typingAvatar');
+    const nameEl = $('typingName');
+    if (avatarEl) avatarEl.src = userData.user_avatar || DEFAULT_AVATAR;
+    if (nameEl) nameEl.textContent = `${userData.user_name || 'کاربر'} در حال نوشتن...`;
+    el.classList.add('show');
+  }
+
+  // Also display typing status at the top header of the chat room
+  const statusEl = $('chatRoomStatus');
+  if (statusEl && state.activeConversationUser && userData.user_id === state.activeConversationUser.id) {
+    statusEl.innerHTML = `<span style="color:var(--blue);font-weight:700">در حال نوشتن...</span>`;
+  }
+
   clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(() => el.classList.remove('show'), 3000);
+  typingTimeout = setTimeout(() => {
+    if (el) el.classList.remove('show');
+    updateChatRoomStatus();
+  }, 3000);
 }
 
 let typingBroadcastThrottle = null;
@@ -6259,8 +6467,30 @@ function handleIncomingDM(msg) {
 }
 
 // =============================================
-// Telegram Voice Recording & Waveform Engine
+// Telegram Voice Recording & Waveform Engine (Push-to-Talk)
 // =============================================
+let pttPressTimer = null;
+let pttStarted = false;
+
+function startPushToTalkVoice(e) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  pttStarted = true;
+  clearTimeout(pttPressTimer);
+  pttPressTimer = setTimeout(async () => {
+    if (pttStarted && !state.isRecordingVoice) {
+      await toggleVoiceRecording();
+    }
+  }, 100);
+}
+
+function stopPushToTalkVoice(e) {
+  clearTimeout(pttPressTimer);
+  if (pttStarted && state.isRecordingVoice) {
+    stopVoiceRecording();
+  }
+  pttStarted = false;
+}
+
 async function toggleVoiceRecording() {
   if (!state.isRecordingVoice) {
     try {
@@ -6903,6 +7133,144 @@ async function joinActiveChannel() {
       fetchChannels();
     }
   } catch {}
+}
+
+function openChannelInfoModal() {
+  if (!activeChannelObj) return;
+  const c = activeChannelObj;
+  $('infoChannelAvatar').src = c.avatar || DEFAULT_AVATAR;
+  $('infoChannelTitle').textContent = c.title || '';
+  $('infoChannelUsername').textContent = c.username ? `@${c.username}` : '';
+  $('infoChannelMembers').textContent = c.type === 'group' 
+    ? `${c.subscribers_count || 1} عضو فعال` 
+    : `${c.subscribers_count || 1} مشترک`;
+  $('infoChannelDesc').textContent = c.description || 'بدون توضیحات';
+
+  const isOwner = state.user && c.creator_id === state.user.id;
+  const isMember = c.members && state.user && c.members.includes(state.user.id);
+
+  const ownerCard = $('channelOwnerSettingsCard');
+  if (ownerCard) {
+    ownerCard.style.display = isOwner ? 'flex' : 'none';
+    if (isOwner) {
+      $('editChannelTitleInput').value = c.title || '';
+      $('editChannelDescInput').value = c.description || '';
+    }
+  }
+
+  const leaveRow = $('channelLeaveBtnRow');
+  if (leaveRow) {
+    leaveRow.style.display = (!isOwner && isMember) ? 'flex' : 'none';
+  }
+
+  $('channelInfoModal').classList.add('open');
+  playHapticSound('pop');
+}
+
+async function saveChannelSettings() {
+  if (!activeChannelObj || !activeChannelId || !state.user) return;
+  const newTitle = $('editChannelTitleInput')?.value.trim();
+  const newDesc = $('editChannelDescInput')?.value.trim() || '';
+  if (!newTitle) {
+    toast('لطفاً عنوان کانال را وارد کنید');
+    return;
+  }
+  try {
+    const res = await fetch(`/api/channels/${activeChannelId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: newTitle, description: newDesc, user_id: state.user.id })
+    });
+    const data = await res.json();
+    if (data.success) {
+      activeChannelObj.title = newTitle;
+      activeChannelObj.description = newDesc;
+      $('activeChannelTitle').textContent = newTitle;
+      $('infoChannelTitle').textContent = newTitle;
+      $('infoChannelDesc').textContent = newDesc;
+      toast('تنظیمات با موفقیت ذخیره شد ✅');
+      fetchChannels();
+    } else {
+      toast(data.error || 'خطا در ذخیره تغییرات');
+    }
+  } catch {
+    toast('خطا در برقراری ارتباط با سرور');
+  }
+}
+
+async function deleteActiveChannel() {
+  if (!activeChannelObj || !activeChannelId || !state.user) return;
+  if (!confirm('آیا از حذف این کانال / گروه اطمینان دارید؟ تمامی پیام‌ها حذف خواهند شد.')) return;
+  try {
+    const res = await fetch(`/api/channels/${activeChannelId}?user_id=${state.user.id}`, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast('کانال / گروه با موفقیت حذف شد 🗑️');
+      $('channelInfoModal').classList.remove('open');
+      $('channelViewModal').classList.remove('open');
+      activeChannelId = null;
+      activeChannelObj = null;
+      fetchChannels();
+    } else {
+      toast(data.error || 'خطا در حذف کانال');
+    }
+  } catch {
+    toast('خطا در برقراری ارتباط با سرور');
+  }
+}
+
+async function leaveActiveChannel() {
+  if (!activeChannelObj || !activeChannelId || !state.user) return;
+  try {
+    const res = await fetch('/api/channels/leave', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel_id: activeChannelId, user_id: state.user.id })
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast('شما از کانال / گروه خارج شدید 👋');
+      $('channelInfoModal').classList.remove('open');
+      $('channelViewModal').classList.remove('open');
+      activeChannelId = null;
+      activeChannelObj = null;
+      fetchChannels();
+    } else {
+      toast(data.error || 'خطا در خروج از کانال');
+    }
+  } catch {
+    toast('خطا در برقراری ارتباط با سرور');
+  }
+}
+
+function copyActiveChannelLink() {
+  if (!activeChannelObj) return;
+  const link = activeChannelObj.username 
+    ? `https://geosocial.app/c/${activeChannelObj.username}` 
+    : `https://geosocial.app/c/${activeChannelObj.id}`;
+  navigator.clipboard.writeText(link).then(() => {
+    toast('لینک کانال در کلیپ‌بورد کپی شد 📋');
+  }).catch(() => {
+    toast('خطا در کپی لینک');
+  });
+}
+
+function shareActiveChannelLink() {
+  if (!activeChannelObj) return;
+  const link = activeChannelObj.username 
+    ? `https://geosocial.app/c/${activeChannelObj.username}` 
+    : `https://geosocial.app/c/${activeChannelObj.id}`;
+  if (navigator.share) {
+    navigator.share({
+      title: activeChannelObj.title,
+      text: `عضو کانال/گروه «${activeChannelObj.title}» در ژئوسوشال شوید:`,
+      url: link
+    }).catch(() => {});
+  } else {
+    copyActiveChannelLink();
+  }
 }
 
 let newChannelType = 'channel';

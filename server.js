@@ -1113,7 +1113,7 @@ app.post('/api/posts', (req, res) => {
   res.json({ success: true, post: newPost });
 });
 
-// Public Chat API (Filtered by Location Radius)
+// Public Chat API (Strictly Filtered by User Location Radius)
 app.get('/api/public_messages', (req, res) => {
   const { lat, lng, radius } = req.query;
   let msgs = publicMessages.slice(-100);
@@ -1121,12 +1121,11 @@ app.get('/api/public_messages', (req, res) => {
     const uLat = Number(lat), uLng = Number(lng), uRad = Number(radius) || 25;
     if (uRad < 500 && Number.isFinite(uLat) && Number.isFinite(uLng)) {
       msgs = msgs.filter(m => {
-        if (m.lat == null || m.lng == null) return true;
+        if (m.lat == null || m.lng == null) return false;
         const mLat = Number(m.lat), mLng = Number(m.lng);
-        if (!Number.isFinite(mLat) || !Number.isFinite(mLng)) return true;
+        if (!Number.isFinite(mLat) || !Number.isFinite(mLng)) return false;
         const d = dist(uLat, uLng, mLat, mLng);
-        const maxR = Math.max(uRad, Number(m.radius) || 25);
-        return d <= maxR;
+        return d <= uRad;
       });
     }
   }
@@ -1152,6 +1151,31 @@ app.post('/api/public_messages', (req, res) => {
   pgInsertPublicMessage(msg);
   broadcastSSE('public_msg', msg);
   res.json({ success: true, message: msg });
+});
+
+app.put('/api/public_messages/:id', (req, res) => {
+  const { id } = req.params;
+  const { text, sender_id } = req.body || {};
+  const msg = publicMessages.find(m => m.id === id);
+  if (!msg) return res.status(404).json({ success: false, error: 'Message not found' });
+  if (sender_id && msg.sender_id !== sender_id) return res.status(403).json({ success: false, error: 'Forbidden' });
+  msg.text = text;
+  msg.edited = true;
+  persistDB();
+  broadcastSSE('public_msg_edited', msg);
+  res.json({ success: true, message: msg });
+});
+
+app.delete('/api/public_messages/:id', (req, res) => {
+  const { id } = req.params;
+  const { sender_id } = req.body || req.query || {};
+  const idx = publicMessages.findIndex(m => m.id === id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Message not found' });
+  if (sender_id && publicMessages[idx].sender_id !== sender_id) return res.status(403).json({ success: false, error: 'Forbidden' });
+  publicMessages.splice(idx, 1);
+  persistDB();
+  broadcastSSE('public_msg_deleted', { id });
+  res.json({ success: true, id });
 });
 
 // Direct Messaging API
@@ -1580,6 +1604,45 @@ app.post('/api/channels/:id/messages', (req, res) => {
   persistDB();
   broadcastSSE('channel_msg', { channel_id: id, message: msg });
   res.json({ success: true, message: msg });
+});
+
+app.post('/api/channels/leave', (req, res) => {
+  const { channel_id, user_id } = req.body || {};
+  const channel = channels.find(c => c.id === channel_id);
+  if (!channel) return res.status(404).json({ success: false, error: 'کانال یافت نشد' });
+  if (channel.members && user_id) {
+    channel.members = channel.members.filter(m => m !== user_id);
+    channel.subscribers_count = Math.max(0, (channel.subscribers_count || 1) - 1);
+    persistDB();
+    broadcastSSE('channel_member_left', { channel_id, user_id, count: channel.subscribers_count });
+  }
+  res.json({ success: true, subscribers_count: channel.subscribers_count, is_member: false });
+});
+
+app.put('/api/channels/:id', (req, res) => {
+  const { id } = req.params;
+  const { title, description, user_id } = req.body || {};
+  const channel = channels.find(c => c.id === id);
+  if (!channel) return res.status(404).json({ success: false, error: 'کانال یافت نشد' });
+  if (user_id && channel.creator_id !== user_id) return res.status(403).json({ success: false, error: 'دسترسی غیرمجاز' });
+  if (title) channel.title = title.trim();
+  if (description !== undefined) channel.description = description.trim();
+  persistDB();
+  broadcastSSE('channel_updated', channel);
+  res.json({ success: true, channel });
+});
+
+app.delete('/api/channels/:id', (req, res) => {
+  const { id } = req.params;
+  const { user_id } = req.body || req.query || {};
+  const idx = channels.findIndex(c => c.id === id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'کانال یافت نشد' });
+  if (user_id && channels[idx].creator_id !== user_id) return res.status(403).json({ success: false, error: 'دسترسی غیرمجاز' });
+  channels.splice(idx, 1);
+  delete channelMessages[id];
+  persistDB();
+  broadcastSSE('channel_deleted', { id });
+  res.json({ success: true, id });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
