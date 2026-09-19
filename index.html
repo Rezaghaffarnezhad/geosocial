@@ -17,8 +17,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- FontAwesome 6 Pro Icons -->
+<!-- FontAwesome 6 Pro Icons & CDN Fallback -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
 
 <!-- Standard Persian Vazirmatn Font -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
@@ -68,12 +69,21 @@
   --chat-out: #e3f2fd;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; -webkit-tap-highlight-color: transparent; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); user-select: none; font-family: 'Vazirmatn', sans-serif !important; }
-button, input, textarea { font: inherit; outline: none; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); user-select: none; font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+button, input, textarea, select { font-family: inherit; outline: none; }
 button { color: inherit; cursor: pointer; border: none; }
 button:disabled { opacity: .5; pointer-events: none; }
 input, textarea { direction: rtl; }
+
+/* Maintain Font Awesome icon glyph shapes from being overridden */
+.fa, .fas, .far, .fal, .fad, .fab, .fa-solid, .fa-regular, .fa-brands, [class^="fa-"], [class*=" fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+  -webkit-font-smoothing: antialiased;
+}
 .hidden { display: none !important; }
 .solid { background: var(--panel-glass); backdrop-filter: blur(14px); border: 1px solid var(--border); }
 
@@ -3413,7 +3423,7 @@ function renderSingleUserMarker(p, zoom) {
   let iconHtml = `
     <div class="user-marker">
       <div class="pin-body ${storyClass}" style="width:${pinSize}px;height:${pinSize}px">
-        <img src="${esc(p.avatar || DEFAULT_AVATAR)}">
+        <img src="${esc(p.avatar || DEFAULT_AVATAR)}" onerror="this.src='${DEFAULT_AVATAR}'">
         <i class="led ${online(p) ? 'online' : 'offline'}"></i>
       </div>
       ${showName ? `<div class="pin-stem"></div><div class="pin-name">${esc(p.name)}</div>` : ''}
@@ -3588,7 +3598,7 @@ function setupLocateButton() {
 
   const onPointerMove = (e) => {
     // CRITICAL FIX: If pointer is not pressed down, or mouse button was released, abort immediately!
-    if (!isPointerDown || (e.pointerType === 'mouse' && e.buttons === 0)) {
+    if (!isPointerDown || (e.pointerType === 'mouse' && (e.buttons & 1) !== 1)) {
       if (isDraggingRadius || isPointerDown) {
         closeRadiusDial();
       }
@@ -3681,6 +3691,7 @@ function setupLocateButton() {
     }
   });
   window.addEventListener('pointercancel', closeRadiusDial);
+  window.addEventListener('mouseup', closeRadiusDial);
   window.addEventListener('blur', closeRadiusDial);
 }
 
@@ -3908,8 +3919,8 @@ function renderStoriesTray() {
   const myStory = document.createElement('div');
   myStory.className = 'story-item';
   myStory.innerHTML = `
-    <div class="story-ring ${hasMyStory ? 'unviewed' : ''}" style="${hasMyStory ? 'background:var(--insta-gradient);' : 'border:2px dashed var(--muted);'}">
-      <img src="${esc(state.profile?.avatar || DEFAULT_AVATAR)}">
+    <div class="story-ring ${hasMyStory ? 'unviewed' : ''}" style="${hasMyStory ? 'background:var(--insta-gradient);' : 'background:transparent;border:2px dashed var(--muted);'}">
+      <img src="${esc(state.profile?.avatar || DEFAULT_AVATAR)}" onerror="this.src='${DEFAULT_AVATAR}'">
       ${!hasMyStory ? '<div class="story-add-badge">+</div>' : ''}
     </div>
     <span>استوری شما</span>
@@ -3934,7 +3945,7 @@ function renderStoriesTray() {
     const isUnseen = !s.views?.some(v => (typeof v === 'string' ? v === state.user?.id : v.user_id === state.user?.id));
     const isCF = s.audience === 'close_friends';
     item.innerHTML = `
-      <div class="story-ring ${isCF ? 'close-friends' : ''} ${isUnseen ? 'unviewed' : 'viewed'}"><img src="${esc(s.user_avatar || DEFAULT_AVATAR)}"></div>
+      <div class="story-ring ${isCF ? 'close-friends' : ''} ${isUnseen ? 'unviewed' : 'viewed'}"><img src="${esc(s.user_avatar || DEFAULT_AVATAR)}" onerror="this.src='${DEFAULT_AVATAR}'"></div>
       <span>${esc(s.user_name)}</span>
     `;
     item.onclick = () => openStoryViewer(origIdx >= 0 ? origIdx : 0);
