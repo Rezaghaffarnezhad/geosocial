@@ -5,6 +5,55 @@ const fs = require('fs');
 const https = require('https');
 const { Pool } = require('pg');
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+const DB_FILE = path.join(__dirname, 'data.json');
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+}));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.static(__dirname));
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
+let users = [];
+let publicMessages = [];
+let directMessages = {};
+let stories = [];
+let highlights = [];
+let posts = [];
+let follows = {};
+let chatRequests = {};
+
+// Fallback load from local data.json if available
+try {
+  if (fs.existsSync(DB_FILE)) {
+    const raw = fs.readFileSync(DB_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed.users && Array.isArray(parsed.users)) users = parsed.users;
+    if (parsed.publicMessages && Array.isArray(parsed.publicMessages)) publicMessages = parsed.publicMessages;
+    if (parsed.directMessages && typeof parsed.directMessages === 'object') directMessages = parsed.directMessages;
+    if (parsed.stories && Array.isArray(parsed.stories)) stories = parsed.stories;
+    if (parsed.highlights && Array.isArray(parsed.highlights)) highlights = parsed.highlights;
+    if (parsed.posts && Array.isArray(parsed.posts)) posts = parsed.posts;
+    if (parsed.follows && typeof parsed.follows === 'object') follows = parsed.follows;
+    if (parsed.chatRequests && typeof parsed.chatRequests === 'object') chatRequests = parsed.chatRequests;
+    console.log(`📁 Loaded local fallback: ${users.length} users, ${publicMessages.length} public msgs`);
+  }
+} catch (e) {
+  console.warn('⚠️ data.json read notice:', e.message);
+}
+
 const DATABASE_URL = (process.env.DATABASE_URL || 'postgresql://postgres:Reza.137801@db.dotyhbasvvczsyzdhnko.supabase.co:5432/postgres').replace(/\[|\]/g, '');
 
 let pgPool = null;
@@ -34,7 +83,7 @@ function persistDB() {
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     try {
-      const data = { users, publicMessages, directMessages, stories, highlights, posts, follows };
+      const data = { users, publicMessages, directMessages, stories, highlights, posts, follows, chatRequests };
       fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
     } catch (e) {
       console.error('Error saving database:', e.message);
@@ -1016,7 +1065,20 @@ app.post('/api/messages', (req, res) => {
   }
   
   const key = [sender_id, receiver_id].sort().join('_');
+  if (chatRequests[key] && chatRequests[key].status === 'blocked' && chatRequests[key].blocked_user === sender_id) {
+    return res.status(403).json({ success: false, error: 'User is blocked' });
+  }
+
   if (!directMessages[key]) directMessages[key] = [];
+  
+  if (!chatRequests[key]) {
+    chatRequests[key] = {
+      status: 'pending',
+      sender_id: sender_id,
+      receiver_id: receiver_id,
+      created_at: new Date().toISOString()
+    };
+  }
   
   const msg = {
     id: (req.body && req.body.id) || ('dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
@@ -1043,6 +1105,55 @@ app.post('/api/messages', (req, res) => {
   pgInsertMessage(msg, key);
   broadcastSSE('dm_msg', msg);
   res.json({ success: true, message: msg });
+});
+
+// Chat Requests API (Instagram-style safety and pending requests)
+app.get('/api/chats/requests', (req, res) => {
+  const { user_id } = req.query;
+  if (!user_id) return res.json({ success: true, requests: [] });
+  const reqs = [];
+  for (const [key, reqObj] of Object.entries(chatRequests)) {
+    if (reqObj && reqObj.receiver_id === user_id && reqObj.status === 'pending') {
+      const otherId = reqObj.sender_id;
+      const otherUser = users.find(u => u.id === otherId) || { id: otherId, name: 'کاربر' };
+      const msgs = directMessages[key] || [];
+      const lastMsg = msgs[msgs.length - 1];
+      reqs.push({ key, otherUser, lastMsg, ...reqObj });
+    }
+  }
+  res.json({ success: true, requests: reqs });
+});
+
+app.post('/api/chats/request_action', (req, res) => {
+  const { user_id, other_id, action } = req.body || {};
+  if (!user_id || !other_id || !action) return res.status(400).json({ success: false });
+  const key = [user_id, other_id].sort().join('_');
+  if (!chatRequests[key]) {
+    chatRequests[key] = { status: 'accepted', sender_id: other_id, receiver_id: user_id };
+  }
+  if (action === 'accept') {
+    chatRequests[key].status = 'accepted';
+    chatRequests[key].accepted_at = new Date().toISOString();
+  } else if (action === 'decline') {
+    chatRequests[key].status = 'declined';
+    directMessages[key] = [];
+  } else if (action === 'block') {
+    chatRequests[key].status = 'blocked';
+    chatRequests[key].blocked_by = user_id;
+    chatRequests[key].blocked_user = other_id;
+    directMessages[key] = [];
+  }
+  persistDB();
+  broadcastSSE('chat_request_action', { key, action, user_id, other_id });
+  res.json({ success: true, chatRequest: chatRequests[key] });
+});
+
+app.get('/api/chats/status', (req, res) => {
+  const { user1, user2 } = req.query;
+  if (!user1 || !user2) return res.json({ success: true, status: 'accepted' });
+  const key = [user1, user2].sort().join('_');
+  const reqObj = chatRequests[key] || { status: 'accepted' };
+  res.json({ success: true, status: reqObj.status, chatRequest: reqObj });
 });
 
 app.post('/api/messages/poll_vote', (req, res) => {

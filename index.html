@@ -1844,6 +1844,89 @@ input:checked + .slider:before { transform: translateX(20px); }
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
 }
+
+/* =============================================
+   Universal Smooth Scrolling & Touch Navigation
+   ============================================= */
+.scrollable,
+#chatsListContainer,
+#peopleListContainer,
+.profile-content-scroll,
+.chat-messages-scroll,
+#chatMessagesScroll,
+.public-overlay-messages,
+#storyViewersList,
+#publicFeed,
+.forward-modal-sheet {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--border) transparent !important;
+}
+
+#chatsListContainer::-webkit-scrollbar,
+#peopleListContainer::-webkit-scrollbar,
+.profile-content-scroll::-webkit-scrollbar,
+.chat-messages-scroll::-webkit-scrollbar,
+#chatMessagesScroll::-webkit-scrollbar,
+#storyViewersList::-webkit-scrollbar {
+  width: 5px;
+}
+
+#chatsListContainer::-webkit-scrollbar-thumb,
+#peopleListContainer::-webkit-scrollbar-thumb,
+.profile-content-scroll::-webkit-scrollbar-thumb,
+.chat-messages-scroll::-webkit-scrollbar-thumb,
+#chatMessagesScroll::-webkit-scrollbar-thumb,
+#storyViewersList::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+/* =============================================
+   Chat Request Security Bar & Safety System
+   ============================================= */
+.chat-request-security-bar {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border);
+  padding: 12px 16px calc(14px + var(--safe-bottom));
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+  z-index: 15;
+}
+.chat-request-security-bar.active { display: flex; }
+.chat-request-security-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.chat-request-security-actions {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 8px;
+}
+.chat-request-tab-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(42, 171, 238, 0.08);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+.chat-request-tab-banner:hover { background: rgba(42, 171, 238, 0.15); }
+.chat-request-tab-banner:active { transform: scale(0.99); }
 </style>
 </head>
 <body>
@@ -1984,7 +2067,14 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div style="padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--border)">
     <input id="chatSearchInput" class="btn-secondary" style="text-align:right;padding:8px 12px;font-size:13px" placeholder="جستجوی نام یا پیام..." oninput="renderChatsList(this.value)">
   </div>
-  <div id="chatsListContainer" style="flex:1;overflow-y:auto"></div>
+  <div id="chatRequestsTabBanner" class="chat-request-tab-banner" style="display:none" onclick="toggleChatRequestsFilter()">
+    <div style="display:flex;align-items:center;gap:8px">
+      <i class="fa-solid fa-inbox" style="color:var(--blue);font-size:15px"></i>
+      <span>درخواست‌های گفتگو (Message Requests)</span>
+    </div>
+    <span class="badge" id="chatRequestsBadge" style="background:var(--blue);color:#fff;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:700">0</span>
+  </div>
+  <div id="chatsListContainer" style="flex:1;min-height:0;overflow-y:auto"></div>
 </div>
 
 <!-- People Nearby List Screen -->
@@ -1996,7 +2086,7 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div style="padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--border)">
     <input id="peopleSearchInput" class="btn-secondary" style="text-align:right;padding:8px 12px;font-size:13px" placeholder="جستجوی نام، شهر..." oninput="renderPeopleList(this.value)">
   </div>
-  <div id="peopleListContainer" style="flex:1;overflow-y:auto"></div>
+  <div id="peopleListContainer" style="flex:1;min-height:0;overflow-y:auto"></div>
 </div>
 
 <!-- Telegram Direct Chat Room -->
@@ -2184,6 +2274,22 @@ input:checked + .slider:before { transform: translateX(20px); }
       <button id="chatSendBtn" class="btn-primary" style="width:40px;height:40px;border-radius:50%;padding:0" onclick="sendDirectMessage()"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
+
+  <!-- Instagram-Style Security Action Bar for Chat Requests -->
+  <div id="chatRequestSecurityBar" class="chat-request-security-bar">
+    <div class="chat-request-security-info">
+      <i class="fa-solid fa-shield-halved" style="color:var(--blue);font-size:20px;flex-shrink:0"></i>
+      <div>
+        <div style="font-weight:700;color:var(--text);font-size:12px">درخواست گفتگو (پیش‌نمایش امن)</div>
+        <div style="font-size:11px;opacity:0.85;margin-top:2px">این کاربر به شما پیام فرستاده است. تا زمانی که درخواست را تایید نکنید، متوجه خوانده شدن پیام‌ها (Seen) یا آنلاین بودن شما نخواهد شد.</div>
+      </div>
+    </div>
+    <div class="chat-request-security-actions">
+      <button class="btn-primary" style="padding:10px 8px;font-size:12px;font-weight:700" onclick="acceptActiveChatRequest()"><i class="fa-solid fa-check"></i> قبول گفتگو</button>
+      <button class="btn-secondary" style="padding:10px 8px;font-size:12px;font-weight:700" onclick="declineActiveChatRequest()"><i class="fa-solid fa-trash"></i> حذف</button>
+      <button class="btn-danger" style="padding:10px 8px;font-size:12px;font-weight:700" onclick="blockActiveChatUser()"><i class="fa-solid fa-ban"></i> مسدود</button>
+    </div>
+  </div>
 </div>
 
 <!-- In-Chat Poll Creator Modal -->
@@ -2215,7 +2321,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
   <!-- Top Info Header -->
   <div class="story-top-info" id="storyTopInfo">
-    <div class="story-user-meta">
+    <div class="story-user-meta" onclick="openProfileFromActiveStory()" style="cursor:pointer">
       <img id="storyViewerAvatar" src="">
       <div>
         <div id="storyViewerName" style="font-weight:700;font-size:13px"></div>
@@ -3105,10 +3211,12 @@ function clearActiveRoute() {
 function setupLocateButton() {
   const btn = $('locateBtn');
   if (!btn) return;
-  let startY = 0, isDraggingRadius = false, pressTimer = null, hasLongPressed = false;
+  let startY = 0, isDraggingRadius = false, pressTimer = null, hasLongPressed = false, isPointerDown = false;
 
   const closeRadiusDial = () => {
     isDraggingRadius = false;
+    isPointerDown = false;
+    clearTimeout(pressTimer);
     const dial = $('radiusPullDial');
     if (dial) dial.classList.remove('active');
   };
@@ -3116,6 +3224,9 @@ function setupLocateButton() {
   let startRadius = 25;
 
   const onPointerDown = (e) => {
+    // Only primary button (left mouse click or touch contact)
+    if (e.button !== undefined && e.button !== 0) return;
+    isPointerDown = true;
     isDraggingRadius = false;
     hasLongPressed = false;
     startY = e.clientY;
@@ -3125,7 +3236,7 @@ function setupLocateButton() {
     // Tap & Hold (Long Press for 550ms) to start manual location picking (Snapp style)
     clearTimeout(pressTimer);
     pressTimer = setTimeout(() => {
-      if (!isDraggingRadius) {
+      if (isPointerDown && !isDraggingRadius) {
         hasLongPressed = true;
         closeRadiusDial();
         playHapticSound('pop');
@@ -3135,6 +3246,14 @@ function setupLocateButton() {
   };
 
   const onPointerMove = (e) => {
+    // CRITICAL FIX: If pointer is not pressed down, or mouse button was released, abort immediately!
+    if (!isPointerDown || (e.pointerType === 'mouse' && e.buttons === 0)) {
+      if (isDraggingRadius || isPointerDown) {
+        closeRadiusDial();
+      }
+      return;
+    }
+
     const deltaY = startY - e.clientY; // positive = dragging UP, negative = dragging DOWN
     if (Math.abs(deltaY) > 8) {
       clearTimeout(pressTimer); // Cancel long press if user is dragging for radius
@@ -3176,16 +3295,20 @@ function setupLocateButton() {
   const onPointerUp = (e) => {
     try { btn.releasePointerCapture(e.pointerId); } catch {}
     clearTimeout(pressTimer);
-    if (hasLongPressed) return;
-    if (isDraggingRadius) {
-      closeRadiusDial();
+    const wasDragging = isDraggingRadius;
+    const wasLongPress = hasLongPressed;
+    isPointerDown = false;
+    isDraggingRadius = false;
+    closeRadiusDial();
+
+    if (wasLongPress) return;
+    if (wasDragging) {
       playHapticSound('pop');
       if (state.radius < 500 && radiusCircle && map) {
         map.fitBounds(radiusCircle.getBounds(), { padding: [40, 40], maxZoom: 16 });
       }
       toast(`شعاع جستجو: ${state.radius >= 500 ? 'سراسری' : state.radius + ' کیلومتر'} 🎯`);
     } else {
-      closeRadiusDial();
       locateMe(true);
     }
   };
@@ -3200,11 +3323,23 @@ function setupLocateButton() {
   btn.onpointermove = onPointerMove;
   btn.onpointerup = onPointerUp;
   btn.onpointercancel = onPointerCancel;
+  btn.onmouseleave = (e) => {
+    if (isDraggingRadius || isPointerDown) {
+      // If mouse leaves button while not dragging, reset
+      if (!isDraggingRadius) {
+        isPointerDown = false;
+        clearTimeout(pressTimer);
+      }
+    }
+  };
 
   // Global safety release
-  window.addEventListener('pointerup', () => {
-    if (isDraggingRadius) closeRadiusDial();
+  window.addEventListener('pointerup', (e) => {
+    if (isPointerDown || isDraggingRadius) {
+      onPointerUp(e);
+    }
   });
+  window.addEventListener('pointercancel', closeRadiusDial);
   window.addEventListener('blur', closeRadiusDial);
 }
 
@@ -3293,6 +3428,15 @@ function isMsgInRadius(m) {
   return userRadius >= 500 || d <= Math.max(userRadius, msgRadius);
 }
 
+function openProfileFromSenderId(senderId, senderName) {
+  if (!senderId || senderId === state.user?.id) {
+    openMyProfileModal();
+    return;
+  }
+  const u = state.pins.find(p => p.id === senderId) || { id: senderId, name: senderName || 'کاربر' };
+  openOtherUserProfile(u);
+}
+
 function renderPublicOverlayMessages() {
   const box = $('publicOverlayMessages');
   if (!box) return;
@@ -3304,7 +3448,7 @@ function renderPublicOverlayMessages() {
     const isMe = m.sender_id === state.user?.id;
     item.className = 'public-overlay-msg-item' + (isMe ? ' my-msg' : '');
     const senderName = isMe ? 'من' : (m.sender_name || 'کاربر');
-    item.innerHTML = `<b style="color:${isMe ? 'var(--blue)' : '#2ecc71'};font-weight:700;margin-left:5px;font-size:11px">${esc(senderName)}:</b><span>${esc(m.text || '')}</span>`;
+    item.innerHTML = `<b style="color:${isMe ? 'var(--blue)' : '#2ecc71'};font-weight:700;margin-left:5px;font-size:11px;cursor:pointer" onclick="${isMe ? 'openMyProfileModal()' : `openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')`}">${esc(senderName)}:</b><span>${esc(m.text || '')}</span>`;
     box.appendChild(item);
   });
   box.scrollTop = box.scrollHeight;
@@ -3531,6 +3675,14 @@ function closeStoryViewer() {
   renderStoriesTray();
 }
 
+function openProfileFromActiveStory() {
+  const s = state.stories[state.currentStoryIndex];
+  if (!s) return;
+  const user = state.pins.find(p => p.id === s.user_id) || { id: s.user_id, name: s.user_name, avatar: s.user_avatar };
+  closeStoryViewer();
+  openOtherUserProfile(user);
+}
+
 function likeCurrentStory(e) {
   e?.stopPropagation();
   const s = state.stories[state.currentStoryIndex];
@@ -3687,25 +3839,95 @@ async function publishStudioStory() {
 }
 
 // ----------------------------------------------------
-// Telegram Chat & Direct Messaging Engine
 // ----------------------------------------------------
+// Telegram & Instagram Chat, Direct Messaging & Security Requests Engine
+// ----------------------------------------------------
+state.chatRequestsList = [];
+state.showingRequestsOnly = false;
+
+async function checkChatRequests() {
+  if (!state.user) return;
+  try {
+    const res = await fetch(`/api/chats/requests?user_id=${state.user.id}`);
+    const data = await res.json();
+    if (data.success && Array.isArray(data.requests)) {
+      state.chatRequestsList = data.requests;
+      const banner = $('chatRequestsTabBanner');
+      const badge = $('chatRequestsBadge');
+      if (banner && badge) {
+        if (state.chatRequestsList.length > 0) {
+          banner.style.display = 'flex';
+          badge.textContent = state.chatRequestsList.length;
+        } else {
+          banner.style.display = 'none';
+        }
+      }
+    }
+  } catch {}
+}
+
+function toggleChatRequestsFilter() {
+  state.showingRequestsOnly = !state.showingRequestsOnly;
+  const banner = $('chatRequestsTabBanner');
+  if (banner) {
+    banner.style.background = state.showingRequestsOnly ? 'rgba(42, 171, 238, 0.22)' : 'rgba(42, 171, 238, 0.08)';
+  }
+  renderChatsList($('chatSearchInput')?.value || '');
+}
+
 function renderChatsList(q = '') {
   const container = $('chatsListContainer');
+  if (!container) return;
   container.innerHTML = '';
   const needle = (q || '').trim().toLowerCase();
+
+  // If user selected to view message requests only
+  if (state.showingRequestsOnly) {
+    if (!state.chatRequestsList || state.chatRequestsList.length === 0) {
+      container.innerHTML = `
+        <div style="padding:40px 20px;text-align:center;color:var(--muted)">
+          <i class="fa-solid fa-inbox" style="font-size:36px;opacity:0.4;margin-bottom:10px;display:block"></i>
+          هیچ درخواست گفتگوی جدیدی وجود ندارد
+        </div>
+      `;
+      return;
+    }
+    state.chatRequestsList.forEach(req => {
+      const p = req.otherUser || { id: req.sender_id, name: 'کاربر' };
+      if (needle && !p.name.toLowerCase().includes(needle)) return;
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:rgba(42,171,238,0.05)';
+      item.innerHTML = `
+        <div style="position:relative;width:44px;height:44px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(state.pins.find(x => x.id === '${p.id}') || ${JSON.stringify(p).replace(/"/g, '&quot;')})">
+          <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--blue)">
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</b>
+            <span class="badge" style="background:var(--blue);color:#fff;font-size:10px;padding:2px 6px">درخواست</span>
+          </div>
+          <div style="font-size:12px;color:var(--text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0.85">${esc(req.lastMsg?.text || 'ارسال پیام جدید...')}</div>
+        </div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+      `;
+      item.onclick = () => { closeAllModals(); openChatRoom(p); };
+      container.appendChild(item);
+    });
+    return;
+  }
 
   state.pins.forEach(p => {
     if (needle && !p.name.toLowerCase().includes(needle)) return;
     const item = document.createElement('div');
     item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer';
     item.innerHTML = `
-      <div style="position:relative;width:44px;height:44px">
+      <div style="position:relative;width:44px;height:44px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(state.pins.find(x => x.id === '${p.id}') || ${JSON.stringify(p).replace(/"/g, '&quot;')})">
         <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover">
         <span class="led ${online(p) ? 'online' : 'offline'}" style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;border:2px solid var(--panel)"></span>
       </div>
-      <div style="flex:1">
-        <b style="font-size:14px">${esc(p.name)}</b>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(formatLastSeen(p.last_seen, online(p)))}</div>
+      <div style="flex:1;min-width:0">
+        <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${esc(p.name)}</b>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(formatLastSeen(p.last_seen, online(p)))}</div>
       </div>
       <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
     `;
@@ -3716,6 +3938,7 @@ function renderChatsList(q = '') {
 
 function renderPeopleList(q = '') {
   const container = $('peopleListContainer');
+  if (!container) return;
   container.innerHTML = '';
   const needle = (q || '').trim().toLowerCase();
 
@@ -3725,10 +3948,10 @@ function renderPeopleList(q = '') {
     const item = document.createElement('div');
     item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer';
     item.innerHTML = `
-      <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover">
-      <div style="flex:1">
-        <b style="font-size:14px">${esc(p.name)}</b>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">${distanceKm} کیلومتر فاصله • ${esc(formatLastSeen(p.last_seen, online(p)))}</div>
+      <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(state.pins.find(x => x.id === '${p.id}') || ${JSON.stringify(p).replace(/"/g, '&quot;')})">
+      <div style="flex:1;min-width:0">
+        <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${esc(p.name)}</b>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${distanceKm} کیلومتر فاصله • ${esc(formatLastSeen(p.last_seen, online(p)))}</div>
       </div>
       <i class="fa-solid fa-location-dot" style="color:var(--blue)"></i>
     `;
@@ -3739,7 +3962,7 @@ function renderPeopleList(q = '') {
     };
     container.appendChild(item);
   });
-  $('peopleListCount').textContent = state.pins.length;
+  if ($('peopleListCount')) $('peopleListCount').textContent = state.pins.length;
 }
 
 function updateChatRoomStatus() {
@@ -3755,35 +3978,103 @@ function updateChatRoomStatus() {
 }
 
 function isChatAccepted(userId) {
-  if (!userId) return true;
+  if (!userId || !state.user) return true;
+  if (userId === state.user.id) return true;
   try {
     const accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
-    return accepted.includes(userId);
-  } catch { return true; }
+    if (accepted.includes(userId)) return true;
+  } catch {}
+
+  // If explicitly listed in pending requests
+  if (state.chatRequestsList && state.chatRequestsList.some(r => r.otherUser?.id === userId || r.sender_id === userId)) {
+    return false;
+  }
+
+  // If I have previously sent any message to this user in loaded messages
+  if (state.activeMessages && state.activeConversationUser?.id === userId) {
+    const hasMyMsg = state.activeMessages.some(m => m.sender_id === state.user.id);
+    if (hasMyMsg) return true;
+  }
+
+  return true;
 }
 
-function acceptChatRequest() {
-  if (!state.activeConversationUser) return;
+async function acceptActiveChatRequest() {
+  if (!state.activeConversationUser || !state.user) return;
+  const otherUser = state.activeConversationUser;
   try {
     const accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
-    if (!accepted.includes(state.activeConversationUser.id)) {
-      accepted.push(state.activeConversationUser.id);
+    if (!accepted.includes(otherUser.id)) {
+      accepted.push(otherUser.id);
       localStorage.setItem('geosocial_accepted_chats', JSON.stringify(accepted));
     }
+    await fetch('/api/chats/request_action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: state.user.id, other_id: otherUser.id, action: 'accept' })
+    });
   } catch {}
-  const banner = $('chatRequestBanner');
-  if (banner) banner.style.display = 'none';
+
+  state.isPreviewRequest = false;
+  $('chatRequestSecurityBar')?.classList.remove('active');
+  $('composerMainRow').style.display = 'flex';
+
+  // Now trigger message read/seen checkmarks
+  fetch('/api/messages/seen', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user1: state.user.id, user2: otherUser.id, reader_id: state.user.id })
+  }).catch(() => {});
+
+  checkChatRequests();
   toast('درخواست گفتگو پذیرفته شد ✅');
   playHapticSound('sent');
 }
 
-function declineChatRequest() {
-  const banner = $('chatRequestBanner');
-  if (banner) banner.style.display = 'none';
+async function declineActiveChatRequest() {
+  if (!state.activeConversationUser || !state.user) return;
+  const otherUser = state.activeConversationUser;
+  try {
+    await fetch('/api/chats/request_action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: state.user.id, other_id: otherUser.id, action: 'decline' })
+    });
+  } catch {}
+
   closeChatRoom();
-  toast('درخواست رد شد ❌');
+  checkChatRequests();
+  renderChatsList();
+  toast('درخواست گفتگو حذف شد ❌');
   playHapticSound('pop');
 }
+
+async function blockActiveChatUser() {
+  if (!state.activeConversationUser || !state.user) return;
+  const otherUser = state.activeConversationUser;
+  try {
+    const blocked = JSON.parse(localStorage.getItem('geosocial_blocked_users') || '[]');
+    if (!blocked.includes(otherUser.id)) {
+      blocked.push(otherUser.id);
+      localStorage.setItem('geosocial_blocked_users', JSON.stringify(blocked));
+    }
+    await fetch('/api/chats/request_action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: state.user.id, other_id: otherUser.id, action: 'block' })
+    });
+  } catch {}
+
+  closeChatRoom();
+  checkChatRequests();
+  renderChatsList();
+  toast('کاربر با موفقیت مسدود شد 🚫');
+  playHapticSound('pop');
+}
+
+// Fallback aliases for previous handler names
+function acceptChatRequest() { acceptActiveChatRequest(); }
+function declineChatRequest() { declineActiveChatRequest(); }
 
 function openChatRoom(user) {
   state.activeConversationUser = user;
@@ -3796,30 +4087,39 @@ function openChatRoom(user) {
   const pubOverlay = $('publicChatOverlay');
   if (pubOverlay) pubOverlay.style.display = 'none';
 
-  // Message request check (Instagram style)
-  const reqBanner = $('chatRequestBanner');
-  if (reqBanner) {
-    reqBanner.style.display = isChatAccepted(user.id) ? 'none' : 'flex';
-  }
-
   cancelReply();
   cancelEditMessage();
   closeChatSearch();
   toggleChatOptionsMenu(false);
   $('voiceRecordingBanner')?.classList.remove('active');
-  $('composerMainRow').style.display = 'flex';
-  onComposerInput($('chatMsgInput')?.value || '');
+
+  const accepted = isChatAccepted(user.id);
+  state.isPreviewRequest = !accepted;
+
+  if (state.isPreviewRequest) {
+    // SAFE PREVIEW MODE (Instagram Security Standard):
+    // 1. Hide normal composer so user cannot type until accepted
+    $('composerMainRow').style.display = 'none';
+    // 2. Show dedicated security action bar
+    $('chatRequestSecurityBar')?.classList.add('active');
+    // 3. DO NOT call /api/messages/seen (keeps sender unaware of read status!)
+  } else {
+    // NORMAL ACCEPTED CHAT MODE:
+    $('composerMainRow').style.display = 'flex';
+    $('chatRequestSecurityBar')?.classList.remove('active');
+    onComposerInput($('chatMsgInput')?.value || '');
+
+    // Mark unread incoming messages as seen
+    if (state.user && user) {
+      fetch('/api/messages/seen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user1: state.user.id, user2: user.id, reader_id: state.user.id })
+      }).catch(() => {});
+    }
+  }
 
   loadDirectMessages();
-
-  // Mark all unread incoming messages as seen/read (Telegram double checkmark)
-  if (state.user && user) {
-    fetch('/api/messages/seen', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user1: state.user.id, user2: user.id, reader_id: state.user.id })
-    }).catch(() => {});
-  }
 
   // Active sync polling fallback (every 3 seconds)
   clearInterval(state.chatSyncInterval);
@@ -3830,7 +4130,9 @@ function closeChatRoom() {
   clearInterval(state.chatSyncInterval);
   state.chatSyncInterval = null;
   $('chatRoom').classList.remove('open');
+  $('chatRequestSecurityBar')?.classList.remove('active');
   state.activeConversationUser = null;
+  state.isPreviewRequest = false;
   cancelReply();
   cancelEditMessage();
   closeChatSearch();
@@ -4092,7 +4394,7 @@ function renderDirectMessages() {
     // Sender name display on incoming messages
     if (!isOut) {
       const senderName = state.activeConversationUser?.name || 'مخاطب';
-      contentHtml += `<div class="msg-sender-name" style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:3px">${esc(senderName)}</div>`;
+      contentHtml += `<div class="msg-sender-name" style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:3px;cursor:pointer" onclick="openOtherUserProfile(state.activeConversationUser)">${esc(senderName)}</div>`;
     }
 
     // Forward indicator
@@ -4764,6 +5066,9 @@ function openStoryViewersList() {
         const avatar = typeof v === 'object' ? (v.user_avatar || DEFAULT_AVATAR) : DEFAULT_AVATAR;
         const name = typeof v === 'object' ? (v.user_name || 'کاربر') : 'کاربر';
         const time = typeof v === 'object' && v.created_at ? new Date(v.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : 'امروز';
+        const viewerId = typeof v === 'object' ? v.user_id : null;
+        const viewerUser = viewerId ? (state.pins.find(p => p.id === viewerId) || { id: viewerId, name, avatar }) : null;
+
         item.innerHTML = `
           <img src="${esc(avatar)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border)">
           <div style="flex:1">
@@ -4772,6 +5077,14 @@ function openStoryViewersList() {
           </div>
           <i class="fa-solid fa-heart" style="color:#ff3366;font-size:14px"></i>
         `;
+        if (viewerUser) {
+          item.style.cursor = 'pointer';
+          item.onclick = () => {
+            closeStoryViewersList();
+            closeStoryViewer();
+            openOtherUserProfile(viewerUser);
+          };
+        }
         list.appendChild(item);
       });
     }
@@ -4833,7 +5146,17 @@ function initSSE() {
     sseConn = new EventSource(sseUrl);
 
     sseConn.addEventListener('dm_msg', e => {
-      try { handleIncomingDM(JSON.parse(e.data)); } catch {}
+      try { 
+        handleIncomingDM(JSON.parse(e.data)); 
+        checkChatRequests();
+      } catch {}
+    });
+
+    sseConn.addEventListener('chat_request_action', e => {
+      try {
+        checkChatRequests();
+        renderChatsList();
+      } catch {}
     });
 
     sseConn.addEventListener('msg_seen', e => {
@@ -5525,7 +5848,7 @@ function nav(tab, el) {
     if (pubOverlay) pubOverlay.style.display = 'none';
   }
 
-  if (tab === 'chats') { $('chatsModal').classList.add('open'); renderChatsList(); }
+  if (tab === 'chats') { $('chatsModal').classList.add('open'); checkChatRequests(); renderChatsList(); }
   else if (tab === 'people') { $('peopleModal').classList.add('open'); renderPeopleList(); }
   else if (tab === 'profile') openProfileModal();
 }
@@ -5628,10 +5951,15 @@ function openOtherUserProfile(user) {
   if (!user) return;
   state.activeSelectedUser = user;
   $('otherUserAvatar').src = user.avatar || DEFAULT_AVATAR;
-  $('otherUserName').textContent = user.name;
+  $('otherUserName').textContent = user.name || 'کاربر';
   $('otherUserUsername').textContent = user.username ? `@${user.username}` : '';
-  $('otherUserBio').textContent = user.bio || 'اطلاعاتی ثبت نشده';
-  $('otherUserDistance').textContent = `${dist(state.coords.lat, state.coords.lng, Number(user.lat), Number(user.lng)).toFixed(1)} کیلومتر فاصله`;
+  $('otherUserBio').textContent = user.bio || 'اطلاعاتی ثبت نشده است.';
+  if (user.lat != null && user.lng != null && state.coords) {
+    const d = dist(state.coords.lat, state.coords.lng, Number(user.lat), Number(user.lng)).toFixed(1);
+    $('otherUserDistance').textContent = `${d} کیلومتر فاصله`;
+  } else {
+    $('otherUserDistance').textContent = 'موقعیت مکانی نامشخص یا مخفی';
+  }
   $('otherUserModal').classList.add('open');
 }
 
