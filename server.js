@@ -34,6 +34,60 @@ let highlights = [];
 let posts = [];
 let follows = {};
 let chatRequests = {};
+let channels = [
+  {
+    id: 'ch_tehran_news',
+    title: 'کانال جامع رویدادها و اخبار شهری',
+    username: 'city_events',
+    description: 'اطلاعیه‌ها، اخبار رویدادها و برنامه‌های اجتماعی تهران و استان‌های مجاور',
+    avatar: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=150',
+    type: 'channel',
+    is_public: true,
+    subscribers_count: 124,
+    creator_id: 'system',
+    members: ['u1', 'u2', 'u3'],
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'grp_neighborhood',
+    title: 'گروه چت و گفتگوهای محله',
+    username: 'local_hangout',
+    description: 'گروه آزاد برای گفتگو، تبادل نظر، هماهنگی دورهمی‌ها و رویدادهای محلی',
+    avatar: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=150',
+    type: 'group',
+    is_public: true,
+    subscribers_count: 68,
+    creator_id: 'system',
+    members: ['u1', 'u2', 'u3'],
+    created_at: new Date().toISOString()
+  }
+];
+let channelMessages = {
+  'ch_tehran_news': [
+    {
+      id: 'cm_1',
+      channel_id: 'ch_tehran_news',
+      sender_id: 'system',
+      sender_name: 'مدیریت کانال',
+      sender_avatar: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=150',
+      text: '🎉 به کانال جامع شهری خوش آمدید! در این بخش می‌توانید جدیدترین رویدادها، اطلاع‌رسانی‌ها و گردهمایی‌های محلی را دنبال کنید.',
+      views: 124,
+      created_at: new Date(Date.now() - 3600000).toISOString()
+    }
+  ],
+  'grp_neighborhood': [
+    {
+      id: 'cm_2',
+      channel_id: 'grp_neighborhood',
+      sender_id: 'system',
+      sender_name: 'مدیر گروه',
+      sender_avatar: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=150',
+      text: 'سلام دوستان عزیز! به گروه چت همسایگان و افراد نزدیک خوش آمدید 👋 لطفاً احترام و رعایت حریم خصوصی را مد نظر داشته باشید.',
+      views: 68,
+      created_at: new Date(Date.now() - 1800000).toISOString()
+    }
+  ]
+};
 
 // Fallback load from local data.json if available
 try {
@@ -48,7 +102,9 @@ try {
     if (parsed.posts && Array.isArray(parsed.posts)) posts = parsed.posts;
     if (parsed.follows && typeof parsed.follows === 'object') follows = parsed.follows;
     if (parsed.chatRequests && typeof parsed.chatRequests === 'object') chatRequests = parsed.chatRequests;
-    console.log(`📁 Loaded local fallback: ${users.length} users, ${publicMessages.length} public msgs`);
+    if (parsed.channels && Array.isArray(parsed.channels)) channels = parsed.channels;
+    if (parsed.channelMessages && typeof parsed.channelMessages === 'object') channelMessages = parsed.channelMessages;
+    console.log(`📁 Loaded local fallback: ${users.length} users, ${publicMessages.length} public msgs, ${channels.length} channels`);
   }
 } catch (e) {
   console.warn('⚠️ data.json read notice:', e.message);
@@ -83,7 +139,7 @@ function persistDB() {
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     try {
-      const data = { users, publicMessages, directMessages, stories, highlights, posts, follows, chatRequests };
+      const data = { users, publicMessages, directMessages, stories, highlights, posts, follows, chatRequests, channels, channelMessages };
       fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
     } catch (e) {
       console.error('Error saving database:', e.message);
@@ -99,6 +155,19 @@ async function initPostgres() {
     console.log('🐘 Connected to Supabase PostgreSQL database successfully!');
 
     await client.query(`
+      CREATE TABLE IF NOT EXISTS channels (
+        id TEXT PRIMARY KEY,
+        title TEXT,
+        username TEXT,
+        description TEXT,
+        avatar TEXT,
+        type TEXT DEFAULT 'channel',
+        is_public BOOLEAN DEFAULT true,
+        creator_id TEXT,
+        members JSONB DEFAULT '[]',
+        subscribers_count INT DEFAULT 1,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         name TEXT,
@@ -308,17 +377,19 @@ function broadcastSSE(event, data) {
   });
 }
 
-// Keep-alive heartbeat every 15s
+// Keep-alive heartbeat every 8s to prevent any timeouts or disconnections
 setInterval(() => {
+  const pingPayload = `event: heartbeat\ndata: ${JSON.stringify({ time: new Date().toISOString() })}\n\n`;
   sseClients = sseClients.filter(client => {
     try {
       client.res.write(': keepalive\n\n');
+      client.res.write(pingPayload);
       return true;
     } catch {
       return false;
     }
   });
-}, 15000);
+}, 8000);
 
 app.get('/api/events', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -924,6 +995,27 @@ app.post('/api/stories/comment', (req, res) => {
   const comment = { id: 'c_' + Date.now(), user_id, user_name: user_name || 'کاربر', text, created_at: new Date().toISOString() };
   story.comments.push(comment);
 
+  // Also send as Direct Message to story owner (Instagram-style story reply)
+  if (user_id && story.user_id && user_id !== story.user_id) {
+    const key = [user_id, story.user_id].sort().join('_');
+    if (!directMessages[key]) directMessages[key] = [];
+    const dm = {
+      id: 'm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+      sender_id: user_id,
+      receiver_id: story.user_id,
+      conversation_key: key,
+      text: `[پاسخ به استوری]: ${text}`,
+      media_url: story.media_url,
+      media_type: 'image',
+      status: 'delivered',
+      seen: false,
+      created_at: new Date().toISOString()
+    };
+    directMessages[key].push(dm);
+    pgInsertMessage(dm);
+    broadcastSSE('dm_msg', dm);
+  }
+
   persistDB();
   pgInsertStory(story);
   broadcastSSE('story_comment', { story_id, comment });
@@ -1388,6 +1480,106 @@ app.delete('/api/messages/:id', (req, res) => {
     return res.json({ success: true });
   }
   res.status(404).json({ success: false, error: 'Message not found' });
+});
+
+// =============================================
+// Telegram Channels & Groups API
+// =============================================
+app.get('/api/channels', (req, res) => {
+  const { type, user_id, search } = req.query;
+  let list = [...channels];
+  if (type) list = list.filter(c => c.type === type);
+  if (search && search.trim()) {
+    const q = search.trim().toLowerCase();
+    list = list.filter(c => (c.title && c.title.toLowerCase().includes(q)) || (c.username && c.username.toLowerCase().includes(q)) || (c.description && c.description.toLowerCase().includes(q)));
+  }
+  res.json({ success: true, channels: list });
+});
+
+app.post('/api/channels', (req, res) => {
+  const { title, username, description, avatar, type, is_public, creator_id } = req.body || {};
+  if (!title || !title.trim()) return res.status(400).json({ success: false, error: 'عنوان الزامی است' });
+
+  const id = (type === 'group' ? 'grp_' : 'ch_') + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+  const newChannel = {
+    id,
+    title: title.trim(),
+    username: username ? username.trim().replace(/^@/, '') : '',
+    description: description ? description.trim() : '',
+    avatar: avatar || (type === 'group' ? 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=150' : 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=150'),
+    type: type === 'group' ? 'group' : 'channel',
+    is_public: is_public !== false,
+    creator_id: creator_id || 'system',
+    members: creator_id ? [creator_id] : [],
+    subscribers_count: 1,
+    created_at: new Date().toISOString()
+  };
+
+  channels.unshift(newChannel);
+  channelMessages[id] = [
+    {
+      id: 'cm_' + Date.now(),
+      channel_id: id,
+      sender_id: creator_id || 'system',
+      sender_name: newChannel.title,
+      sender_avatar: newChannel.avatar,
+      text: type === 'group' ? 'گروه با موفقیت ایجاد شد! پیام‌های خود را ارسال کنید.' : 'کانال با موفقیت ایجاد شد. پست‌های جدید در اینجا منتشر خواهند شد.',
+      views: 1,
+      created_at: new Date().toISOString()
+    }
+  ];
+
+  persistDB();
+  broadcastSSE('channel_created', newChannel);
+  res.json({ success: true, channel: newChannel });
+});
+
+app.post('/api/channels/join', (req, res) => {
+  const { channel_id, user_id } = req.body || {};
+  const channel = channels.find(c => c.id === channel_id);
+  if (!channel) return res.status(404).json({ success: false, error: 'کانال یافت نشد' });
+
+  if (!channel.members) channel.members = [];
+  if (user_id && !channel.members.includes(user_id)) {
+    channel.members.push(user_id);
+    channel.subscribers_count = (channel.subscribers_count || 0) + 1;
+    persistDB();
+    broadcastSSE('channel_member_joined', { channel_id, user_id, count: channel.subscribers_count });
+  }
+  res.json({ success: true, subscribers_count: channel.subscribers_count, is_member: true });
+});
+
+app.get('/api/channels/:id/messages', (req, res) => {
+  const { id } = req.params;
+  const msgs = channelMessages[id] || [];
+  res.json({ success: true, messages: msgs });
+});
+
+app.post('/api/channels/:id/messages', (req, res) => {
+  const { id } = req.params;
+  const { sender_id, sender_name, sender_avatar, text, media_url } = req.body || {};
+  const channel = channels.find(c => c.id === id);
+  if (!channel) return res.status(404).json({ success: false, error: 'کانال یافت نشد' });
+  if (!text && !media_url) return res.status(400).json({ success: false, error: 'متن یا رسانه الزامی است' });
+
+  if (!channelMessages[id]) channelMessages[id] = [];
+  const msg = {
+    id: 'cm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+    channel_id: id,
+    sender_id: sender_id || 'system',
+    sender_name: channel.type === 'channel' ? channel.title : (sender_name || 'کاربر'),
+    sender_avatar: channel.type === 'channel' ? channel.avatar : (sender_avatar || DEFAULT_AVATAR),
+    text: text ? text.trim() : '',
+    media_url: media_url || null,
+    views: Math.max(1, channel.subscribers_count || 1),
+    comments_count: 0,
+    created_at: new Date().toISOString()
+  };
+
+  channelMessages[id].push(msg);
+  persistDB();
+  broadcastSSE('channel_msg', { channel_id: id, message: msg });
+  res.json({ success: true, message: msg });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
