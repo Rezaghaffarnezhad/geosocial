@@ -298,15 +298,25 @@ let sseClients = [];
 
 function broadcastSSE(event, data) {
   const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-  sseClients.forEach(client => {
-    try { client.res.write(payload); } catch {}
+  sseClients = sseClients.filter(client => {
+    try {
+      client.res.write(payload);
+      return true;
+    } catch {
+      return false;
+    }
   });
 }
 
 // Keep-alive heartbeat every 15s
 setInterval(() => {
-  sseClients.forEach(client => {
-    try { client.res.write(': keepalive\n\n'); } catch {}
+  sseClients = sseClients.filter(client => {
+    try {
+      client.res.write(': keepalive\n\n');
+      return true;
+    } catch {
+      return false;
+    }
   });
 }, 15000);
 
@@ -1015,18 +1025,20 @@ app.post('/api/posts', (req, res) => {
 app.get('/api/public_messages', (req, res) => {
   const { lat, lng, radius } = req.query;
   let msgs = publicMessages.slice(-100);
-  if (lat != null && lng != null) {
+  if (lat != null && lng != null && lat !== '' && lng !== '') {
     const uLat = Number(lat), uLng = Number(lng), uRad = Number(radius) || 25;
-    if (uRad < 500) {
+    if (uRad < 500 && Number.isFinite(uLat) && Number.isFinite(uLng)) {
       msgs = msgs.filter(m => {
         if (m.lat == null || m.lng == null) return true;
-        const d = dist(uLat, uLng, Number(m.lat), Number(m.lng));
+        const mLat = Number(m.lat), mLng = Number(m.lng);
+        if (!Number.isFinite(mLat) || !Number.isFinite(mLng)) return true;
+        const d = dist(uLat, uLng, mLat, mLng);
         const maxR = Math.max(uRad, Number(m.radius) || 25);
         return d <= maxR;
       });
     }
   }
-  res.json({ success: true, messages: msgs.slice(-50) });
+  res.json({ success: true, messages: msgs.slice(-60) });
 });
 
 app.post('/api/public_messages', (req, res) => {
@@ -1037,9 +1049,9 @@ app.post('/api/public_messages', (req, res) => {
     sender_id: sender_id || 'anonymous',
     sender_name: sender_name || 'کاربر',
     text: text.trim(),
-    lat: lat != null ? Number(lat) : null,
-    lng: lng != null ? Number(lng) : null,
-    radius: radius != null ? Number(radius) : 25,
+    lat: lat != null && lat !== '' ? Number(lat) : null,
+    lng: lng != null && lng !== '' ? Number(lng) : null,
+    radius: radius != null && radius !== '' ? Number(radius) : 25,
     created_at: new Date().toISOString()
   };
   publicMessages.push(msg);
@@ -1052,10 +1064,74 @@ app.post('/api/public_messages', (req, res) => {
 
 // Direct Messaging API
 app.get('/api/messages', (req, res) => {
-  const { user1, user2 } = req.query;
-  if (!user1 || !user2) return res.json({ success: true, messages: [] });
-  const key = [user1, user2].sort().join('_');
-  res.json({ success: true, messages: directMessages[key] || [] });
+  const { user1, user2, user_id } = req.query;
+  if (user1 && user2) {
+    const key = [user1, user2].sort().join('_');
+    return res.json({ success: true, messages: directMessages[key] || [] });
+  }
+  if (user_id) {
+    const userMsgs = [];
+    for (const [k, msgs] of Object.entries(directMessages)) {
+      if (k.includes(user_id) && Array.isArray(msgs)) {
+        msgs.forEach(m => {
+          if (m.sender_id === user_id || m.receiver_id === user_id) {
+            userMsgs.push(m);
+          }
+        });
+      }
+    }
+    userMsgs.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+    return res.json({ success: true, messages: userMsgs.slice(-150) });
+  }
+  res.json({ success: true, messages: [] });
+});
+
+// User Conversations List API (Instagram / Telegram messenger style)
+app.get('/api/conversations', (req, res) => {
+  const { user_id } = req.query;
+  if (!user_id) return res.json({ success: true, conversations: [] });
+
+  const convMap = {};
+  for (const [key, msgs] of Object.entries(directMessages)) {
+    if (!key.includes(user_id) || !Array.isArray(msgs) || msgs.length === 0) continue;
+    const parts = key.split('_');
+    const otherId = parts[0] === user_id ? parts[1] : parts[0];
+    if (!otherId) continue;
+
+    const lastMsg = msgs[msgs.length - 1];
+    const unreadCount = msgs.filter(m => m.receiver_id === user_id && m.status !== 'read' && !m.seen).length;
+    const reqStatus = chatRequests[key]?.status || 'accepted';
+    const otherUser = users.find(u => u.id === otherId) || { id: otherId, name: 'کاربر' };
+
+    convMap[otherId] = {
+      key,
+      other_user: otherUser,
+      last_message: lastMsg,
+      unread_count: unreadCount,
+      status: reqStatus,
+      updated_at: lastMsg?.created_at || new Date().toISOString()
+    };
+  }
+
+  for (const [key, reqObj] of Object.entries(chatRequests)) {
+    if (reqObj && reqObj.receiver_id === user_id && reqObj.status === 'pending') {
+      const otherId = reqObj.sender_id;
+      if (!convMap[otherId]) {
+        const otherUser = users.find(u => u.id === otherId) || { id: otherId, name: 'کاربر' };
+        convMap[otherId] = {
+          key,
+          other_user: otherUser,
+          last_message: null,
+          unread_count: 1,
+          status: 'pending',
+          updated_at: reqObj.created_at || new Date().toISOString()
+        };
+      }
+    }
+  }
+
+  const conversations = Object.values(convMap).sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+  res.json({ success: true, conversations });
 });
 
 app.post('/api/messages', (req, res) => {

@@ -464,8 +464,8 @@ input, textarea { direction: rtl; }
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 8px 6px 8px;
+  gap: 4px;
+  padding: 4px 6px;
   pointer-events: auto;
   touch-action: pan-y;
   overscroll-behavior-y: contain;
@@ -478,17 +478,14 @@ input, textarea { direction: rtl; }
   transform-origin: bottom left;
   transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.36s cubic-bezier(0.34, 1.35, 0.64, 1),
-              max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              padding 0.3s ease,
-              margin 0.3s ease;
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
-  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 10%, black 26%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 10%, black 26%);
+              max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 8%, black 22%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 8%, black 22%);
 }
 
 .public-overlay-messages > :first-child {
@@ -504,23 +501,23 @@ input, textarea { direction: rtl; }
 }
 
 .public-overlay-msg-item {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 4px 8px;
-  font-size: 11.5px;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0;
+  padding: 2px 4px;
+  font-size: 12px;
   line-height: 1.4;
   color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.95), 0 2px 6px rgba(0,0,0,0.9), 0 0 2px #000;
   word-break: break-word;
   animation: fadeInMsg 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: transform 0.15s ease;
 }
 .public-overlay-msg-item:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateX(-2px);
+  background: transparent !important;
+  transform: translateX(-3px);
 }
 @keyframes fadeInMsg {
   from { opacity: 0; transform: translateY(6px) scale(0.96); }
@@ -533,10 +530,9 @@ input, textarea { direction: rtl; }
   transform: translateY(22px) scale(0.85) !important;
   pointer-events: none !important;
   max-height: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-  border-color: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
   box-shadow: none !important;
   overflow: hidden !important;
 }
@@ -981,8 +977,7 @@ input, textarea { direction: rtl; }
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background-image: radial-gradient(rgba(42, 171, 238, 0.04) 1px, transparent 0);
-  background-size: 20px 20px;
+  background: var(--bg);
   position: relative;
 }
 .msg-bubble {
@@ -2125,7 +2120,11 @@ input:checked + .slider:before { transform: translateX(20px); }
 <!-- 6. Bottom Navigation (سه تب کاربردی: نقشه، پیام‌ها، پروفایل) -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="nav('map', this)"><i class="fa-solid fa-map-location-dot"></i><span>نقشه</span></div>
-  <div class="nav-item" onclick="nav('chats', this)"><i class="fa-solid fa-comment-dots"></i><span>پیام‌ها</span></div>
+  <div class="nav-item" onclick="nav('chats', this)">
+    <i class="fa-solid fa-comment-dots"></i>
+    <span>پیام‌ها</span>
+    <span id="navChatsBadge" class="nav-badge" style="display:none">0</span>
+  </div>
   <div class="nav-item" onclick="nav('profile', this)"><i class="fa-solid fa-circle-user"></i><span>پروفایل</span></div>
 </div>
 
@@ -3538,7 +3537,7 @@ function renderPublicOverlayMessages() {
     const isMe = m.sender_id === state.user?.id;
     item.className = 'public-overlay-msg-item' + (isMe ? ' my-msg' : '');
     const senderName = isMe ? 'من' : (m.sender_name || 'کاربر');
-    item.innerHTML = `<b style="color:${isMe ? 'var(--blue)' : '#2ecc71'};font-weight:700;margin-left:5px;font-size:11px;cursor:pointer" onclick="${isMe ? 'openMyProfileModal()' : `openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')`}">${esc(senderName)}:</b><span>${esc(m.text || '')}</span>`;
+    item.innerHTML = `<b style="color:${isMe ? 'var(--blue)' : '#2ecc71'};font-weight:700;margin-left:5px;font-size:11.5px;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.95)" onclick="${isMe ? 'openMyProfileModal()' : `openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')`}">${esc(senderName)}:</b><span style="color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.95), 0 0 2px #000">${esc(m.text || '')}</span>`;
     box.appendChild(item);
   });
   box.scrollTop = box.scrollHeight;
@@ -3595,11 +3594,50 @@ async function sendPublicOverlayMsg() {
   renderPublicOverlayMessages();
   playHapticSound('sent');
 
-  fetch('/api/public_messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newMsg)
-  }).catch(() => {});
+  try {
+    const res = await fetch('/api/public_messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMsg)
+    });
+    const d = await res.json();
+    if (d.success && d.message) {
+      const idx = state.publicMessages.findIndex(m => m.id === newMsg.id);
+      if (idx >= 0) state.publicMessages[idx] = d.message;
+    }
+  } catch {}
+}
+
+let isFetchingPublicMsgs = false;
+async function fetchPublicMessages() {
+  if (isFetchingPublicMsgs) return;
+  isFetchingPublicMsgs = true;
+  try {
+    const lat = state.coords?.lat ?? '';
+    const lng = state.coords?.lng ?? '';
+    const rad = state.radius || 25;
+    const res = await fetch(`/api/public_messages?lat=${lat}&lng=${lng}&radius=${rad}`);
+    const d = await res.json();
+    if (d.success && Array.isArray(d.messages)) {
+      let changed = false;
+      d.messages.forEach(m => {
+        const idx = state.publicMessages.findIndex(x => x.id === m.id);
+        if (idx === -1) {
+          state.publicMessages.push(m);
+          changed = true;
+        } else {
+          state.publicMessages[idx] = m;
+        }
+      });
+      if (changed) {
+        renderPublicOverlayMessages();
+        if ($('publicDrawer')?.classList.contains('open')) renderPublicMessages();
+      }
+    }
+  } catch {}
+  finally {
+    isFetchingPublicMsgs = false;
+  }
 }
 
 // ----------------------------------------------------
@@ -3948,7 +3986,18 @@ async function publishStudioStory() {
 // Telegram & Instagram Chat, Direct Messaging & Security Requests Engine
 // ----------------------------------------------------
 state.chatRequestsList = [];
+state.userConversations = [];
 state.showingRequestsOnly = false;
+
+function formatMsgTime(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '';
+  }
+}
 
 async function checkChatRequests() {
   if (!state.user) return;
@@ -3969,6 +4018,42 @@ async function checkChatRequests() {
       }
     }
   } catch {}
+}
+
+let isSyncingConversations = false;
+async function syncUserConversations() {
+  if (!state.user?.id || isSyncingConversations) return;
+  isSyncingConversations = true;
+  try {
+    const res = await fetch(`/api/conversations?user_id=${encodeURIComponent(state.user.id)}`);
+    const data = await res.json();
+    if (data.success && Array.isArray(data.conversations)) {
+      state.userConversations = data.conversations;
+
+      // Update badge on bottom nav
+      let totalUnread = 0;
+      data.conversations.forEach(c => {
+        totalUnread += (c.unread_count || 0);
+      });
+      const navBadge = $('navChatsBadge');
+      if (navBadge) {
+        if (totalUnread > 0) {
+          navBadge.textContent = totalUnread > 99 ? '+99' : totalUnread;
+          navBadge.style.display = 'block';
+        } else {
+          navBadge.style.display = 'none';
+        }
+      }
+
+      // If chats modal is currently open, refresh the view
+      if ($('chatsModal')?.classList.contains('open')) {
+        renderChatsList($('chatSearchInput')?.value || '');
+      }
+    }
+  } catch {}
+  finally {
+    isSyncingConversations = false;
+  }
 }
 
 function toggleChatRequestsFilter() {
@@ -4021,7 +4106,62 @@ function renderChatsList(q = '') {
     return;
   }
 
-  state.pins.forEach(p => {
+  const renderedIds = new Set();
+  const convList = state.userConversations || [];
+
+  // 1. Render active conversations first (Telegram / Instagram style)
+  convList.forEach(c => {
+    const p = c.other_user || { id: 'unknown', name: 'کاربر' };
+    if (renderedIds.has(p.id)) return;
+    if (needle && !p.name.toLowerCase().includes(needle) && !(c.last_message?.text || '').toLowerCase().includes(needle)) return;
+    renderedIds.add(p.id);
+
+    const isPending = c.status === 'pending';
+    const unread = c.unread_count || 0;
+    const lastMsg = c.last_message;
+    let snippet = 'گفتگو';
+    if (lastMsg) {
+      if (lastMsg.text) snippet = lastMsg.text;
+      else if (lastMsg.audio_url) snippet = '🎤 پیام صوتی';
+      else if (lastMsg.media_url) snippet = '📷 تصویر / ویدیو';
+      else if (lastMsg.location) snippet = '📍 موقعیت مکانی';
+      else if (lastMsg.poll) snippet = '📊 نظرسنجی';
+      else if (lastMsg.contact) snippet = '👤 مخاطب';
+    }
+    const timeStr = lastMsg?.created_at ? formatMsgTime(lastMsg.created_at) : '';
+
+    const item = document.createElement('div');
+    item.style.cssText = `display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:${unread > 0 ? 'rgba(42,171,238,0.06)' : 'transparent'}`;
+    item.innerHTML = `
+      <div style="position:relative;width:44px;height:44px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(state.pins.find(x => x.id === '${p.id}') || ${JSON.stringify(p).replace(/"/g, '&quot;')})">
+        <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
+        <span class="led ${online(p) ? 'online' : 'offline'}" style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;border:2px solid var(--panel)"></span>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</b>
+          <span style="font-size:11px;color:var(--muted);flex-shrink:0">${esc(timeStr)}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:3px">
+          <div style="font-size:12px;color:${unread > 0 ? 'var(--text)' : 'var(--muted)'};font-weight:${unread > 0 ? '600' : '400'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%">${esc(snippet)}</div>
+          ${isPending ? '<span class="badge" style="background:var(--blue);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px">درخواست</span>' : (unread > 0 ? `<span class="nav-badge" style="position:static;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:10px;background:var(--blue);color:#fff;padding:0 5px">${unread}</span>` : '')}
+        </div>
+      </div>
+    `;
+    item.onclick = () => { closeAllModals(); openChatRoom(p); };
+    container.appendChild(item);
+  });
+
+  // 2. Render remaining nearby users who haven't started a conversation yet
+  const otherPins = state.pins.filter(p => !renderedIds.has(p.id));
+  if (otherPins.length > 0 && !needle && convList.length > 0) {
+    const divider = document.createElement('div');
+    divider.style.cssText = 'padding:8px 16px;background:var(--input-bg);color:var(--muted);font-size:11px;font-weight:700;border-bottom:1px solid var(--border)';
+    divider.textContent = 'افراد نزدیک به شما';
+    container.appendChild(divider);
+  }
+
+  otherPins.forEach(p => {
     if (needle && !p.name.toLowerCase().includes(needle)) return;
     const item = document.createElement('div');
     item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer';
@@ -5244,7 +5384,9 @@ function updateStoryText(text) {
 // =============================================
 let sseConn = null;
 function initSSE() {
+  fetchPublicMessages();
   if (!state.user) return;
+  syncUserConversations();
   if (sseConn) { try { sseConn.close(); } catch {} }
   try {
     const sseUrl = apiUrl(`/api/events?user_id=${encodeURIComponent(state.user.id)}`);
@@ -5254,12 +5396,14 @@ function initSSE() {
       try { 
         handleIncomingDM(JSON.parse(e.data)); 
         checkChatRequests();
+        syncUserConversations();
       } catch {}
     });
 
     sseConn.addEventListener('chat_request_action', e => {
       try {
         checkChatRequests();
+        syncUserConversations();
         renderChatsList();
       } catch {}
     });
@@ -5427,9 +5571,11 @@ function sendOfflineSignal() {
 }
 
 function sendOnlineSignal() {
+  fetchPublicMessages();
   if (!state.user?.id) return;
   syncUserToServer();
   initSSE();
+  syncUserConversations();
 }
 
 window.addEventListener('beforeunload', () => sendOfflineSignal());
@@ -5953,7 +6099,12 @@ function nav(tab, el) {
     if (pubOverlay) pubOverlay.style.display = 'none';
   }
 
-  if (tab === 'chats') { $('chatsModal').classList.add('open'); checkChatRequests(); renderChatsList(); }
+  if (tab === 'chats') { 
+    $('chatsModal').classList.add('open'); 
+    syncUserConversations();
+    checkChatRequests(); 
+    renderChatsList(); 
+  }
   else if (tab === 'people') { $('peopleModal').classList.add('open'); renderPeopleList(); }
   else if (tab === 'profile') openProfileModal();
 }
@@ -6227,6 +6378,9 @@ async function loadData() {
   } catch {}
   renderMarkers();
   renderStoriesTray();
+  fetchPublicMessages();
+  syncUserConversations();
+  checkChatRequests();
 }
 
 function togglePublicDrawer(force) {
@@ -6283,6 +6437,17 @@ window.addEventListener('DOMContentLoaded', () => {
     if (icon) icon.className = 'fa-solid fa-comments';
   }
   initMap();
+  fetchPublicMessages();
+
+  // Periodic real-time background sync fallback (every 4s) to guarantee instant receipt of messages from other accounts
+  setInterval(() => {
+    fetchPublicMessages();
+    if (state.user?.id) {
+      syncUserConversations();
+      checkChatRequests();
+    }
+  }, 4000);
+
   const saved = localStorage.getItem('geosocial_user');
   if (saved) {
     try {
