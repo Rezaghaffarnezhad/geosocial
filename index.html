@@ -440,43 +440,61 @@ input, textarea { direction: rtl; }
   position: absolute;
   bottom: calc(72px + var(--safe-bottom));
   left: 12px;
-  width: 48vw;
-  max-width: 270px;
-  min-width: 170px;
-  height: 33vh;
-  max-height: 250px;
+  width: 52vw;
+  max-width: 290px;
+  min-width: 180px;
+  height: auto;
+  max-height: 42vh;
   z-index: 18;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: flex-start;
   pointer-events: none;
-  gap: 6px;
+  gap: 8px;
   direction: ltr;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .public-overlay-messages {
-  flex: 1;
   width: 100%;
+  max-height: 240px;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 8px 4px 4px 4px;
+  padding: 8px 8px 6px 8px;
   pointer-events: auto;
   touch-action: pan-y;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.2) transparent;
-  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 18%, black 40%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 18%, black 40%);
   direction: rtl;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transform-origin: bottom left;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.36s cubic-bezier(0.34, 1.35, 0.64, 1),
+              max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s ease,
+              margin 0.3s ease;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 10%, black 26%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 10%, black 26%);
 }
+
 .public-overlay-messages > :first-child {
   margin-top: auto;
 }
+
 .public-overlay-messages::-webkit-scrollbar {
   width: 3px;
 }
@@ -484,93 +502,152 @@ input, textarea { direction: rtl; }
   background: rgba(255,255,255,0.25);
   border-radius: 4px;
 }
+
 .public-overlay-msg-item {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 4px 8px;
   font-size: 11.5px;
-  line-height: 1.35;
+  line-height: 1.4;
   color: #ffffff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.85);
   word-break: break-word;
-  padding: 1px 0;
-  animation: fadeInMsg 0.2s ease-out;
+  animation: fadeInMsg 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.public-overlay-msg-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(-2px);
 }
 @keyframes fadeInMsg {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* نوار پایینی در حالت نمایشی (دکمه باز و بست در گوشه چپ و باز شدن از چپ به راست) */
+/* با بسته شدن چت، پیام‌ها نیز به طور کامل محو و بسته می‌شوند */
+.public-chat-overlay.collapsed .public-overlay-messages {
+  opacity: 0 !important;
+  transform: translateY(22px) scale(0.85) !important;
+  pointer-events: none !important;
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+/* نوار پایینی در حالت باز (لوکس و گلس‌مورفیک) */
 .public-overlay-composer {
   display: flex;
   align-items: center;
-  background: var(--panel-glass-heavy);
-  backdrop-filter: blur(18px);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 3px 6px;
+  background: rgba(23, 33, 43, 0.84);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 28px;
+  padding: 4px 6px;
   pointer-events: auto;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-  transition: width 0.35s cubic-bezier(0.34, 1.4, 0.64, 1), background 0.25s, border-radius 0.25s, box-shadow 0.25s;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.3);
+  transition: width 0.38s cubic-bezier(0.34, 1.35, 0.64, 1),
+              background 0.25s,
+              border-radius 0.3s,
+              box-shadow 0.3s,
+              transform 0.25s;
   width: 100%;
-  max-width: 270px;
+  max-width: 290px;
   overflow: hidden;
   direction: ltr;
   transform-origin: left center;
   align-self: flex-start;
 }
+
 .public-overlay-toggle-btn {
-  background: transparent;
-  border: 0;
-  color: var(--blue);
-  width: 32px;
-  height: 32px;
+  background: rgba(42, 171, 238, 0.18);
+  border: 1px solid rgba(42, 171, 238, 0.3);
+  color: #2aabee;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 .public-overlay-toggle-btn:hover {
   transform: scale(1.1);
+  background: rgba(42, 171, 238, 0.3);
+  color: #fff;
 }
+.public-overlay-toggle-btn:active {
+  transform: scale(0.92);
+}
+
 .public-composer-input-wrap {
   display: flex;
   align-items: center;
   gap: 6px;
   flex: 1;
   min-width: 0;
-  transition: opacity 0.25s ease, transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1);
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.32s cubic-bezier(0.34, 1.35, 0.64, 1);
   transform-origin: left center;
   direction: ltr;
 }
+
+/* حالت بسته شده (دکمه شناور دایره‌ای زیبا در گوشه سمت چپ) */
 .public-overlay-composer.collapsed {
-  width: 40px !important;
-  min-width: 40px !important;
-  height: 40px !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
   padding: 0 !important;
   border-radius: 50% !important;
   justify-content: center;
   align-items: center;
-  background: var(--blue);
-  border-color: transparent;
-  box-shadow: 0 4px 16px var(--blue-glow);
+  background: linear-gradient(135deg, #2aabee 0%, #0088cc 100%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 8px 24px rgba(42, 171, 238, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
   align-self: flex-start;
+  cursor: pointer;
+  animation: pulseFabGlow 3s infinite ease-in-out;
 }
+@keyframes pulseFabGlow {
+  0%, 100% { box-shadow: 0 8px 24px rgba(42, 171, 238, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3); }
+  50% { box-shadow: 0 8px 28px rgba(42, 171, 238, 0.7), 0 0 16px rgba(42, 171, 238, 0.4); }
+}
+
+.public-overlay-composer.collapsed:hover {
+  transform: scale(1.08);
+}
+.public-overlay-composer.collapsed:active {
+  transform: scale(0.92);
+}
+
 .public-overlay-composer.collapsed .public-composer-input-wrap {
   opacity: 0;
   pointer-events: none;
   transform: scaleX(0);
   display: none !important;
 }
+
 .public-overlay-composer.collapsed .public-overlay-toggle-btn {
   width: 100%;
   height: 100%;
+  background: transparent;
+  border: 0;
   color: #ffffff;
+  font-size: 16px;
 }
 .public-overlay-composer.collapsed #publicComposerIcon {
   color: #ffffff;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
+
 .public-overlay-input {
   flex: 1;
   min-width: 0;
@@ -580,7 +657,7 @@ input, textarea { direction: rtl; }
   font-size: 11.5px;
   direction: rtl;
   text-align: right;
-  padding: 2px 6px;
+  padding: 4px 8px;
 }
 .public-overlay-input::placeholder { color: rgba(255,255,255,0.6); }
 .public-overlay-send {
@@ -3468,18 +3545,33 @@ function renderPublicOverlayMessages() {
 }
 
 function togglePublicChatComposer(forceState) {
+  const overlay = $('publicChatOverlay');
   const composer = $('publicOverlayComposer');
   if (!composer) return;
+  let isCollapsed;
   if (typeof forceState === 'boolean') {
-    if (forceState) composer.classList.add('collapsed');
-    else composer.classList.remove('collapsed');
+    isCollapsed = forceState;
+    if (isCollapsed) {
+      composer.classList.add('collapsed');
+      overlay?.classList.add('collapsed');
+    } else {
+      composer.classList.remove('collapsed');
+      overlay?.classList.remove('collapsed');
+    }
   } else {
-    composer.classList.toggle('collapsed');
+    isCollapsed = composer.classList.toggle('collapsed');
+    overlay?.classList.toggle('collapsed', isCollapsed);
   }
-  const isCollapsed = composer.classList.contains('collapsed');
   localStorage.setItem('geosocial_public_composer_collapsed', isCollapsed ? '1' : '0');
   const icon = $('publicComposerIcon');
   if (icon) icon.className = isCollapsed ? 'fa-solid fa-comments' : 'fa-solid fa-xmark';
+
+  if (!isCollapsed) {
+    setTimeout(() => {
+      const box = $('publicOverlayMessages');
+      if (box) box.scrollTop = box.scrollHeight;
+    }, 160);
+  }
   playHapticSound('pop');
 }
 
@@ -6186,6 +6278,9 @@ window.addEventListener('DOMContentLoaded', () => {
   applySystemTheme();
   if (localStorage.getItem('geosocial_public_composer_collapsed') === '1') {
     $('publicOverlayComposer')?.classList.add('collapsed');
+    $('publicChatOverlay')?.classList.add('collapsed');
+    const icon = $('publicComposerIcon');
+    if (icon) icon.className = 'fa-solid fa-comments';
   }
   initMap();
   const saved = localStorage.getItem('geosocial_user');
