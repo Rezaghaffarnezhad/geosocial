@@ -3045,7 +3045,21 @@ let map, myMarker, userLayer, radiusCircle;
 function initMap() {
   if (typeof L === 'undefined') { setTimeout(initMap, 200); return; }
   map = L.map('map', { center: [state.coords.lat, state.coords.lng], zoom: 13, zoomControl: false, attributionControl: false });
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+  const baseTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    maxZoom: 20,
+    attribution: ''
+  });
+  baseTiles.on('tileerror', function(error, tile) {
+    if (tile && !tile._hasFallback) {
+      tile._hasFallback = true;
+      const coords = error.coords;
+      if (coords) {
+        tile.src = `https://a.tile.openstreetmap.fr/osmfr/${coords.z}/${coords.x}/${coords.y}.png`;
+      }
+    }
+  });
+  baseTiles.addTo(map);
   userLayer = L.layerGroup().addTo(map);
 
   map.on('zoomend moveend', () => renderMarkers());
