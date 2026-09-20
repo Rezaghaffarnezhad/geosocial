@@ -163,6 +163,11 @@ input, textarea { direction: rtl; }
   box-shadow: 0 0 8px #2ecc71, 0 0 2px #ffffff;
   animation: none !important;
 }
+.led.recent {
+  background: #f39c12;
+  box-shadow: 0 0 8px #f39c12, 0 0 2px #ffffff;
+  animation: none !important;
+}
 .led.offline {
   background: #7f8c8d;
   box-shadow: none;
@@ -174,17 +179,54 @@ input, textarea { direction: rtl; }
   background: linear-gradient(to bottom, var(--blue), transparent);
 }
 .user-marker .pin-name {
-  margin-top: 1px;
+  margin-top: 2px;
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 11px;
   font-weight: 700;
-  background: var(--panel-glass);
-  backdrop-filter: blur(8px);
-  padding: 2px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  color: var(--text);
+  background: rgba(15, 23, 42, 0.86);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 2px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  letter-spacing: -0.2px;
+}
+[data-theme="light"] .user-marker .pin-name {
+  background: rgba(255, 255, 255, 0.94);
+  color: #0f172a;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  text-shadow: none;
+}
+
+/* Map Dot Marker for Zoom-Out LOD */
+.map-user-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.map-user-dot:hover {
+  transform: scale(1.4);
+}
+.map-user-dot.online {
+  background: #2ecc71;
+  box-shadow: 0 0 10px #2ecc71;
+}
+.map-user-dot.recent {
+  background: #f39c12;
+  box-shadow: 0 0 8px #f39c12;
+}
+.map-user-dot.offline {
+  background: #64748b;
+  box-shadow: none;
 }
 
 /* My Location Radar Pin */
@@ -260,6 +302,19 @@ input, textarea { direction: rtl; }
   gap: 8px;
   pointer-events: auto;
   width: 100%;
+  background: rgba(24, 37, 51, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  padding: 4px 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.32);
+  transition: all 0.3s ease;
+}
+[data-theme="light"] .top-actions-row {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
 }
 .top-right-actions {
   display: flex;
@@ -271,17 +326,20 @@ input, textarea { direction: rtl; }
   display: flex;
   align-items: center;
   border-radius: 20px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   overflow: hidden;
   height: 38px;
   width: 38px;
-  background: var(--panel-glass);
+  background: transparent;
 }
 .search-expand-widget.open {
   flex: 1;
   width: auto;
   padding-left: 8px;
+  background: rgba(0, 0, 0, 0.15);
+}
+[data-theme="light"] .search-expand-widget.open {
+  background: rgba(0, 0, 0, 0.05);
 }
 .search-trigger-btn {
   width: 38px;
@@ -576,73 +634,91 @@ input, textarea { direction: rtl; }
   border-radius: 4px;
 }
 
-/* Sent message in Public Chat: strictly on the RIGHT, text only */
+/* Public Chat Messages: Borderless, Floating, Sleek */
+.public-overlay-msg-item {
+  max-width: 86%;
+  padding: 3px 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  animation: fadeInMsg 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+  word-break: break-word;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  user-select: text;
+}
+.public-overlay-msg-item:hover {
+  opacity: 0.92;
+  transform: translateX(-2px);
+}
+
+/* Sent message: strictly on the RIGHT, text only */
 .public-overlay-msg-item.my-msg {
   align-self: flex-start;
   margin-left: auto;
   margin-right: 0;
   text-align: right;
-  background: rgba(43, 82, 120, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(42, 171, 238, 0.35);
-  border-radius: 14px 14px 2px 14px;
-  color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  padding: 5px 10px;
-  font-size: 11.5px;
-  max-width: 84%;
-  cursor: pointer;
-  animation: fadeInMsg 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
-  word-break: break-word;
-  transition: transform 0.15s ease;
+  color: #38bdf8 !important;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
 }
 
-/* Received message in Public Chat: strictly on the LEFT, with sender name */
+/* Received message: strictly on the LEFT, sender name on top */
 .public-overlay-msg-item:not(.my-msg) {
   align-self: flex-end;
   margin-right: auto;
   margin-left: 0;
   text-align: left;
-  background: rgba(24, 37, 51, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px 14px 14px 2px;
-  color: #f5f5f5 !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  padding: 5px 10px;
-  font-size: 11.5px;
-  max-width: 84%;
-  cursor: pointer;
-  animation: fadeInMsg 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
-  word-break: break-word;
-  transition: transform 0.15s ease;
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.95);
 }
 
+/* Light mode support: dark readable text */
 [data-theme="light"] .public-overlay-msg-item.my-msg {
-  background: rgba(42, 171, 238, 0.95);
-  color: #ffffff !important;
+  color: #0284c7 !important;
+  text-shadow: none !important;
+  font-weight: 700;
 }
 [data-theme="light"] .public-overlay-msg-item:not(.my-msg) {
-  background: rgba(255, 255, 255, 0.96);
-  color: #17212b !important;
-  border: 1px solid var(--border);
+  color: #0f172a !important;
+  text-shadow: none !important;
+  font-weight: 600;
 }
-
-.public-overlay-msg-item:hover {
-  transform: scale(1.02);
+[data-theme="light"] .public-overlay-msg-sender {
+  color: #059669 !important;
+  text-shadow: none !important;
 }
 
 .public-overlay-msg-sender {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 10.5px;
+  font-weight: 800;
   color: #2ecc71;
-  margin-bottom: 2px;
   display: block;
+  margin-bottom: 1px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  cursor: pointer;
 }
-[data-theme="light"] .public-overlay-msg-sender {
-  color: #0088cc;
+
+/* Public chat quote / reply header inside a message */
+.public-reply-quote {
+  font-size: 10px;
+  padding: 2px 6px;
+  margin-bottom: 2px;
+  border-right: 2px solid var(--blue);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  opacity: 0.88;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+[data-theme="light"] .public-reply-quote {
+  background: rgba(0, 0, 0, 0.06);
+  border-right-color: #0284c7;
+  color: #334155;
 }
 
 @keyframes fadeInMsg {
@@ -2254,6 +2330,15 @@ input:checked + .slider:before { transform: translateX(20px); }
     <!-- Dynamic public messages (scrollable) -->
   </div>
   
+  <!-- Public Overlay Reply Banner -->
+  <div id="publicOverlayReplyBar" style="display:none;align-items:center;justify-content:space-between;background:rgba(15,23,42,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;padding:5px 12px;margin-bottom:6px;font-size:11.5px;border-right:3px solid var(--blue);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.3)">
+    <div style="display:flex;flex-direction:column;overflow:hidden;margin-left:8px">
+      <span id="publicReplySender" style="color:var(--blue);font-weight:700">پاسخ به...</span>
+      <span id="publicReplyText" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0.85;font-size:10.5px"></span>
+    </div>
+    <button onclick="cancelPublicReply()" class="composer-icon-btn" style="width:24px;height:24px;font-size:12px;opacity:0.8;color:#fff"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
   <div id="publicOverlayComposer" class="public-overlay-composer">
     <button id="publicOverlayToggleBtn" class="public-overlay-toggle-btn" onclick="togglePublicChatComposer()" title="چت عمومی">
       <i id="publicComposerIcon" class="fa-solid fa-comments"></i>
@@ -2645,7 +2730,10 @@ input:checked + .slider:before { transform: translateX(20px); }
         <span id="voiceRecTimer">0:00</span>
         <span style="font-size:11px;color:var(--muted);font-weight:normal">در حال ضبط صدا...</span>
       </div>
-      <button class="badge" style="background:rgba(231,76,60,0.15);color:var(--danger);border:0" onclick="cancelVoiceRecording()"><i class="fa-solid fa-xmark"></i> لغو</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="badge" style="background:rgba(231,76,60,0.15);color:var(--danger);border:0" onclick="cancelVoiceRecording()"><i class="fa-solid fa-xmark"></i> لغو</button>
+        <button class="btn-primary" style="padding:4px 12px;border-radius:12px;font-size:11px" onclick="stopVoiceRecording()"><i class="fa-solid fa-paper-plane"></i> ارسال</button>
+      </div>
     </div>
 
     <!-- Main Input Row -->
@@ -2832,19 +2920,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
     <!-- Telegram Settings Menu List -->
     <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden">
-      <!-- 1. انتخاب دستی موقعیت مکانی (اسنپ) -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="closeAllModals();startManualLocationPick()">
-        <div style="display:flex;align-items:center;gap:10px">
-          <i class="fa-solid fa-map-pin" style="color:var(--danger)"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600">انتخاب دستی موقعیت روی نقشه (اسنپ)</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">تنظیم موقعیت دقیق با جابجایی نقشه</div>
-          </div>
-        </div>
-        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
-      </div>
-
-      <!-- 2. بروزرسانی مکان‌یاب GPS -->
+      <!-- 1. بروزرسانی مکان‌یاب GPS -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="locateMe(true)">
         <div style="display:flex;align-items:center;gap:10px">
           <i class="fa-solid fa-location-crosshairs" style="color:var(--blue)"></i>
@@ -2854,36 +2930,6 @@ input:checked + .slider:before { transform: translateX(20px); }
           </div>
         </div>
         <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
-      </div>
-
-      <!-- 3. تنظیم شعاع دید افراد -->
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <i class="fa-solid fa-arrows-to-circle" style="color:#e67e22"></i>
-            <span style="font-size:13px;font-weight:600">شعاع نمایش افراد</span>
-          </div>
-          <span id="profileRadiusValue" style="font-size:12px;font-weight:700;color:var(--blue)">۲۵ کیلومتر</span>
-        </div>
-        <input type="range" id="profileRadiusRange" min="1" max="150" value="25" style="width:100%;accent-color:var(--blue);cursor:pointer" oninput="onProfileRadiusChange(this.value)">
-      </div>
-
-      <!-- 4. تنظیمات اتصال سرور و رندر (Render Backend) -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openServerConfigModal()">
-        <div style="display:flex;align-items:center;gap:10px">
-          <i class="fa-solid fa-server" style="color:var(--blue)"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600">تنظیمات اتصال سرور (Render)</div>
-            <div id="profileCurrentServerLabel" style="font-size:11px;color:var(--muted);margin-top:2px;direction:ltr">سرور پیش‌فرض متصل است</div>
-          </div>
-        </div>
-        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
-      </div>
-
-      <!-- 5. حالت شب و روز -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap:10px"><i class="fa-solid fa-moon" style="color:var(--blue)"></i><span>حالت شب / روز</span></div>
-        <label class="switch"><input type="checkbox" id="themeSwitch" onchange="toggleTheme()"><span class="slider"></span></label>
       </div>
 
       <!-- 6. صدای پیام‌ها -->
@@ -3434,68 +3480,105 @@ function renderMyMarker() {
   myMarker = L.marker([state.coords.lat, state.coords.lng], { icon: myIcon, interactive: false }).addTo(map);
 }
 
+function getUserActivityStatus(p) {
+  if (p.online === true) return 'online';
+  if (p.last_seen) {
+    const diffMins = (Date.now() - new Date(p.last_seen).getTime()) / (1000 * 60);
+    if (diffMins <= 30) return 'recent';
+  }
+  return 'offline';
+}
+
 function renderMarkers() {
   if (!map || !userLayer) return;
   userLayer.clearLayers();
 
+  // Profiles stay on map! Offline users remain visible with LED activity indicators
   const activeUsers = state.pins.filter(p => {
     if (!p?.id || p.id === state.user?.id) return false;
     if (p.ghost) return false;
-    if (!online(p)) return false; // Instantly hide offline users from map
     const pLat = Number(p.lat), pLng = Number(p.lng);
     if (!Number.isFinite(pLat) || !Number.isFinite(pLng)) return false;
     const d = dist(state.coords.lat, state.coords.lng, pLat, pLng);
     return state.isGlobalMode || state.radius >= 500 || d <= state.radius;
   });
 
+  const onlineCount = activeUsers.filter(p => p.online === true).length;
   const pCountEl = $('peopleBadgeCount');
   if (pCountEl) {
-    pCountEl.textContent = activeUsers.length;
+    pCountEl.textContent = onlineCount;
   } else if ($('peopleBadge')) {
-    $('peopleBadge').innerHTML = `<span class="online-led-glow"></span><span>${activeUsers.length}</span>`;
+    $('peopleBadge').innerHTML = `<span class="online-led-glow"></span><span>${onlineCount}</span>`;
   }
   if ($('statNearbyCount')) $('statNearbyCount').textContent = activeUsers.length;
 
   const currentZoom = map.getZoom();
 
-  // Google Maps LOD Clustering: When zoomed out (< 11) and dense, group into clusters
-  if (currentZoom < 11 && activeUsers.length > 2) {
-    const gridSize = currentZoom < 8 ? 1.2 : (currentZoom < 10 ? 0.45 : 0.2);
-    const clusters = {};
-
-    activeUsers.forEach(p => {
-      const cellX = Math.floor(Number(p.lat) / gridSize);
-      const cellY = Math.floor(Number(p.lng) / gridSize);
-      const key = `${cellX}_${cellY}`;
-      if (!clusters[key]) clusters[key] = { latSum: 0, lngSum: 0, users: [] };
-      clusters[key].latSum += Number(p.lat);
-      clusters[key].lngSum += Number(p.lng);
-      clusters[key].users.push(p);
-    });
-
-    Object.values(clusters).forEach(c => {
-      const count = c.users.length;
-      const avgLat = c.latSum / count;
-      const avgLng = c.lngSum / count;
-
-      if (count === 1) {
-        renderSingleUserMarker(c.users[0], currentZoom);
-      } else {
-        const isLarge = count >= 10;
-        const iconHtml = `<div class="cluster-marker ${isLarge ? 'large' : ''}">${count >= 100 ? '99+' : count}</div>`;
-        const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [48, 48], iconAnchor: [24, 24] });
-        const marker = L.marker([avgLat, avgLng], { icon });
-        marker.on('click', () => {
-          map.flyTo([avgLat, avgLng], Math.min(15, currentZoom + 3));
-          playHapticSound('pop');
-        });
-        userLayer.addLayer(marker);
-      }
-    });
-  } else {
-    // Zoom >= 11: Render individual markers with zoom-adaptive detail
-    activeUsers.forEach(p => renderSingleUserMarker(p, currentZoom));
+  // 1. Far Zoom-Out (< 10): Group into regional clusters or hide to avoid clutter
+  if (currentZoom < 10) {
+    if (activeUsers.length > 2) {
+      renderRegionalClusters(activeUsers, currentZoom);
+    }
+    return;
   }
+
+  // 2. Medium Zoom (10 <= zoom < 13): Dot Markers (نمایش نقطه‌ای)
+  if (currentZoom >= 10 && currentZoom < 13) {
+    activeUsers.forEach(p => {
+      const status = getUserActivityStatus(p);
+      const iconHtml = `<div class="map-user-dot ${status}" title="${esc(p.name)}"></div>`;
+      const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [14, 14], iconAnchor: [7, 7] });
+      const marker = L.marker([Number(p.lat), Number(p.lng)], { icon });
+      marker.on('click', () => {
+        map.flyTo([Number(p.lat), Number(p.lng)], 14);
+        openOtherUserProfile(p);
+      });
+      userLayer.addLayer(marker);
+    });
+    return;
+  }
+
+  // 3. Zoom-In (zoom >= 13): Full Profile Avatar + Stylish Name Tag + Activity LED
+  activeUsers.forEach(p => renderSingleUserMarker(p, currentZoom));
+}
+
+function renderRegionalClusters(users, currentZoom) {
+  const gridSize = currentZoom < 7 ? 2.5 : 1.2;
+  const clusters = {};
+
+  users.forEach(p => {
+    const cellX = Math.floor(Number(p.lat) / gridSize);
+    const cellY = Math.floor(Number(p.lng) / gridSize);
+    const key = `${cellX}_${cellY}`;
+    if (!clusters[key]) clusters[key] = { latSum: 0, lngSum: 0, users: [] };
+    clusters[key].latSum += Number(p.lat);
+    clusters[key].lngSum += Number(p.lng);
+    clusters[key].users.push(p);
+  });
+
+  Object.values(clusters).forEach(c => {
+    const count = c.users.length;
+    const avgLat = c.latSum / count;
+    const avgLng = c.lngSum / count;
+
+    if (count === 1) {
+      const status = getUserActivityStatus(c.users[0]);
+      const iconHtml = `<div class="map-user-dot ${status}" style="opacity:0.7"></div>`;
+      const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [12, 12], iconAnchor: [6, 6] });
+      const marker = L.marker([avgLat, avgLng], { icon });
+      marker.on('click', () => map.flyTo([avgLat, avgLng], 12));
+      userLayer.addLayer(marker);
+    } else {
+      const iconHtml = `<div class="cluster-marker" style="opacity:0.85;transform:scale(0.9)">${count >= 100 ? '99+' : count}</div>`;
+      const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [44, 44], iconAnchor: [22, 22] });
+      const marker = L.marker([avgLat, avgLng], { icon });
+      marker.on('click', () => {
+        map.flyTo([avgLat, avgLng], Math.min(14, currentZoom + 3));
+        playHapticSound('pop');
+      });
+      userLayer.addLayer(marker);
+    }
+  });
 }
 
 function renderSingleUserMarker(p, zoom) {
@@ -3506,15 +3589,15 @@ function renderSingleUserMarker(p, zoom) {
   let storyClass = '';
   if (hasStory) storyClass = isCloseFriends ? 'has-cf-story' : 'has-story';
 
-  // Zoom-adaptive: at zoom < 14, hide the pin-name to prevent map clutter
-  const showName = zoom >= 14;
-  const pinSize = zoom < 13 ? 36 : 44;
+  const showName = zoom >= 13;
+  const pinSize = zoom < 14 ? 38 : 44;
+  const status = getUserActivityStatus(p);
 
   let iconHtml = `
     <div class="user-marker">
       <div class="pin-body ${storyClass}" style="width:${pinSize}px;height:${pinSize}px">
         <img src="${esc(p.avatar || DEFAULT_AVATAR)}" onerror="this.src='${DEFAULT_AVATAR}'">
-        <i class="led ${online(p) ? 'online' : 'offline'}"></i>
+        <i class="led ${status}"></i>
       </div>
       ${showName ? `<div class="pin-stem"></div><div class="pin-name">${esc(p.name)}</div>` : ''}
     </div>
@@ -3522,8 +3605,8 @@ function renderSingleUserMarker(p, zoom) {
   const icon = L.divIcon({
     className: '',
     html: iconHtml,
-    iconSize: [pinSize, showName ? 60 : pinSize],
-    iconAnchor: [pinSize / 2, showName ? 60 : pinSize / 2]
+    iconSize: [pinSize, showName ? 66 : pinSize],
+    iconAnchor: [pinSize / 2, showName ? 66 : pinSize / 2]
   });
   const marker = L.marker([Number(p.lat), Number(p.lng)], { icon });
   marker.on('click', () => openOtherUserProfile(p));
@@ -3883,6 +3966,7 @@ function openProfileFromSenderId(senderId, senderName) {
 
 let activePublicContextMenuMsg = null;
 let editingPublicMsgId = null;
+let replyingPublicMsg = null;
 
 function renderPublicOverlayMessages() {
   const box = $('publicOverlayMessages');
@@ -3896,14 +3980,20 @@ function renderPublicOverlayMessages() {
     item.className = 'public-overlay-msg-item' + (isMe ? ' my-msg' : '');
     const senderName = isMe ? 'من' : (m.sender_name || 'کاربر');
 
+    let quoteHtml = '';
+    if (m.reply_text) {
+      quoteHtml = `<div class="public-reply-quote"><span style="color:var(--blue);font-weight:700">${esc(m.reply_sender || 'کاربر')}:</span> ${esc(m.reply_text)}</div>`;
+    }
+
     if (isMe) {
       // Sent message: strictly on the RIGHT, text only without sender name
-      item.innerHTML = `<span style="text-shadow:0 1px 2px rgba(0,0,0,0.5)">${esc(m.text || '')}</span>`;
+      item.innerHTML = `${quoteHtml}<span>${esc(m.text || '')}</span>`;
     } else {
       // Received message: strictly on the LEFT, sender name on top with accent color
       item.innerHTML = `
         <span class="public-overlay-msg-sender" onclick="event.stopPropagation();openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')">${esc(senderName)}</span>
-        <span style="text-shadow:0 1px 2px rgba(0,0,0,0.5)">${esc(m.text || '')}</span>
+        ${quoteHtml}
+        <span>${esc(m.text || '')}</span>
       `;
     }
 
@@ -3940,12 +4030,22 @@ window.addEventListener('click', closePublicMsgContextMenu);
 
 function replyActivePublicMsg() {
   if (!activePublicContextMenuMsg) return;
-  const input = $('publicOverlayInput');
-  if (input) {
-    input.value = `«پاسخ به ${activePublicContextMenuMsg.sender_name}: ${activePublicContextMenuMsg.text.substring(0, 20)}...» `;
-    input.focus();
+  replyingPublicMsg = activePublicContextMenuMsg;
+  const bar = $('publicOverlayReplyBar');
+  if (bar) {
+    $('publicReplySender').textContent = `پاسخ به ${replyingPublicMsg.sender_name || 'کاربر'}`;
+    $('publicReplyText').textContent = replyingPublicMsg.text || '';
+    bar.style.display = 'flex';
   }
+  togglePublicChatComposer(false);
+  $('publicOverlayInput')?.focus();
   closePublicMsgContextMenu();
+}
+
+function cancelPublicReply() {
+  replyingPublicMsg = null;
+  const bar = $('publicOverlayReplyBar');
+  if (bar) bar.style.display = 'none';
 }
 
 function copyActivePublicMsg() {
@@ -4044,11 +4144,15 @@ async function sendPublicOverlayMsg() {
     sender_id: state.user?.id || 'guest',
     sender_name: state.profile?.name || state.user?.name || 'کاربر',
     text: text,
+    reply_to: replyingPublicMsg ? replyingPublicMsg.id : null,
+    reply_text: replyingPublicMsg ? replyingPublicMsg.text : null,
+    reply_sender: replyingPublicMsg ? replyingPublicMsg.sender_name : null,
     lat: state.coords?.lat || 35.6892,
     lng: state.coords?.lng || 51.3890,
     radius: state.radius || 25,
     created_at: new Date().toISOString()
   };
+  cancelPublicReply();
   input.value = '';
   state.publicMessages.push(newMsg);
   renderPublicOverlayMessages();
@@ -4814,6 +4918,7 @@ function openChatRoom(user) {
   $('chatRoomName').textContent = user.name;
   updateChatRoomStatus();
   $('chatRoom').classList.add('open');
+  registerModalHistory('chatRoom');
 
   // Hide public stream overlay when inside direct chat
   const pubOverlay = $('publicChatOverlay');
@@ -5123,12 +5228,6 @@ function renderDirectMessages() {
 
     let contentHtml = '';
 
-    // Sender name display on incoming messages
-    if (!isOut) {
-      const senderName = state.activeConversationUser?.name || 'مخاطب';
-      contentHtml += `<div class="msg-sender-name" style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:3px;cursor:pointer" onclick="openOtherUserProfile(state.activeConversationUser)">${esc(senderName)}</div>`;
-    }
-
     // Forward indicator
     if (m.forward_from) {
       contentHtml += `<div style="font-size:11px;color:var(--blue);margin-bottom:5px;display:flex;align-items:center;gap:4px;opacity:0.9"><i class="fa-solid fa-share"></i> فوروارد از ${esc(m.forward_from.name)}</div>`;
@@ -5228,12 +5327,58 @@ function renderDirectMessages() {
     `;
 
     bubble.oncontextmenu = e => { e.preventDefault(); openMessageCtx(e, m); };
-    // Long-press for mobile reaction picker
-    let mPressTimer;
-    bubble.addEventListener('touchstart', () => {
-      mPressTimer = setTimeout(() => openReactionPicker({ preventDefault:()=>{}, stopPropagation:()=>{}, target:bubble, clientX: bubble.getBoundingClientRect().left + 40, clientY: bubble.getBoundingClientRect().top }, m.id), 600);
+
+    // Mobile Swipe-to-Reply & Long-Press Reaction
+    let mPressTimer = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchCurrentX = 0;
+    let isSwiping = false;
+
+    bubble.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchCurrentX = touchStartX;
+      isSwiping = false;
+      mPressTimer = setTimeout(() => {
+        if (!isSwiping) {
+          openReactionPicker({ preventDefault:()=>{}, stopPropagation:()=>{}, target:bubble, clientX: bubble.getBoundingClientRect().left + 40, clientY: bubble.getBoundingClientRect().top }, m.id);
+        }
+      }, 550);
     }, { passive: true });
-    bubble.addEventListener('touchend', () => clearTimeout(mPressTimer));
+
+    bubble.addEventListener('touchmove', (e) => {
+      if (e.touches.length !== 1) return;
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+      const deltaX = currentX - touchStartX;
+      const deltaY = currentY - touchStartY;
+
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+        isSwiping = true;
+        clearTimeout(mPressTimer);
+        const dragLimit = isOut ? Math.max(-65, Math.min(0, deltaX)) : Math.min(65, Math.max(0, deltaX));
+        bubble.style.transform = `translateX(${dragLimit}px)`;
+        bubble.style.transition = 'none';
+      }
+    }, { passive: true });
+
+    bubble.addEventListener('touchend', (e) => {
+      clearTimeout(mPressTimer);
+      if (isSwiping) {
+        const deltaX = (e.changedTouches[0]?.clientX || touchCurrentX) - touchStartX;
+        bubble.style.transition = 'transform 0.25s cubic-bezier(0.17, 0.89, 0.32, 1.25)';
+        bubble.style.transform = 'translateX(0)';
+
+        if (Math.abs(deltaX) >= 42) {
+          state.selectedMessage = m;
+          ctxActionReply();
+          playHapticSound('pop');
+        }
+        isSwiping = false;
+      }
+    }, { passive: true });
     box.appendChild(bubble);
   });
   scrollChatToBottom();
@@ -5999,6 +6144,7 @@ function initSSE() {
         const existingIdx = state.publicMessages.findIndex(m => m.id === data.id);
         if (existingIdx >= 0) {
           state.publicMessages[existingIdx] = data;
+          if (isMsgInRadius(data)) renderPublicOverlayMessages();
           return;
         }
         // Deduplicate if sent by me within last 8 seconds
@@ -6014,7 +6160,10 @@ function initSSE() {
           }
         }
         state.publicMessages.push(data);
-        renderPublicOverlayMessages();
+        // Only re-render if the incoming message is in user's active radius
+        if (isMsgInRadius(data)) {
+          renderPublicOverlayMessages();
+        }
         if ($('publicDrawer')?.classList.contains('open')) renderPublicMessages();
       } catch {}
     });
@@ -6229,7 +6378,7 @@ function updateServerLabelInProfile() {
 function onProfileRadiusChange(val) {
   const km = Number(val);
   state.radius = km;
-  $('profileRadiusValue').textContent = `${km} کیلومتر`;
+  if ($('profileRadiusValue')) $('profileRadiusValue').textContent = `${km} کیلومتر`;
   const valEl = $('radiusPullValue');
   if (valEl) valEl.textContent = `${km} km`;
   const fillEl = $('radiusPullFill');
@@ -6470,22 +6619,25 @@ function handleIncomingDM(msg) {
 // Telegram Voice Recording & Waveform Engine (Push-to-Talk)
 // =============================================
 let pttPressTimer = null;
+let pttPressStartTime = 0;
 let pttStarted = false;
 
 function startPushToTalkVoice(e) {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   pttStarted = true;
+  pttPressStartTime = Date.now();
   clearTimeout(pttPressTimer);
   pttPressTimer = setTimeout(async () => {
     if (pttStarted && !state.isRecordingVoice) {
       await toggleVoiceRecording();
     }
-  }, 100);
+  }, 120);
 }
 
 function stopPushToTalkVoice(e) {
   clearTimeout(pttPressTimer);
-  if (pttStarted && state.isRecordingVoice) {
+  const duration = Date.now() - pttPressStartTime;
+  if (duration >= 120 && pttStarted && state.isRecordingVoice) {
     stopVoiceRecording();
   }
   pttStarted = false;
@@ -6496,11 +6648,23 @@ async function toggleVoiceRecording() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       state.audioChunks = [];
-      state.mediaRecorder = new MediaRecorder(stream);
-      state.mediaRecorder.ondataavailable = e => state.audioChunks.push(e.data);
+
+      let options = {};
+      if (typeof MediaRecorder.isTypeSupported === 'function') {
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) options = { mimeType: 'audio/webm;codecs=opus' };
+        else if (MediaRecorder.isTypeSupported('audio/webm')) options = { mimeType: 'audio/webm' };
+        else if (MediaRecorder.isTypeSupported('audio/mp4')) options = { mimeType: 'audio/mp4' };
+        else if (MediaRecorder.isTypeSupported('audio/ogg')) options = { mimeType: 'audio/ogg' };
+      }
+
+      state.mediaRecorder = new MediaRecorder(stream, options);
+      state.mediaRecorder.ondataavailable = e => {
+        if (e.data && e.data.size > 0) state.audioChunks.push(e.data);
+      };
       state.mediaRecorder.onstop = () => {
         if (!state.voiceCancelled && state.audioChunks.length > 0) {
-          const audioBlob = new Blob(state.audioChunks, { type: 'audio/webm' });
+          const mime = state.mediaRecorder.mimeType || 'audio/webm';
+          const audioBlob = new Blob(state.audioChunks, { type: mime });
           const reader = new FileReader();
           reader.onloadend = () => sendVoiceDirectMessage(reader.result);
           reader.readAsDataURL(audioBlob);
@@ -6508,7 +6672,7 @@ async function toggleVoiceRecording() {
         state.voiceCancelled = false;
       };
       state.voiceCancelled = false;
-      state.mediaRecorder.start();
+      state.mediaRecorder.start(100);
       state.isRecordingVoice = true;
 
       $('voiceRecordingBanner')?.classList.add('active');
@@ -6680,6 +6844,71 @@ function toggleCallMute() {
   playHapticSound('pop');
 }
 
+// =============================================
+// Mobile Hardware / Browser Back Button Navigation
+// =============================================
+function registerModalHistory(modalName) {
+  try {
+    history.pushState({ geosocial_view: modalName, time: Date.now() }, '');
+  } catch {}
+}
+
+window.addEventListener('popstate', () => {
+  // 1. Close lightbox or context menus
+  if ($('imageLightboxModal')?.classList.contains('open')) {
+    closeImageLightbox();
+    return;
+  }
+  if ($('publicMsgContextMenu')?.classList.contains('open')) {
+    closePublicMsgContextMenu();
+    return;
+  }
+  if ($('reactionPicker')?.classList.contains('open')) {
+    $('reactionPicker').classList.remove('open');
+    return;
+  }
+  if ($('searchWidget')?.classList.contains('open')) {
+    toggleSearchExpand(false);
+    return;
+  }
+  // 2. Story viewer or creator
+  if ($('storyViewer')?.classList.contains('open')) {
+    closeStoryViewer();
+    return;
+  }
+  if ($('storyCreatorStudio')?.classList.contains('open')) {
+    closeStoryCreator();
+    return;
+  }
+  // 3. Direct Chat Room
+  if ($('chatRoom')?.classList.contains('open')) {
+    closeChatRoom();
+    return;
+  }
+  // 4. Channel modals
+  if ($('channelInfoModal')?.classList.contains('open')) {
+    $('channelInfoModal').classList.remove('open');
+    return;
+  }
+  if ($('channelViewModal')?.classList.contains('open')) {
+    $('channelViewModal').classList.remove('open');
+    return;
+  }
+  // 5. Any open modal overlay
+  const openModals = Array.from(document.querySelectorAll('.modal-overlay.open'));
+  if (openModals.length > 0) {
+    const topModal = openModals[openModals.length - 1];
+    topModal.classList.remove('open');
+    if (!document.querySelector('.modal-overlay.open') && !$('chatRoom')?.classList.contains('open')) {
+      const pubOverlay = $('publicChatOverlay');
+      if (pubOverlay) pubOverlay.style.display = 'flex';
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelector('.nav-item:first-child')?.classList.add('active');
+    }
+    return;
+  }
+});
+
 // ----------------------------------------------------
 // Profile, Settings & Navigation Engine
 // ----------------------------------------------------
@@ -6702,6 +6931,7 @@ function nav(tab, el) {
     if (pubOverlay) pubOverlay.style.display = 'flex';
   } else {
     if (pubOverlay) pubOverlay.style.display = 'none';
+    registerModalHistory(tab);
   }
 
   if (tab === 'chats') { 
@@ -6727,7 +6957,7 @@ function openProfileModal() {
   if ($('onlineVisibilitySwitch')) $('onlineVisibilitySwitch').checked = !state.profile?.ghost;
   if ($('profileRadiusRange')) {
     $('profileRadiusRange').value = state.radius || 25;
-    $('profileRadiusValue').textContent = `${state.radius || 25} کیلومتر`;
+    if ($('profileRadiusValue')) $('profileRadiusValue').textContent = `${state.radius || 25} کیلومتر`;
   }
   if ($('myProfileGpsCoords') && state.coords) {
     $('myProfileGpsCoords').textContent = `عرض: ${state.coords.lat.toFixed(4)} • طول: ${state.coords.lng.toFixed(4)}`;
@@ -6848,9 +7078,16 @@ function toggleSearchExpand(force) {
   const willOpen = force !== undefined ? force : !widget.classList.contains('open');
   if (willOpen) {
     widget.classList.add('open');
+    registerModalHistory('search');
     setTimeout(() => $('searchInput')?.focus(), 150);
   } else {
     widget.classList.remove('open');
+    if ($('searchInput')) $('searchInput').value = '';
+    // Remove search result marker on map when search closes
+    if (state.searchResultMarker && map) {
+      map.removeLayer(state.searchResultMarker);
+      state.searchResultMarker = null;
+    }
   }
 }
 
@@ -6941,6 +7178,7 @@ function openOtherUserProfile(user) {
     }
   }
   $('otherUserModal').classList.add('open');
+  registerModalHistory('otherProfile');
 }
 
 // =============================================
@@ -7047,6 +7285,7 @@ async function openChannel(channelId) {
   }
 
   $('channelViewModal').classList.add('open');
+  registerModalHistory('channelView');
   await loadChannelMessages(channelId);
 }
 
@@ -7164,6 +7403,7 @@ function openChannelInfoModal() {
   }
 
   $('channelInfoModal').classList.add('open');
+  registerModalHistory('channelInfo');
   playHapticSound('pop');
 }
 
@@ -7281,6 +7521,7 @@ function openCreateChannelModal() {
   $('newChannelUsername').value = '';
   $('newChannelDescription').value = '';
   $('createChannelModal').classList.add('open');
+  registerModalHistory('createChannel');
   playHapticSound('pop');
 }
 
