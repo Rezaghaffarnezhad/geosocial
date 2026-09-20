@@ -604,9 +604,9 @@ input, textarea { direction: rtl; }
   position: absolute;
   bottom: calc(72px + var(--safe-bottom));
   left: 12px;
-  width: min(340px, calc(100vw - 24px));
-  max-width: calc(100vw - 24px);
-  min-width: 220px;
+  width: min(210px, calc(60vw - 16px));
+  max-width: calc(60vw - 16px);
+  min-width: 170px;
   height: auto;
   max-height: 44vh;
   z-index: 18;
@@ -1631,15 +1631,16 @@ input, textarea { direction: rtl; }
 
 /* Telegram Profile & Settings View */
 .profile-content-scroll {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 16px 16px calc(90px + var(--safe-bottom));
+  flex: 1 1 0;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 16px 16px calc(180px + var(--safe-bottom)) !important;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain !important;
   scrollbar-width: thin;
 }
 .profile-header-card {
@@ -2221,7 +2222,39 @@ input:checked + .slider:before { transform: translateX(20px); }
 .profile-content-scroll,
 #followListContainer,
 #publicFeed {
-  padding-bottom: calc(115px + var(--safe-bottom)) !important;
+  padding-bottom: calc(180px + var(--safe-bottom)) !important;
+}
+
+/* Story Viewer Navigation Chevrons */
+.story-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 25;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.18s ease;
+  pointer-events: auto;
+}
+.story-nav-btn:hover {
+  background: rgba(0, 0, 0, 0.75);
+  transform: translateY(-50%) scale(1.1);
+}
+.story-nav-prev {
+  right: 12px;
+}
+.story-nav-next {
+  left: 12px;
 }
 
 #chatsListContainer::-webkit-scrollbar,
@@ -2852,15 +2885,15 @@ input:checked + .slider:before { transform: translateX(20px); }
   <!-- Instagram-Style Security Action Bar for Chat Requests -->
   <div id="chatRequestSecurityBar" class="chat-request-security-bar">
     <div class="chat-request-security-info">
-      <i class="fa-solid fa-shield-halved" style="color:var(--blue);font-size:20px;flex-shrink:0"></i>
+      <i class="fa-solid fa-user-shield" style="color:var(--blue);font-size:20px;flex-shrink:0"></i>
       <div>
-        <div style="font-weight:700;color:var(--text);font-size:12px">درخواست گفتگو (پیش‌نمایش امن)</div>
-        <div style="font-size:11px;opacity:0.85;margin-top:2px">این کاربر به شما پیام فرستاده است. تا زمانی که درخواست را تایید نکنید، متوجه خوانده شدن پیام‌ها (Seen) یا آنلاین بودن شما نخواهد شد.</div>
+        <div style="font-weight:700;color:var(--text);font-size:12px">درخواست دوستی و گفتگو</div>
+        <div style="font-size:11px;opacity:0.85;margin-top:2px">این کاربر درخواست دوستی ارسال کرده است. پس از تایید، امکان ارسال پیام و مشاهده اطلاعات کامل فعال خواهد شد.</div>
       </div>
     </div>
     <div class="chat-request-security-actions">
-      <button class="btn-primary" style="padding:10px 8px;font-size:12px;font-weight:700" onclick="acceptActiveChatRequest()"><i class="fa-solid fa-check"></i> قبول گفتگو</button>
-      <button class="btn-secondary" style="padding:10px 8px;font-size:12px;font-weight:700" onclick="declineActiveChatRequest()"><i class="fa-solid fa-trash"></i> حذف</button>
+      <button class="btn-primary" style="padding:10px 8px;font-size:12px;font-weight:700" onclick="acceptActiveChatRequest()"><i class="fa-solid fa-check"></i> تایید دوستی ✅</button>
+      <button class="btn-secondary" style="padding:10px 8px;font-size:12px;font-weight:700" onclick="declineActiveChatRequest()"><i class="fa-solid fa-xmark"></i> رد درخواست ❌</button>
       <button class="btn-danger" style="padding:10px 8px;font-size:12px;font-weight:700" onclick="blockActiveChatUser()"><i class="fa-solid fa-ban"></i> مسدود</button>
     </div>
   </div>
@@ -2912,6 +2945,10 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div class="story-media-view" id="storyMediaBox">
     <img id="storyViewerImg" src="">
   </div>
+
+  <!-- Story Navigation Buttons (Previous / Next) -->
+  <button class="story-nav-btn story-nav-prev" onclick="event.stopPropagation(); prevStorySlide()" title="استوری قبلی"><i class="fa-solid fa-chevron-right"></i></button>
+  <button class="story-nav-btn story-nav-next" onclick="event.stopPropagation(); nextStorySlide()" title="استوری بعدی"><i class="fa-solid fa-chevron-left"></i></button>
 
   <!-- Interactive Stickers Layer -->
   <div id="storyStickersLayer" class="story-stickers-layer"></div>
@@ -3185,8 +3222,9 @@ input:checked + .slider:before { transform: translateX(20px); }
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:6px">
         <button id="otherUserActionBtn" class="btn-primary" onclick="handleOtherUserAction()"><i class="fa-solid fa-comments"></i> ارسال پیام</button>
-        <button class="btn-secondary" onclick="startNavigationToUser(state.activeSelectedUser)"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i> مسیریابی زنده</button>
+        <button id="otherUserNavBtn" class="btn-secondary" onclick="startNavigationToUser(state.activeSelectedUser)"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i> مسیریابی زنده</button>
       </div>
+      <button id="otherUserRemoveFriendBtn" class="btn-danger" style="display:none;width:100%;margin-top:8px;padding:10px;font-size:12px;border-radius:12px;font-weight:600" onclick="removeCurrentFriend()"><i class="fa-solid fa-user-xmark"></i> حذف از لیست دوستان</button>
 
       <!-- GPS Location Details Card (جایگزینی فالوور با GPS قابل مشاهده برای دیگران) -->
       <div class="profile-gps-card" style="background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px">
@@ -4249,16 +4287,14 @@ function renderPublicOverlayMessages() {
     const item = document.createElement('div');
     const isMe = state.user && m.sender_id === state.user.id;
     item.className = 'public-overlay-msg-item' + (isMe ? ' my-msg' : '');
-    const senderName = isMe ? (state.profile?.name || state.user?.name || 'من') : (m.sender_name || 'کاربر');
 
     let quoteHtml = '';
     if (m.reply_text) {
-      quoteHtml = `<div class="public-reply-quote" dir="auto"><span style="color:var(--blue);font-weight:700">${esc(m.reply_sender || 'کاربر')}:</span> ${esc(m.reply_text)}</div>`;
+      quoteHtml = `<div class="public-reply-quote" dir="auto">${m.reply_sender ? `<span style="color:var(--blue);font-weight:700">${esc(m.reply_sender)}: </span>` : ''}${esc(m.reply_text)}</div>`;
     }
 
-    // Sender name strictly above message text in public chat for all languages
+    // Only quote (if replying) and message text body, NO sender name or extra tag
     item.innerHTML = `
-      <span class="public-overlay-msg-sender" dir="auto" onclick="event.stopPropagation();openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')">${esc(senderName)}</span>
       ${quoteHtml}
       <div dir="auto" class="public-msg-text-body">${esc(m.text || '')}</div>
     `;
@@ -4433,7 +4469,16 @@ async function sendPublicOverlayMsg() {
     const d = await res.json();
     if (d.success && d.message) {
       const idx = state.publicMessages.findIndex(m => m.id === newMsg.id);
-      if (idx >= 0) state.publicMessages[idx] = d.message;
+      if (idx >= 0) {
+        state.publicMessages[idx] = {
+          ...newMsg,
+          ...d.message,
+          reply_to: d.message.reply_to || newMsg.reply_to || null,
+          reply_text: d.message.reply_text || newMsg.reply_text || null,
+          reply_sender: d.message.reply_sender || newMsg.reply_sender || null
+        };
+        renderPublicOverlayMessages();
+      }
     }
   } catch {}
 }
@@ -4456,7 +4501,13 @@ async function fetchPublicMessages() {
           state.publicMessages.push(m);
           changed = true;
         } else {
-          state.publicMessages[idx] = m;
+          state.publicMessages[idx] = {
+            ...state.publicMessages[idx],
+            ...m,
+            reply_to: m.reply_to || state.publicMessages[idx].reply_to || null,
+            reply_text: m.reply_text || state.publicMessages[idx].reply_text || null,
+            reply_sender: m.reply_sender || state.publicMessages[idx].reply_sender || null
+          };
         }
       });
       if (changed) {
@@ -4549,6 +4600,7 @@ function openStoryViewer(idx) {
   }
 
   $('storyViewer').classList.add('active');
+  state.storySlideStartTime = Date.now();
   state.storyTimer = setTimeout(nextStorySlide, CFG.storyDuration);
   setupStoryViewerGestures();
 
@@ -4596,34 +4648,62 @@ function setupStoryViewerGestures() {
     holdTimer = setTimeout(() => {
       isHolding = true;
       clearTimeout(state.storyTimer);
+      // Freeze progress bar animation in place
+      const pContainer = $('storyProgressBarContainer');
+      const currentFill = pContainer?.children[state.currentStoryIndex]?.firstElementChild;
+      if (currentFill) {
+        const computedWidth = window.getComputedStyle(currentFill).width;
+        currentFill.style.transition = 'none';
+        currentFill.style.width = computedWidth;
+      }
       $('storyTopInfo').style.opacity = '0';
       $('storyBottomBar').style.opacity = '0';
       $('storyProgressBarContainer').style.opacity = '0';
-    }, 180);
+      document.querySelectorAll('.story-nav-btn').forEach(btn => btn.style.opacity = '0');
+    }, 150);
+  };
+
+  const resumeAfterHold = () => {
+    $('storyTopInfo').style.opacity = '1';
+    $('storyBottomBar').style.opacity = '1';
+    $('storyProgressBarContainer').style.opacity = '1';
+    document.querySelectorAll('.story-nav-btn').forEach(btn => btn.style.opacity = '1');
+
+    if (isHolding) {
+      isHolding = false;
+      const elapsed = Date.now() - (state.storySlideStartTime || Date.now());
+      const remaining = Math.max(600, (CFG.storyDuration || 5000) - elapsed);
+      const pContainer = $('storyProgressBarContainer');
+      const currentFill = pContainer?.children[state.currentStoryIndex]?.firstElementChild;
+      if (currentFill) {
+        requestAnimationFrame(() => {
+          currentFill.style.transition = `width ${remaining}ms linear`;
+          currentFill.style.width = '100%';
+        });
+      }
+      clearTimeout(state.storyTimer);
+      state.storyTimer = setTimeout(nextStorySlide, remaining);
+      return true;
+    }
+    return false;
   };
 
   mediaBox.onpointerup = (e) => {
     clearTimeout(holdTimer);
-    $('storyTopInfo').style.opacity = '1';
-    $('storyBottomBar').style.opacity = '1';
-    $('storyProgressBarContainer').style.opacity = '1';
-
-    if (isHolding) {
-      isHolding = false;
-      clearTimeout(state.storyTimer);
-      state.storyTimer = setTimeout(nextStorySlide, 3000);
-      return;
-    }
+    const wasHold = resumeAfterHold();
+    if (wasHold) return;
 
     const now = Date.now();
     if (now - lastTap < 300) {
       triggerDoubleTapHeart();
       likeCurrentStory();
     } else {
-      const clientX = e.clientX;
-      if (clientX < window.innerWidth * 0.35) {
+      const clientX = e.clientX || 0;
+      // In RTL: tapping left side (0 to 45%) goes to next or prev?
+      // In Instagram: tapping right side advances (next), tapping left side goes back (prev)
+      if (clientX < window.innerWidth * 0.45) {
         prevStorySlide();
-      } else if (clientX > window.innerWidth * 0.65) {
+      } else {
         nextStorySlide();
       }
     }
@@ -4632,14 +4712,7 @@ function setupStoryViewerGestures() {
 
   mediaBox.onpointercancel = () => {
     clearTimeout(holdTimer);
-    $('storyTopInfo').style.opacity = '1';
-    $('storyBottomBar').style.opacity = '1';
-    $('storyProgressBarContainer').style.opacity = '1';
-    if (isHolding) {
-      isHolding = false;
-      clearTimeout(state.storyTimer);
-      state.storyTimer = setTimeout(nextStorySlide, 3000);
-    }
+    resumeAfterHold();
   };
 }
 
@@ -5078,6 +5151,22 @@ async function fetchNearbyUsers() {
   } catch {}
 }
 
+function flyToPersonLocation(lat, lng, id) {
+  closeAllModals();
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  const mapNav = document.querySelector('.nav-item:nth-child(1)');
+  if (mapNav) mapNav.classList.add('active');
+  const pubOverlay = $('publicChatOverlay');
+  if (pubOverlay) pubOverlay.style.display = 'flex';
+  if (map && Number.isFinite(lat) && Number.isFinite(lng)) {
+    map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
+    const m = state.markers && state.markers[id];
+    if (m && m.openPopup) {
+      setTimeout(() => { try { m.openPopup(); } catch {} }, 1200);
+    }
+  }
+}
+
 function renderPeopleList(q = '') {
   const container = $('peopleListContainer');
   if (!container) return;
@@ -5135,11 +5224,11 @@ function renderPeopleList(q = '') {
         </div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${distanceStr} • ${esc(formatLastSeen(p.last_seen, isOnline))}</div>
       </div>
-      <i class="fa-solid fa-location-dot" style="color:var(--blue)"></i>
+      <button class="composer-icon-btn" style="color:var(--blue);width:38px;height:38px;border-radius:50%;background:rgba(42,171,238,0.12);border:1px solid rgba(42,171,238,0.25);flex-shrink:0" title="مشاهده روی نقشه" onclick="event.stopPropagation(); flyToPersonLocation(${Number(p.lat)}, ${Number(p.lng)}, '${esc(p.id)}')">
+        <i class="fa-solid fa-location-dot" style="font-size:15px"></i>
+      </button>
     `;
     item.onclick = () => {
-      closeAllModals();
-      if (map) map.flyTo([Number(p.lat), Number(p.lng)], 15);
       openOtherUserProfile(p);
     };
     container.appendChild(item);
@@ -5159,32 +5248,35 @@ function updateChatRoomStatus() {
   }
 }
 
-function isChatAccepted(userId) {
-  if (!userId || !state.user) return true;
+function isFriend(userId) {
+  if (!userId || !state.user) return false;
   if (userId === state.user.id) return true;
   try {
+    const friends = JSON.parse(localStorage.getItem('geosocial_friends') || '[]');
+    if (friends.includes(userId)) return true;
     const accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
     if (accepted.includes(userId)) return true;
   } catch {}
-
-  // If explicitly listed in pending requests
-  if (state.chatRequestsList && state.chatRequestsList.some(r => r.otherUser?.id === userId || r.sender_id === userId)) {
-    return false;
-  }
-
-  // If I have previously sent any message to this user in loaded messages
-  if (state.activeMessages && state.activeConversationUser?.id === userId) {
-    const hasMyMsg = state.activeMessages.some(m => m.sender_id === state.user.id);
-    if (hasMyMsg) return true;
-  }
-
-  return true;
+  return false;
 }
 
-async function acceptActiveChatRequest() {
-  if (!state.activeConversationUser || !state.user) return;
-  const otherUser = state.activeConversationUser;
+function isChatAccepted(userId) {
+  if (!userId || !state.user) return false;
+  if (userId === state.user.id) return true;
+  return isFriend(userId);
+}
+
+async function acceptActiveChatRequest(targetUserId) {
+  const otherUser = targetUserId
+    ? (state.pins.find(p => p.id === targetUserId) || { id: targetUserId })
+    : state.activeConversationUser;
+  if (!otherUser || !state.user) return;
   try {
+    const friends = JSON.parse(localStorage.getItem('geosocial_friends') || '[]');
+    if (!friends.includes(otherUser.id)) {
+      friends.push(otherUser.id);
+      localStorage.setItem('geosocial_friends', JSON.stringify(friends));
+    }
     const accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
     if (!accepted.includes(otherUser.id)) {
       accepted.push(otherUser.id);
@@ -5199,9 +5291,9 @@ async function acceptActiveChatRequest() {
 
   state.isPreviewRequest = false;
   $('chatRequestSecurityBar')?.classList.remove('active');
-  $('composerMainRow').style.display = 'flex';
+  if ($('composerMainRow')) $('composerMainRow').style.display = 'flex';
 
-  // Now trigger message read/seen checkmarks
+  // Trigger message read/seen checkmarks
   fetch('/api/messages/seen', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -5209,14 +5301,27 @@ async function acceptActiveChatRequest() {
   }).catch(() => {});
 
   checkChatRequests();
-  toast('درخواست گفتگو پذیرفته شد ✅');
+  if (state.activeSelectedUser?.id === otherUser.id) {
+    openOtherUserProfile(otherUser);
+  }
+  toast('درخواست دوستی و گفتگو پذیرفته شد ✅');
   playHapticSound('sent');
 }
 
-async function declineActiveChatRequest() {
-  if (!state.activeConversationUser || !state.user) return;
-  const otherUser = state.activeConversationUser;
+async function declineActiveChatRequest(targetUserId) {
+  const otherUser = targetUserId
+    ? (state.pins.find(p => p.id === targetUserId) || { id: targetUserId })
+    : state.activeConversationUser;
+  if (!otherUser || !state.user) return;
   try {
+    let friends = JSON.parse(localStorage.getItem('geosocial_friends') || '[]');
+    friends = friends.filter(id => id !== otherUser.id);
+    localStorage.setItem('geosocial_friends', JSON.stringify(friends));
+
+    let accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
+    accepted = accepted.filter(id => id !== otherUser.id);
+    localStorage.setItem('geosocial_accepted_chats', JSON.stringify(accepted));
+
     await fetch('/api/chats/request_action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -5227,19 +5332,28 @@ async function declineActiveChatRequest() {
   closeChatRoom();
   checkChatRequests();
   renderChatsList();
-  toast('درخواست گفتگو حذف شد ❌');
+  if (state.activeSelectedUser?.id === otherUser.id) {
+    openOtherUserProfile(otherUser);
+  }
+  toast('درخواست گفتگو رد شد ❌');
   playHapticSound('pop');
 }
 
-async function blockActiveChatUser() {
-  if (!state.activeConversationUser || !state.user) return;
-  const otherUser = state.activeConversationUser;
+async function blockActiveChatUser(targetUserId) {
+  const otherUser = targetUserId
+    ? (state.pins.find(p => p.id === targetUserId) || { id: targetUserId })
+    : state.activeConversationUser;
+  if (!otherUser || !state.user) return;
   try {
     const blocked = JSON.parse(localStorage.getItem('geosocial_blocked_users') || '[]');
     if (!blocked.includes(otherUser.id)) {
       blocked.push(otherUser.id);
       localStorage.setItem('geosocial_blocked_users', JSON.stringify(blocked));
     }
+    let friends = JSON.parse(localStorage.getItem('geosocial_friends') || '[]');
+    friends = friends.filter(id => id !== otherUser.id);
+    localStorage.setItem('geosocial_friends', JSON.stringify(friends));
+
     await fetch('/api/chats/request_action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -6489,7 +6603,13 @@ function initSSE() {
         const data = JSON.parse(e.data);
         const existingIdx = state.publicMessages.findIndex(m => m.id === data.id);
         if (existingIdx >= 0) {
-          state.publicMessages[existingIdx] = data;
+          state.publicMessages[existingIdx] = {
+            ...state.publicMessages[existingIdx],
+            ...data,
+            reply_to: data.reply_to || state.publicMessages[existingIdx].reply_to || null,
+            reply_text: data.reply_text || state.publicMessages[existingIdx].reply_text || null,
+            reply_sender: data.reply_sender || state.publicMessages[existingIdx].reply_sender || null
+          };
           if (isMsgInRadius(data)) renderPublicOverlayMessages();
           return;
         }
@@ -6502,6 +6622,9 @@ function initSSE() {
           );
           if (recentMy) {
             recentMy.id = data.id;
+            if (data.reply_text) recentMy.reply_text = data.reply_text;
+            if (data.reply_to) recentMy.reply_to = data.reply_to;
+            if (data.reply_sender) recentMy.reply_sender = data.reply_sender;
             return;
           }
         }
@@ -6820,11 +6943,10 @@ async function sendDirectMessage() {
     return;
   }
 
-  // Auto-accept request if pending so sender/replier is never blocked
-  if (state.isPreviewRequest) {
-    try {
-      acceptActiveChatRequest();
-    } catch {}
+  // Prevent sending direct messages to strangers unless they are friends
+  if (!isFriend(state.activeConversationUser.id)) {
+    toast('ارسال پیام تنها پس از تایید دوستی امکان‌پذیر است 🔒');
+    return;
   }
 
   if (state.editingMessage) {
@@ -7923,35 +8045,76 @@ function openOtherUserProfile(user) {
   $('otherUserAvatar').src = user.avatar || DEFAULT_AVATAR;
   $('otherUserName').textContent = user.name || 'کاربر';
   $('otherUserUsername').textContent = user.username ? `@${user.username}` : '';
-  $('otherUserBio').textContent = user.bio || 'اطلاعاتی ثبت نشده است.';
+
+  const isMyFriend = isFriend(user.id);
+  const hasIncomingReq = state.chatRequestsList && state.chatRequestsList.some(r => r.otherUser?.id === user.id || r.sender_id === user.id);
+  const hasPendingSent = (state.sentFriendRequests || []).includes(user.id);
+
+  // Stranger Privacy: Bio and Exact GPS
+  if (isMyFriend) {
+    $('otherUserBio').textContent = user.bio || 'اطلاعاتی ثبت نشده است.';
+    $('otherUserBio').style.opacity = '1';
+  } else {
+    $('otherUserBio').textContent = '🔒 بیوگرافی و مشخصات کامل فقط برای دوستان قابل مشاهده است.';
+    $('otherUserBio').style.opacity = '0.75';
+  }
+
+  const d = (user.lat != null && user.lng != null && state.coords)
+    ? dist(state.coords.lat, state.coords.lng, Number(user.lat), Number(user.lng)).toFixed(1)
+    : '?';
+
+  if ($('otherUserDistance')) {
+    $('otherUserDistance').textContent = d !== '?' ? `حدود ${d} کیلومتر فاصله` : 'موقعیت مکانی نامشخص';
+  }
+
   if ($('otherUserGpsCoords')) {
-    if (user.lat != null && user.lng != null) {
-      const d = (state.coords ? dist(state.coords.lat, state.coords.lng, Number(user.lat), Number(user.lng)).toFixed(1) : '?');
-      $('otherUserGpsTitle').textContent = `فاصله تا شما: ${d} کیلومتر`;
-      $('otherUserGpsCoords').textContent = `عرض: ${Number(user.lat).toFixed(4)} • طول: ${Number(user.lng).toFixed(4)}`;
-      if ($('otherUserDistance')) $('otherUserDistance').textContent = `${d} کیلومتر فاصله`;
+    if (isMyFriend) {
+      if (user.lat != null && user.lng != null) {
+        $('otherUserGpsTitle').textContent = `فاصله تا شما: ${d} کیلومتر`;
+        $('otherUserGpsCoords').textContent = `عرض: ${Number(user.lat).toFixed(4)} • طول: ${Number(user.lng).toFixed(4)}`;
+      } else {
+        $('otherUserGpsTitle').textContent = 'موقعیت مکانی';
+        $('otherUserGpsCoords').textContent = 'مخفی در حالت روح یا آفلاین';
+      }
     } else {
-      $('otherUserGpsTitle').textContent = 'موقعیت مکانی';
-      $('otherUserGpsCoords').textContent = 'مخفی در حالت روح یا آفلاین';
-      if ($('otherUserDistance')) $('otherUserDistance').textContent = 'موقعیت مکانی نامشخص';
+      $('otherUserGpsTitle').textContent = 'موقعیت مکانی: مخفی 🔒';
+      $('otherUserGpsCoords').textContent = 'مختصات دقیق و ناوبری برای افراد غریبه مخفی است (فقط برای دوستان)';
     }
   }
 
-  // Update Action button based on friendship/acceptance status
-  const actionBtn = $('otherUserActionBtn');
-  if (actionBtn) {
-    const isAccepted = isChatAccepted(user.id);
-    const hasPendingSent = (state.sentFriendRequests || []).includes(user.id);
+  // Navigation button: only visible/active for friends
+  const navBtn = $('otherUserNavBtn');
+  if (navBtn) {
+    navBtn.style.display = isMyFriend ? 'inline-flex' : 'none';
+  }
 
-    if (isAccepted) {
+  // Action Button & Remove Friend Button
+  const actionBtn = $('otherUserActionBtn');
+  const removeBtn = $('otherUserRemoveFriendBtn');
+
+  if (isMyFriend) {
+    if (actionBtn) {
       actionBtn.innerHTML = '<i class="fa-solid fa-comments"></i> ارسال پیام';
       actionBtn.className = 'btn-primary';
-    } else if (hasPendingSent) {
-      actionBtn.innerHTML = '<i class="fa-solid fa-clock"></i> درخواست ارسال شد';
-      actionBtn.className = 'btn-secondary';
-    } else {
-      actionBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> درخواست دوستی و گفتگو';
-      actionBtn.className = 'btn-primary';
+    }
+    if (removeBtn) {
+      removeBtn.style.display = 'block';
+    }
+  } else {
+    if (removeBtn) {
+      removeBtn.style.display = 'none';
+    }
+    if (actionBtn) {
+      if (hasIncomingReq) {
+        actionBtn.innerHTML = '<i class="fa-solid fa-user-check"></i> پذیرش درخواست دوستی';
+        actionBtn.className = 'btn-primary';
+      } else if (hasPendingSent) {
+        actionBtn.innerHTML = '<i class="fa-solid fa-clock"></i> درخواست دوستی ارسال شد';
+        actionBtn.className = 'btn-secondary';
+      } else {
+        actionBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> درخواست دوستی 🤝';
+        actionBtn.className = 'btn-primary';
+      }
     }
   }
 
@@ -7972,17 +8135,50 @@ function viewOtherUserAvatarFull() {
 function handleOtherUserAction() {
   const user = state.activeSelectedUser;
   if (!user) return;
-  const isAccepted = isChatAccepted(user.id);
+  const isMyFriend = isFriend(user.id);
+  const hasIncomingReq = state.chatRequestsList && state.chatRequestsList.some(r => r.otherUser?.id === user.id || r.sender_id === user.id);
   const hasPendingSent = (state.sentFriendRequests || []).includes(user.id);
 
-  if (isAccepted) {
+  if (isMyFriend) {
     $('otherUserModal').classList.remove('open');
     openChatRoom(user);
+  } else if (hasIncomingReq) {
+    acceptActiveChatRequest(user.id);
   } else if (hasPendingSent) {
     toast('درخواست دوستی شما قبلاً برای این کاربر ارسال شده است ⏳');
   } else {
     sendFriendRequest(user);
   }
+}
+
+async function removeCurrentFriend() {
+  const user = state.activeSelectedUser;
+  if (!user || !state.user) return;
+  try {
+    let friends = JSON.parse(localStorage.getItem('geosocial_friends') || '[]');
+    friends = friends.filter(id => id !== user.id);
+    localStorage.setItem('geosocial_friends', JSON.stringify(friends));
+
+    let accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
+    accepted = accepted.filter(id => id !== user.id);
+    localStorage.setItem('geosocial_accepted_chats', JSON.stringify(accepted));
+
+    if (state.sentFriendRequests) {
+      state.sentFriendRequests = state.sentFriendRequests.filter(id => id !== user.id);
+      localStorage.setItem('geosocial_sent_friend_requests', JSON.stringify(state.sentFriendRequests));
+    }
+
+    await fetch('/api/chats/request_action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: state.user.id, other_id: user.id, action: 'remove_friend' })
+    });
+  } catch {}
+
+  toast(`${user.name || 'کاربر'} از لیست دوستان حذف شد ❌`);
+  playHapticSound('pop');
+  openOtherUserProfile(user);
+  renderChatsList();
 }
 
 function sendFriendRequest(targetUser) {

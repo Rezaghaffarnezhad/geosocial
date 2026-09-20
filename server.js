@@ -211,11 +211,17 @@ async function initPostgres() {
         sender_id TEXT,
         sender_name TEXT,
         text TEXT,
+        reply_to TEXT,
+        reply_text TEXT,
+        reply_sender TEXT,
         lat NUMERIC,
         lng NUMERIC,
         radius NUMERIC DEFAULT 25,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+      ALTER TABLE public_messages ADD COLUMN IF NOT EXISTS reply_to TEXT;
+      ALTER TABLE public_messages ADD COLUMN IF NOT EXISTS reply_text TEXT;
+      ALTER TABLE public_messages ADD COLUMN IF NOT EXISTS reply_sender TEXT;
 
       CREATE TABLE IF NOT EXISTS stories (
         id TEXT PRIMARY KEY,
@@ -337,10 +343,10 @@ async function pgInsertPublicMessage(msg) {
   if (!pgPool || !pgConnected || !msg?.id) return;
   try {
     await pgPool.query(`
-      INSERT INTO public_messages (id, sender_id, sender_name, text, lat, lng, radius, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO public_messages (id, sender_id, sender_name, text, reply_to, reply_text, reply_sender, lat, lng, radius, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       ON CONFLICT (id) DO NOTHING
-    `, [msg.id, msg.sender_id, msg.sender_name, msg.text, msg.lat, msg.lng, msg.radius || 25, msg.created_at || new Date().toISOString()]);
+    `, [msg.id, msg.sender_id, msg.sender_name, msg.text, msg.reply_to || null, msg.reply_text || null, msg.reply_sender || null, msg.lat, msg.lng, msg.radius || 25, msg.created_at || new Date().toISOString()]);
   } catch (e) {
     console.error('PG Insert Public Message Error:', e.message);
   }
@@ -1133,13 +1139,16 @@ app.get('/api/public_messages', (req, res) => {
 });
 
 app.post('/api/public_messages', (req, res) => {
-  const { sender_id, sender_name, text, lat, lng, radius } = req.body || {};
+  const { sender_id, sender_name, text, reply_to, reply_text, reply_sender, lat, lng, radius } = req.body || {};
   if (!text || !text.trim()) return res.status(400).json({ success: false, error: 'Empty text' });
   const msg = {
     id: (req.body && req.body.id) || ('pub_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
     sender_id: sender_id || 'anonymous',
     sender_name: sender_name || 'کاربر',
     text: text.trim(),
+    reply_to: reply_to || null,
+    reply_text: reply_text || null,
+    reply_sender: reply_sender || null,
     lat: lat != null && lat !== '' ? Number(lat) : null,
     lng: lng != null && lng !== '' ? Number(lng) : null,
     radius: radius != null && radius !== '' ? Number(radius) : 25,
@@ -1329,6 +1338,8 @@ app.post('/api/chats/request_action', (req, res) => {
   } else if (action === 'decline') {
     chatRequests[key].status = 'declined';
     directMessages[key] = [];
+  } else if (action === 'remove_friend') {
+    delete chatRequests[key];
   } else if (action === 'block') {
     chatRequests[key].status = 'blocked';
     chatRequests[key].blocked_by = user_id;
