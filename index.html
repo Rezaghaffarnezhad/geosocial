@@ -1109,9 +1109,10 @@ input, textarea { direction: rtl; }
   position: absolute;
   inset: 0;
   z-index: 5;
-  pointer-events: auto;
+  pointer-events: none;
 }
 .interactive-sticker-poll {
+  pointer-events: auto;
   position: absolute;
   top: 55%;
   left: 50%;
@@ -1631,17 +1632,22 @@ input, textarea { direction: rtl; }
 
 /* Telegram Profile & Settings View */
 .profile-content-scroll {
-  flex: 1 1 0;
+  flex: 1 1 auto;
   min-height: 0 !important;
-  overflow-y: auto !important;
+  max-height: calc(100% - 56px) !important;
+  overflow-y: scroll !important;
   overflow-x: hidden !important;
-  padding: 16px 16px calc(180px + var(--safe-bottom)) !important;
+  padding: 16px 16px calc(140px + var(--safe-bottom)) !important;
   display: flex;
   flex-direction: column;
   gap: 14px;
   -webkit-overflow-scrolling: touch !important;
-  overscroll-behavior-y: contain !important;
+  touch-action: pan-y !important;
+  overscroll-behavior-y: auto !important;
   scrollbar-width: thin;
+}
+.profile-content-scroll * {
+  touch-action: pan-y;
 }
 .profile-header-card {
   background: var(--card-bg);
@@ -2932,7 +2938,10 @@ input:checked + .slider:before { transform: translateX(20px); }
         <div id="storyViewerTime" style="font-size:10px;opacity:0.8"></div>
       </div>
     </div>
-    <div style="display:flex;gap:6px">
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="badge" style="background:rgba(42,171,238,0.25);border:1px solid var(--blue);color:#fff;font-size:11px;padding:5px 10px;border-radius:14px;display:flex;align-items:center;gap:5px;cursor:pointer" onclick="event.stopPropagation();closeStoryViewer();openStoryCreator();" title="استوری جدید">
+        <i class="fa-solid fa-plus"></i> استوری جدید
+      </button>
       <button class="composer-icon-btn" style="color:#fff" onclick="toggleStoryMoreMenu()"><i class="fa-solid fa-ellipsis-vertical" style="font-size:18px"></i></button>
       <button class="composer-icon-btn" style="color:#fff" onclick="closeStoryViewer()"><i class="fa-solid fa-xmark" style="font-size:22px"></i></button>
     </div>
@@ -2960,7 +2969,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 
   <!-- Story More Options Menu -->
   <div id="storyMoreMenu" class="story-more-menu">
-    <button onclick="shareCurrentStory()"><i class="fa-solid fa-share-nodes"></i> اشتراکگذاری</button>
+    <button onclick="closeStoryViewer();openStoryCreator();"><i class="fa-solid fa-plus-circle" style="color:var(--blue)"></i> استوری جدید</button>
+    <button onclick="shareCurrentStory()"><i class="fa-solid fa-share-nodes"></i> اشتراک‌گذاری</button>
     <button onclick="downloadCurrentStory()"><i class="fa-solid fa-download"></i> ذخیره استوری</button>
     <button onclick="reportCurrentStory()" style="color:var(--danger)"><i class="fa-solid fa-flag"></i> گزارش</button>
   </div>
@@ -3151,6 +3161,8 @@ input:checked + .slider:before { transform: translateX(20px); }
         <i class="fa-solid fa-chevron-left" style="font-size:12px"></i>
       </div>
     </div>
+    <!-- Bottom scroll spacer to guarantee full visibility of all options on mobile -->
+    <div style="height:130px;flex-shrink:0;pointer-events:none"></div>
   </div>
 </div>
 
@@ -3196,7 +3208,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 </div>
 
 <!-- Other User Profile Modal -->
-<div id="otherUserModal" class="modal-overlay">
+<div id="otherUserModal" class="modal-overlay" style="z-index:210">
   <div class="modal-header">
     <h3><i class="fa-solid fa-user" style="color:var(--blue)"></i> پروفایل کاربر</h3>
     <button class="composer-icon-btn" onclick="$('otherUserModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
@@ -3239,6 +3251,8 @@ input:checked + .slider:before { transform: translateX(20px); }
         <button class="badge" style="background:rgba(42,171,238,0.15);color:var(--blue);border:1px solid rgba(42,171,238,0.3)" onclick="$('otherUserModal').classList.remove('open');if(map&&state.activeSelectedUser)map.flyTo([Number(state.activeSelectedUser.lat), Number(state.activeSelectedUser.lng)], 16)"><i class="fa-solid fa-map"></i> روی نقشه</button>
       </div>
     </div>
+    <!-- Bottom scroll spacer -->
+    <div style="height:120px;flex-shrink:0;pointer-events:none"></div>
   </div>
 </div>
 
@@ -4322,11 +4336,16 @@ function renderPublicOverlayMessages() {
       quoteHtml = `<div class="public-reply-quote" dir="auto">${m.reply_sender ? `<span style="color:var(--blue);font-weight:700">${esc(m.reply_sender)}: </span>` : ''}${esc(m.reply_text)}</div>`;
     }
 
-    // Sender name in small blue beside the message text in public chat
+    // Sender name above message for incoming messages; no sender name for outgoing messages
+    let senderHeaderHtml = '';
+    if (!isMe) {
+      senderHeaderHtml = `<div class="public-msg-sender-top" style="font-size:10px;color:var(--blue);font-weight:700;margin-bottom:2px;cursor:pointer;line-height:1.2" onclick="event.stopPropagation();openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')">${esc(senderName)}</div>`;
+    }
+
     item.innerHTML = `
       ${quoteHtml}
+      ${senderHeaderHtml}
       <div dir="auto" class="public-msg-text-body">
-        <span class="public-msg-sender-inline" style="font-size:9.5px;color:var(--blue);font-weight:700;margin-left:4px;cursor:pointer" onclick="event.stopPropagation();openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')">${esc(senderName)}:</span>
         <span class="public-msg-text-content">${esc(m.text || '')}</span>
       </div>
     `;
@@ -4684,11 +4703,12 @@ function openStoryViewer(idx) {
 }
 
 function setupStoryViewerGestures() {
-  const mediaBox = $('storyMediaBox');
-  if (!mediaBox) return;
+  const viewer = $('storyViewer');
+  if (!viewer) return;
   let lastTap = 0, holdTimer = null, isHolding = false;
 
-  mediaBox.onpointerdown = (e) => {
+  viewer.onpointerdown = (e) => {
+    if (e.target.closest('#storyTopInfo, #storyBottomBar, #storyViewersBar, .story-more-menu, .interactive-sticker-poll, button, input')) return;
     isHolding = false;
     clearTimeout(holdTimer);
     holdTimer = setTimeout(() => {
@@ -4738,7 +4758,8 @@ function setupStoryViewerGestures() {
     return false;
   };
 
-  mediaBox.onpointerup = (e) => {
+  viewer.onpointerup = (e) => {
+    if (e.target.closest('#storyTopInfo, #storyBottomBar, #storyViewersBar, .story-more-menu, .interactive-sticker-poll, button, input')) return;
     clearTimeout(holdTimer);
     const wasHold = resumeAfterHold();
     if (wasHold) return;
@@ -4759,7 +4780,7 @@ function setupStoryViewerGestures() {
     lastTap = now;
   };
 
-  mediaBox.onpointercancel = () => {
+  viewer.onpointercancel = () => {
     clearTimeout(holdTimer);
     resumeAfterHold();
   };
@@ -5125,13 +5146,15 @@ function renderChatsList(q = '') {
 
   const renderedIds = new Set();
   const convList = state.userConversations || [];
+  let renderedCount = 0;
 
-  // 1. Render active conversations first (Telegram / Instagram style)
+  // 1. Render active conversations (افرادی که با آنها چت کرده‌ام)
   convList.forEach(c => {
     const p = c.other_user || { id: 'unknown', name: 'کاربر' };
     if (renderedIds.has(p.id)) return;
     if (needle && !p.name.toLowerCase().includes(needle) && !(c.last_message?.text || '').toLowerCase().includes(needle)) return;
     renderedIds.add(p.id);
+    renderedCount++;
 
     const isPending = c.status === 'pending';
     const unread = c.unread_count || 0;
@@ -5169,33 +5192,52 @@ function renderChatsList(q = '') {
     container.appendChild(item);
   });
 
-  // 2. Render remaining nearby users who haven't started a conversation yet
-  const otherPins = state.pins.filter(p => !renderedIds.has(p.id));
-  if (otherPins.length > 0 && !needle && convList.length > 0) {
+  // 2. Render friends who don't have an active message yet (لیست دوستان)
+  const storedFriends = JSON.parse(localStorage.getItem('geosocial_friends') || '[]');
+  const friendPins = state.pins.filter(p => storedFriends.includes(p.id) && !renderedIds.has(p.id));
+  
+  if (friendPins.length > 0 && !needle) {
     const divider = document.createElement('div');
-    divider.style.cssText = 'padding:8px 16px;background:var(--input-bg);color:var(--muted);font-size:11px;font-weight:700;border-bottom:1px solid var(--border)';
-    divider.textContent = 'افراد نزدیک به شما';
+    divider.style.cssText = 'padding:8px 16px;background:var(--input-bg);color:var(--blue);font-size:11px;font-weight:700;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px';
+    divider.innerHTML = '<i class="fa-solid fa-user-group"></i> دوستان';
     container.appendChild(divider);
   }
 
-  otherPins.forEach(p => {
+  friendPins.forEach(p => {
     if (needle && !p.name.toLowerCase().includes(needle)) return;
+    renderedIds.add(p.id);
+    renderedCount++;
+
     const item = document.createElement('div');
     item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer';
     item.innerHTML = `
-      <div style="position:relative;width:44px;height:44px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(state.pins.find(x => x.id === '${p.id}') || ${JSON.stringify(p).replace(/"/g, '&quot;')})">
-        <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover">
+      <div style="position:relative;width:44px;height:44px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(p)">
+        <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green)">
         <span class="led ${online(p) ? 'online' : 'offline'}" style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;border:2px solid var(--panel)"></span>
       </div>
       <div style="flex:1;min-width:0">
-        <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${esc(p.name)}</b>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(formatLastSeen(p.last_seen, online(p)))}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</b>
+          <span style="font-size:10px;color:var(--green);font-weight:600">دوست 🤝</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">برای شروع گفتگو لمس کنید...</div>
       </div>
       <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
     `;
     item.onclick = () => { closeAllModals(); openChatRoom(p); };
     container.appendChild(item);
   });
+
+  // Empty state if no chats and no friends
+  if (renderedCount === 0) {
+    container.innerHTML = `
+      <div style="padding:40px 20px;text-align:center;color:var(--muted)">
+        <i class="fa-solid fa-comments" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.35"></i>
+        گفتگویی وجود ندارد
+        <div style="font-size:12px;margin-top:6px;opacity:0.8">تنها دوستان و افرادی که با آنها چت کرده‌اید در این بخش نمایش داده می‌شوند.</div>
+      </div>
+    `;
+  }
 }
 
 let currentPeopleFilter = 'all';
@@ -6511,9 +6553,14 @@ function openStoryViewersList() {
         let commentsHtml = '';
         if (userComments.length > 0) {
           commentsHtml = userComments.map(c => `
-            <div style="font-size:11px;color:var(--blue);background:rgba(42,171,238,0.12);padding:3px 8px;border-radius:8px;margin-top:4px;display:inline-flex;align-items:center;gap:4px">
-              <i class="fa-solid fa-comment-dots" style="font-size:10px"></i>
-              <span>${esc(c.text)}</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;background:rgba(42,171,238,0.12);padding:4px 8px;border-radius:10px;margin-top:5px">
+              <div style="font-size:11px;color:var(--blue);display:inline-flex;align-items:center;gap:4px;min-width:0;overflow:hidden;text-overflow:ellipsis">
+                <i class="fa-solid fa-comment-dots" style="font-size:10px;flex-shrink:0"></i>
+                <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.text)}</span>
+              </div>
+              <button class="badge" style="background:var(--blue);color:#fff;font-size:10px;padding:2px 8px;border-radius:8px;cursor:pointer;flex-shrink:0" onclick="event.stopPropagation();replyToStoryComment('${esc(viewerId)}', '${esc(name)}', '${esc(c.text)}')">
+                <i class="fa-solid fa-reply"></i> پاسخ
+              </button>
             </div>
           `).join('');
         }
@@ -6565,6 +6612,20 @@ function closeStoryViewersList() {
   $('storyViewersModal')?.classList.remove('open');
   clearTimeout(state.storyTimer);
   state.storyTimer = setTimeout(nextStorySlide, 3500);
+}
+
+function replyToStoryComment(userId, userName, commentText) {
+  closeStoryViewersList();
+  closeStoryViewer();
+  const user = state.pins.find(p => p.id === userId) || { id: userId, name: userName };
+  openChatRoom(user);
+  setTimeout(() => {
+    const input = $('chatMsgInput');
+    if (input) {
+      input.value = `در پاسخ به نظر شما در استوری: «${commentText}»\n`;
+      input.focus();
+    }
+  }, 250);
 }
 
 // =============================================
