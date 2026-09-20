@@ -973,7 +973,7 @@ app.post('/api/stories/view', (req, res) => {
 app.get('/api/stories/:id/views', (req, res) => {
   const story = stories.find(s => s.id === req.params.id);
   if (!story) return res.status(404).json({ success: false, error: 'Story not found' });
-  res.json({ success: true, views: story.views || [] });
+  res.json({ success: true, views: story.views || [], likes: story.likes || [], comments: story.comments || [] });
 });
 
 app.post('/api/stories/like', (req, res) => {
@@ -1353,10 +1353,20 @@ app.post('/api/chats/request_action', (req, res) => {
 
 app.get('/api/chats/status', (req, res) => {
   const { user1, user2 } = req.query;
-  if (!user1 || !user2) return res.json({ success: true, status: 'accepted' });
+  if (!user1 || !user2) return res.json({ success: true, status: 'none' });
   const key = [user1, user2].sort().join('_');
-  const reqObj = chatRequests[key] || { status: 'accepted' };
+  const reqObj = chatRequests[key] || { status: 'none' };
   res.json({ success: true, status: reqObj.status, chatRequest: reqObj });
+});
+
+// WebRTC Call Signaling (Real Audio/Video PeerConnection)
+app.post('/api/calls/signal', (req, res) => {
+  const { from_user_id, to_user_id, type, data, call_type, caller_name, caller_avatar } = req.body || {};
+  if (!from_user_id || !to_user_id || !type) {
+    return res.status(400).json({ success: false, error: 'Missing call parameters' });
+  }
+  broadcastSSE('call_signal', { from_user_id, to_user_id, type, data, call_type, caller_name, caller_avatar });
+  res.json({ success: true });
 });
 
 app.post('/api/messages/poll_vote', (req, res) => {

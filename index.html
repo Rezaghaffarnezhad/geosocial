@@ -2707,19 +2707,16 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div class="chat-header">
     <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
       <button class="composer-icon-btn" onclick="closeChatRoom()"><i class="fa-solid fa-arrow-right"></i></button>
-      <div class="chat-user-info" onclick="openOtherUserProfile(state.activeConversationUser)" style="min-width:0">
+      <div class="chat-user-info" onclick="openOtherUserProfile(state.activeConversationUser)" style="min-width:0;cursor:pointer">
         <img id="chatRoomAvatar" src="">
         <div style="min-width:0">
-          <div id="chatRoomName" style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-          <div id="chatRoomStatus" style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+          <div id="chatRoomName" style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+          <div id="chatRoomStatus" style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
         </div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:4px">
       <button class="composer-icon-btn" onclick="toggleChatSearch()" title="جستجو در گفتگو"><i class="fa-solid fa-magnifying-glass"></i></button>
-      <button class="composer-icon-btn" onclick="startNavigationToUser(state.activeConversationUser)" title="مسیریابی زنده رو نقشه"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i></button>
-      <button class="composer-icon-btn" onclick="startCall('voice')" title="تماس صوتی"><i class="fa-solid fa-phone"></i></button>
-      <button class="composer-icon-btn" onclick="startCall('video')" title="تماس تصویری"><i class="fa-solid fa-video"></i></button>
       <button class="composer-icon-btn" onclick="toggleChatOptionsMenu()" title="گزینه‌های گفتگو"><i class="fa-solid fa-ellipsis-vertical"></i></button>
     </div>
   </div>
@@ -2945,10 +2942,6 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div class="story-media-view" id="storyMediaBox">
     <img id="storyViewerImg" src="">
   </div>
-
-  <!-- Story Navigation Buttons (Previous / Next) -->
-  <button class="story-nav-btn story-nav-prev" onclick="event.stopPropagation(); prevStorySlide()" title="استوری قبلی"><i class="fa-solid fa-chevron-right"></i></button>
-  <button class="story-nav-btn story-nav-next" onclick="event.stopPropagation(); nextStorySlide()" title="استوری بعدی"><i class="fa-solid fa-chevron-left"></i></button>
 
   <!-- Interactive Stickers Layer -->
   <div id="storyStickersLayer" class="story-stickers-layer"></div>
@@ -3220,14 +3213,20 @@ input:checked + .slider:before { transform: translateX(20px); }
         <p id="otherUserDistance" style="font-size:11px;color:var(--green);margin-top:4px"></p>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:6px">
-        <button id="otherUserActionBtn" class="btn-primary" onclick="handleOtherUserAction()"><i class="fa-solid fa-comments"></i> ارسال پیام</button>
-        <button id="otherUserNavBtn" class="btn-secondary" onclick="startNavigationToUser(state.activeSelectedUser)"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i> مسیریابی زنده</button>
+      <div id="otherUserActionsWrap" style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
+          <button id="otherUserActionBtn" class="btn-primary" onclick="handleOtherUserAction()"><i class="fa-solid fa-comments"></i> ارسال پیام</button>
+          <button id="otherUserNavBtn" class="btn-secondary" onclick="startNavigationToUser(state.activeSelectedUser)"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i> مسیریابی زنده</button>
+        </div>
+        <div id="otherUserCallBtnsRow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
+          <button id="otherUserVoiceCallBtn" class="btn-secondary" onclick="startCall('voice', state.activeSelectedUser)"><i class="fa-solid fa-phone" style="color:var(--green)"></i> تماس صوتی</button>
+          <button id="otherUserVideoCallBtn" class="btn-secondary" onclick="startCall('video', state.activeSelectedUser)"><i class="fa-solid fa-video" style="color:var(--blue)"></i> تماس تصویری</button>
+        </div>
+        <button id="otherUserRemoveFriendBtn" class="btn-danger" style="display:none;width:100%;padding:10px;font-size:12px;border-radius:12px;font-weight:600" onclick="removeCurrentFriend()"><i class="fa-solid fa-user-xmark"></i> حذف از لیست دوستان</button>
       </div>
-      <button id="otherUserRemoveFriendBtn" class="btn-danger" style="display:none;width:100%;margin-top:8px;padding:10px;font-size:12px;border-radius:12px;font-weight:600" onclick="removeCurrentFriend()"><i class="fa-solid fa-user-xmark"></i> حذف از لیست دوستان</button>
 
       <!-- GPS Location Details Card (جایگزینی فالوور با GPS قابل مشاهده برای دیگران) -->
-      <div class="profile-gps-card" style="background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px">
+      <div id="otherUserGpsCard" class="profile-gps-card" style="background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px">
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:38px;height:38px;border-radius:10px;background:rgba(46,204,113,0.18);display:grid;place-items:center;color:var(--green);font-size:18px">
             <i class="fa-solid fa-location-crosshairs"></i>
@@ -3360,17 +3359,46 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 </div>
 
-<!-- Interactive Call Modal (Voice / Video) -->
-<div id="callModal" class="call-modal-overlay">
-  <div style="text-align:center">
+<!-- Interactive Real WebRTC Call Modal (Voice / Video) -->
+<div id="callModal" class="call-modal-overlay" style="position:fixed;inset:0;z-index:280;background:rgba(15,23,42,0.96);display:none;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(20px + var(--safe-top)) 20px calc(24px + var(--safe-bottom))">
+  <!-- Video streams for WebRTC calls -->
+  <video id="remoteVideo" autoplay playsinline style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1"></video>
+  <video id="localVideo" autoplay playsinline muted style="display:none;position:absolute;bottom:100px;left:16px;width:100px;height:140px;border-radius:14px;object-fit:cover;border:2px solid var(--blue);z-index:10;box-shadow:0 8px 24px rgba(0,0,0,0.6)"></video>
+  <audio id="remoteAudio" autoplay playsinline></audio>
+
+  <div style="text-align:center;position:relative;z-index:5;margin-top:20px">
     <img id="callAvatar" src="" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--blue);box-shadow:0 0 25px var(--blue-glow);margin-bottom:14px">
-    <h3 id="callName" style="font-size:20px;font-weight:700"></h3>
-    <div id="callStatusText" style="color:var(--green);font-size:13px;margin-top:6px">در حال برقراری ارتباط...</div>
-    <div id="callTimerText" style="font-size:16px;font-weight:700;margin-top:10px;display:none">00:00</div>
+    <h3 id="callName" style="font-size:20px;font-weight:700;color:#fff"></h3>
+    <div id="callStatusText" style="color:var(--green);font-size:13px;margin-top:6px;display:flex;align-items:center;gap:8px;justify-content:center">در حال برقراری ارتباط...</div>
+    <div id="callSignalBars" style="display:none;justify-content:center;margin-top:4px">
+      <div class="call-signal-bars">
+        <div class="call-signal-bar" style="height:5px"></div>
+        <div class="call-signal-bar" style="height:8px"></div>
+        <div class="call-signal-bar" style="height:12px"></div>
+        <div class="call-signal-bar" style="height:16px"></div>
+      </div>
+      <span style="font-size:11px;color:var(--green);margin-right:6px">HD</span>
+    </div>
+    <div id="callTimerText" style="font-size:16px;font-weight:700;margin-top:10px;display:none;color:#fff">00:00</div>
   </div>
-  <div style="display:flex;gap:20px">
-    <button class="fab-btn" id="callMuteBtn" onclick="toggleCallMute()"><i class="fa-solid fa-microphone"></i></button>
-    <button class="btn-danger" style="width:60px;height:60px;border-radius:50%;padding:0;font-size:22px" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></button>
+
+  <div style="display:flex;gap:24px;position:relative;z-index:5;align-items:center">
+    <button class="fab-btn" id="callMuteBtn" onclick="toggleCallMute()" title="بی‌صدا"><i class="fa-solid fa-microphone"></i></button>
+    <button class="fab-btn" id="callVideoToggleBtn" onclick="toggleCallVideo()" style="display:none" title="دوربین"><i class="fa-solid fa-video"></i></button>
+    <button class="btn-danger" style="width:64px;height:64px;border-radius:50%;padding:0;font-size:24px;display:grid;place-items:center;box-shadow:0 6px 20px rgba(231,76,60,0.5)" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></button>
+  </div>
+</div>
+
+<!-- Incoming Call Modal -->
+<div id="incomingCallModal" class="modal-overlay" style="z-index:300;background:rgba(0,0,0,0.85);justify-content:center;align-items:center;display:none">
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:26px 20px;width:90%;max-width:340px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.6)">
+    <img id="incomingCallAvatar" src="" style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid var(--blue);margin-bottom:12px">
+    <h3 id="incomingCallName" style="font-size:18px;font-weight:700"></h3>
+    <div id="incomingCallType" style="font-size:13px;color:var(--blue);margin-top:6px">تماس صوتی ورودی...</div>
+    <div style="display:flex;justify-content:center;gap:30px;margin-top:24px">
+      <button class="btn-danger" style="width:58px;height:58px;border-radius:50%;padding:0;font-size:22px;display:grid;place-items:center" onclick="rejectIncomingCall()" title="رد تماس"><i class="fa-solid fa-phone-slash"></i></button>
+      <button class="btn-primary" style="width:58px;height:58px;border-radius:50%;padding:0;font-size:22px;background:var(--green);display:grid;place-items:center" onclick="acceptIncomingCall()" title="پاسخ"><i class="fa-solid fa-phone"></i></button>
+    </div>
   </div>
 </div>
 
@@ -4287,16 +4315,20 @@ function renderPublicOverlayMessages() {
     const item = document.createElement('div');
     const isMe = state.user && m.sender_id === state.user.id;
     item.className = 'public-overlay-msg-item' + (isMe ? ' my-msg' : '');
+    const senderName = isMe ? (state.profile?.name || state.user?.name || 'من') : (m.sender_name || 'کاربر');
 
     let quoteHtml = '';
     if (m.reply_text) {
       quoteHtml = `<div class="public-reply-quote" dir="auto">${m.reply_sender ? `<span style="color:var(--blue);font-weight:700">${esc(m.reply_sender)}: </span>` : ''}${esc(m.reply_text)}</div>`;
     }
 
-    // Only quote (if replying) and message text body, NO sender name or extra tag
+    // Sender name in small blue beside the message text in public chat
     item.innerHTML = `
       ${quoteHtml}
-      <div dir="auto" class="public-msg-text-body">${esc(m.text || '')}</div>
+      <div dir="auto" class="public-msg-text-body">
+        <span class="public-msg-sender-inline" style="font-size:9.5px;color:var(--blue);font-weight:700;margin-left:4px;cursor:pointer" onclick="event.stopPropagation();openProfileFromSenderId('${esc(m.sender_id)}', '${esc(senderName)}')">${esc(senderName)}:</span>
+        <span class="public-msg-text-content">${esc(m.text || '')}</span>
+      </div>
     `;
 
     // Attach Context Menu on click / long-press / contextmenu
@@ -4539,7 +4571,7 @@ function renderStoriesTray() {
   myStory.innerHTML = `
     <div class="story-ring ${hasMyStory ? 'unviewed' : ''}" style="${hasMyStory ? 'background:var(--insta-gradient);' : 'background:transparent;border:2px dashed var(--muted);'}">
       <img src="${esc(state.profile?.avatar || DEFAULT_AVATAR)}" onerror="this.src='${DEFAULT_AVATAR}'">
-      ${!hasMyStory ? '<div class="story-add-badge">+</div>' : ''}
+      <div class="story-add-badge" onclick="event.stopPropagation(); openStoryCreator()" title="افزودن استوری جدید" style="cursor:pointer;pointer-events:auto">+</div>
     </div>
     <span>استوری شما</span>
   `;
@@ -4553,6 +4585,20 @@ function renderStoriesTray() {
     }
   };
   tray.appendChild(myStory);
+
+  // Dedicated "New Story" slot when active stories exist
+  if (hasMyStory) {
+    const addStoryItem = document.createElement('div');
+    addStoryItem.className = 'story-item';
+    addStoryItem.innerHTML = `
+      <div class="story-ring" style="background:rgba(42,171,238,0.12);border:1.5px dashed var(--blue);display:grid;place-items:center;cursor:pointer">
+        <i class="fa-solid fa-camera" style="color:var(--blue);font-size:16px"></i>
+      </div>
+      <span style="color:var(--blue);font-weight:700">استوری جدید</span>
+    `;
+    addStoryItem.onclick = () => openStoryCreator();
+    tray.appendChild(addStoryItem);
+  }
 
   // Other Stories: EXCLUDE current user's stories so they don't repeat!
   const otherStories = state.stories.filter(s => s.user_id !== state.user?.id);
@@ -4648,7 +4694,7 @@ function setupStoryViewerGestures() {
     holdTimer = setTimeout(() => {
       isHolding = true;
       clearTimeout(state.storyTimer);
-      // Freeze progress bar animation in place
+      // Freeze progress bar animation in place without moving
       const pContainer = $('storyProgressBarContainer');
       const currentFill = pContainer?.children[state.currentStoryIndex]?.firstElementChild;
       if (currentFill) {
@@ -4656,10 +4702,10 @@ function setupStoryViewerGestures() {
         currentFill.style.transition = 'none';
         currentFill.style.width = computedWidth;
       }
+      state.storyHoldPauseStart = Date.now();
       $('storyTopInfo').style.opacity = '0';
       $('storyBottomBar').style.opacity = '0';
       $('storyProgressBarContainer').style.opacity = '0';
-      document.querySelectorAll('.story-nav-btn').forEach(btn => btn.style.opacity = '0');
     }, 150);
   };
 
@@ -4667,10 +4713,14 @@ function setupStoryViewerGestures() {
     $('storyTopInfo').style.opacity = '1';
     $('storyBottomBar').style.opacity = '1';
     $('storyProgressBarContainer').style.opacity = '1';
-    document.querySelectorAll('.story-nav-btn').forEach(btn => btn.style.opacity = '1');
 
     if (isHolding) {
       isHolding = false;
+      if (state.storyHoldPauseStart) {
+        const pauseDuration = Date.now() - state.storyHoldPauseStart;
+        state.storySlideStartTime = (state.storySlideStartTime || Date.now()) + pauseDuration;
+        state.storyHoldPauseStart = null;
+      }
       const elapsed = Date.now() - (state.storySlideStartTime || Date.now());
       const remaining = Math.max(600, (CFG.storyDuration || 5000) - elapsed);
       const pContainer = $('storyProgressBarContainer');
@@ -4699,9 +4749,8 @@ function setupStoryViewerGestures() {
       likeCurrentStory();
     } else {
       const clientX = e.clientX || 0;
-      // In RTL: tapping left side (0 to 45%) goes to next or prev?
-      // In Instagram: tapping right side advances (next), tapping left side goes back (prev)
-      if (clientX < window.innerWidth * 0.45) {
+      // Complete 50% split: left half goes back, right half goes forward
+      if (clientX < window.innerWidth * 0.5) {
         prevStorySlide();
       } else {
         nextStorySlide();
@@ -4714,6 +4763,42 @@ function setupStoryViewerGestures() {
     clearTimeout(holdTimer);
     resumeAfterHold();
   };
+
+  // Pause story while typing a comment/reply
+  const replyInput = $('storyReplyInput');
+  if (replyInput && !replyInput.dataset.pauseInit) {
+    replyInput.dataset.pauseInit = 'true';
+    replyInput.addEventListener('focus', () => {
+      clearTimeout(state.storyTimer);
+      const pContainer = $('storyProgressBarContainer');
+      const currentFill = pContainer?.children[state.currentStoryIndex]?.firstElementChild;
+      if (currentFill) {
+        const computedWidth = window.getComputedStyle(currentFill).width;
+        currentFill.style.transition = 'none';
+        currentFill.style.width = computedWidth;
+      }
+      state.storyReplyPauseStart = Date.now();
+    });
+    replyInput.addEventListener('blur', () => {
+      if (state.storyReplyPauseStart) {
+        const pauseDuration = Date.now() - state.storyReplyPauseStart;
+        state.storySlideStartTime = (state.storySlideStartTime || Date.now()) + pauseDuration;
+        state.storyReplyPauseStart = null;
+      }
+      const elapsed = Date.now() - (state.storySlideStartTime || Date.now());
+      const remaining = Math.max(800, (CFG.storyDuration || 5000) - elapsed);
+      const pContainer = $('storyProgressBarContainer');
+      const currentFill = pContainer?.children[state.currentStoryIndex]?.firstElementChild;
+      if (currentFill) {
+        requestAnimationFrame(() => {
+          currentFill.style.transition = `width ${remaining}ms linear`;
+          currentFill.style.width = '100%';
+        });
+      }
+      clearTimeout(state.storyTimer);
+      state.storyTimer = setTimeout(nextStorySlide, remaining);
+    });
+  }
 }
 
 function triggerDoubleTapHeart() {
@@ -5159,10 +5244,11 @@ function flyToPersonLocation(lat, lng, id) {
   const pubOverlay = $('publicChatOverlay');
   if (pubOverlay) pubOverlay.style.display = 'flex';
   if (map && Number.isFinite(lat) && Number.isFinite(lng)) {
-    map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
+    // Slower, smooth cinematic transition to location
+    map.flyTo([lat, lng], 16, { animate: true, duration: 2.8, easeLinearity: 0.25 });
     const m = state.markers && state.markers[id];
     if (m && m.openPopup) {
-      setTimeout(() => { try { m.openPopup(); } catch {} }, 1200);
+      setTimeout(() => { try { m.openPopup(); } catch {} }, 2850);
     }
   }
 }
@@ -6397,7 +6483,7 @@ function openStoryViewersList() {
   if (!list) return;
   list.innerHTML = '';
 
-  const renderList = (views) => {
+  const renderList = (views, likes = [], comments = []) => {
     if (countEl) countEl.textContent = views.length;
     if (views.length === 0) {
       list.innerHTML = `
@@ -6410,20 +6496,38 @@ function openStoryViewersList() {
       list.innerHTML = '';
       views.forEach(v => {
         const item = document.createElement('div');
-        item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)';
+        item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)';
         const avatar = typeof v === 'object' ? (v.user_avatar || DEFAULT_AVATAR) : DEFAULT_AVATAR;
         const name = typeof v === 'object' ? (v.user_name || 'کاربر') : 'کاربر';
         const time = typeof v === 'object' && v.created_at ? new Date(v.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : 'امروز';
         const viewerId = typeof v === 'object' ? v.user_id : null;
         const viewerUser = viewerId ? (state.pins.find(p => p.id === viewerId) || { id: viewerId, name, avatar }) : null;
 
+        const allLikes = likes.length > 0 ? likes : (s.likes || []);
+        const allComments = comments.length > 0 ? comments : (s.comments || []);
+        const hasLiked = viewerId && allLikes.includes(viewerId);
+        const userComments = viewerId ? allComments.filter(c => c.user_id === viewerId) : [];
+
+        let commentsHtml = '';
+        if (userComments.length > 0) {
+          commentsHtml = userComments.map(c => `
+            <div style="font-size:11px;color:var(--blue);background:rgba(42,171,238,0.12);padding:3px 8px;border-radius:8px;margin-top:4px;display:inline-flex;align-items:center;gap:4px">
+              <i class="fa-solid fa-comment-dots" style="font-size:10px"></i>
+              <span>${esc(c.text)}</span>
+            </div>
+          `).join('');
+        }
+
         item.innerHTML = `
-          <img src="${esc(avatar)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border)">
-          <div style="flex:1">
-            <b style="font-size:13px">${esc(name)}</b>
-            <div style="font-size:10px;color:var(--muted)">${time}</div>
+          <img src="${esc(avatar)}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border);flex-shrink:0">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <b style="font-size:13px">${esc(name)}</b>
+              <span style="font-size:10px;color:var(--muted)">${time}</span>
+            </div>
+            ${commentsHtml}
           </div>
-          <i class="fa-solid fa-heart" style="color:#ff3366;font-size:14px"></i>
+          ${hasLiked ? '<i class="fa-solid fa-heart" style="color:#ff3366;font-size:18px;margin-right:6px" title="این استوری را لایک کرد"></i>' : ''}
         `;
         if (viewerUser) {
           item.style.cursor = 'pointer';
@@ -6438,18 +6542,20 @@ function openStoryViewersList() {
     }
   };
 
-  renderList(s.views || []);
+  renderList(s.views || [], s.likes || [], s.comments || []);
   $('storyViewersModal')?.classList.add('open');
 
-  // Fetch latest view list from backend
+  // Fetch latest view, likes, and comments list from backend
   fetch(apiUrl(`/api/stories/${s.id}/views`))
     .then(r => r.json())
     .then(d => {
-      if (d.success && Array.isArray(d.views)) {
-        s.views = d.views;
-        renderList(d.views);
+      if (d.success) {
+        if (Array.isArray(d.views)) s.views = d.views;
+        if (Array.isArray(d.likes)) s.likes = d.likes;
+        if (Array.isArray(d.comments)) s.comments = d.comments;
+        renderList(s.views, s.likes, s.comments);
         const countSpan = $('storyViewersCount');
-        if (countSpan) countSpan.textContent = d.views.length;
+        if (countSpan) countSpan.textContent = s.views.length;
       }
     })
     .catch(() => {});
@@ -6505,9 +6611,58 @@ function initSSE() {
 
     sseConn.addEventListener('chat_request_action', e => {
       try {
+        const data = JSON.parse(e.data);
+        const myId = state.user?.id;
+        if (myId && data) {
+          const otherId = data.user_id === myId ? data.other_id : (data.other_id === myId ? data.user_id : null);
+          if (otherId) {
+            let friends = JSON.parse(localStorage.getItem('geosocial_friends') || '[]');
+            let accepted = JSON.parse(localStorage.getItem('geosocial_accepted_chats') || '[]');
+            if (data.action === 'accept') {
+              if (!friends.includes(otherId)) {
+                friends.push(otherId);
+                localStorage.setItem('geosocial_friends', JSON.stringify(friends));
+              }
+              if (!accepted.includes(otherId)) {
+                accepted.push(otherId);
+                localStorage.setItem('geosocial_accepted_chats', JSON.stringify(accepted));
+              }
+              if (state.sentFriendRequests) {
+                state.sentFriendRequests = state.sentFriendRequests.filter(id => id !== otherId);
+                localStorage.setItem('geosocial_sent_friend_requests', JSON.stringify(state.sentFriendRequests));
+              }
+              if (state.activeSelectedUser?.id === otherId) {
+                openOtherUserProfile(state.activeSelectedUser);
+              }
+              if (state.activeConversationUser?.id === otherId) {
+                $('chatRequestSecurityBar')?.classList.remove('active');
+                if ($('composerMainRow')) $('composerMainRow').style.display = 'flex';
+              }
+              toast('درخواست دوستی تایید شد 🤝');
+            } else if (data.action === 'decline' || data.action === 'remove_friend' || data.action === 'block') {
+              friends = friends.filter(id => id !== otherId);
+              accepted = accepted.filter(id => id !== otherId);
+              localStorage.setItem('geosocial_friends', JSON.stringify(friends));
+              localStorage.setItem('geosocial_accepted_chats', JSON.stringify(accepted));
+              if (state.activeSelectedUser?.id === otherId) {
+                openOtherUserProfile(state.activeSelectedUser);
+              }
+              if (state.activeConversationUser?.id === otherId && data.action !== 'remove_friend') {
+                closeChatRoom();
+              }
+            }
+          }
+        }
         checkChatRequests();
         syncUserConversations();
         renderChatsList();
+      } catch {}
+    });
+
+    sseConn.addEventListener('call_signal', e => {
+      try {
+        const data = JSON.parse(e.data);
+        handleCallSignal(data);
       } catch {}
     });
 
@@ -7275,41 +7430,429 @@ function shareMyLocationInChat() {
 }
 
 // ----------------------------------------------------
-// Call Studio & Web Audio Ringtone Simulation
+// Real WebRTC Audio/Video Call Engine (P2P PeerConnection)
 // ----------------------------------------------------
-function startCall(type) {
-  if (!state.activeConversationUser) return;
-  $('callAvatar').src = state.activeConversationUser.avatar || DEFAULT_AVATAR;
-  $('callName').textContent = state.activeConversationUser.name;
-  $('callStatusText').textContent = type === 'voice' ? 'تماس صوتی...' : 'تماس تصویری...';
+let rtcPeerConnection = null;
+let rtcLocalStream = null;
+let rtcRemoteStream = null;
+let ringOscillatorInterval = null;
+let ringAudioCtx = null;
+let iceCandidateQueue = [];
+
+function startRingtone(isIncoming = false) {
+  stopRingtone();
+  try {
+    ringAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const playPulse = () => {
+      if (!ringAudioCtx || ringAudioCtx.state === 'closed') return;
+      const osc1 = ringAudioCtx.createOscillator();
+      const osc2 = ringAudioCtx.createOscillator();
+      const gain = ringAudioCtx.createGain();
+
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+      if (isIncoming) {
+        osc1.frequency.value = 520;
+        osc2.frequency.value = 660;
+      } else {
+        osc1.frequency.value = 440;
+        osc2.frequency.value = 480;
+      }
+
+      gain.gain.setValueAtTime(0.12, ringAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ringAudioCtx.currentTime + (isIncoming ? 0.8 : 1.2));
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ringAudioCtx.destination);
+
+      osc1.start();
+      osc2.start();
+      osc1.stop(ringAudioCtx.currentTime + (isIncoming ? 0.8 : 1.2));
+      osc2.stop(ringAudioCtx.currentTime + (isIncoming ? 0.8 : 1.2));
+    };
+
+    playPulse();
+    ringOscillatorInterval = setInterval(playPulse, isIncoming ? 2000 : 3000);
+  } catch {}
+}
+
+function stopRingtone() {
+  if (ringOscillatorInterval) {
+    clearInterval(ringOscillatorInterval);
+    ringOscillatorInterval = null;
+  }
+  if (ringAudioCtx) {
+    try { ringAudioCtx.close(); } catch {}
+    ringAudioCtx = null;
+  }
+}
+
+const RTC_CONFIG = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' }
+  ]
+};
+
+async function startCall(type, targetUser) {
+  const user = targetUser || state.activeConversationUser || state.activeSelectedUser;
+  if (!user || !state.user) return;
+  if (!isFriend(user.id)) {
+    toast('🔒 تماس صوتی و تصویری فقط برای دوستان تایید شده فعال است');
+    return;
+  }
+
+  $('callAvatar').src = user.avatar || DEFAULT_AVATAR;
+  $('callName').textContent = user.name || 'کاربر';
+  $('callStatusText').textContent = type === 'voice' ? 'در حال برقراری تماس صوتی...' : 'در حال برقراری تماس تصویری...';
   $('callTimerText').style.display = 'none';
+  $('callSignalBars').style.display = 'none';
+  $('callModal').style.display = 'flex';
   $('callModal').classList.add('open');
+
+  const videoToggleBtn = $('callVideoToggleBtn');
+  if (videoToggleBtn) videoToggleBtn.style.display = type === 'video' ? 'grid' : 'none';
+
   playHapticSound('sent');
+  startRingtone(false);
 
-  // Simulated Answer after 2.5s
-  setTimeout(() => {
-    $('callStatusText').textContent = 'متصل شد 🟢 (کیفیت HD)';
-    $('callTimerText').style.display = 'block';
-    state.callSeconds = 0;
-    clearInterval(state.callTimerInterval);
-    state.callTimerInterval = setInterval(() => {
-      state.callSeconds++;
-      const m = String(Math.floor(state.callSeconds / 60)).padStart(2, '0');
-      const s = String(state.callSeconds % 60).padStart(2, '0');
-      $('callTimerText').textContent = `${m}:${s}`;
-    }, 1000);
-  }, 2500);
+  state.activeCall = {
+    type,
+    targetUserId: user.id,
+    targetUserName: user.name,
+    targetUserAvatar: user.avatar,
+    isCaller: true,
+    connected: false
+  };
+
+  try {
+    rtcLocalStream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: type === 'video'
+    });
+
+    const localVid = $('localVideo');
+    if (type === 'video' && localVid) {
+      localVid.srcObject = rtcLocalStream;
+      localVid.style.display = 'block';
+    } else if (localVid) {
+      localVid.style.display = 'none';
+    }
+
+    createRTCPeerConnection(user.id, type);
+    rtcLocalStream.getTracks().forEach(track => rtcPeerConnection.addTrack(track, rtcLocalStream));
+
+    const offer = await rtcPeerConnection.createOffer();
+    await rtcPeerConnection.setLocalDescription(offer);
+
+    await fetch(apiUrl('/api/calls/signal'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from_user_id: state.user.id,
+        to_user_id: user.id,
+        type: 'offer',
+        call_type: type,
+        data: offer,
+        caller_name: state.profile?.name || state.user.name,
+        caller_avatar: state.profile?.avatar || state.user.avatar
+      })
+    });
+  } catch (err) {
+    console.error('WebRTC start error:', err);
+    stopRingtone();
+    toast('خطا در دسترسی به میکروفون یا دوربین: ' + (err.name === 'NotAllowedError' ? 'اجازه دسترسی داده نشد' : 'دستگاه یافت نشد'));
+    endCall(false);
+  }
 }
 
-function endCall() {
+function createRTCPeerConnection(remoteUserId, callType) {
+  if (rtcPeerConnection) {
+    try { rtcPeerConnection.close(); } catch {}
+  }
+  iceCandidateQueue = [];
+  rtcPeerConnection = new RTCPeerConnection(RTC_CONFIG);
+
+  rtcPeerConnection.onicecandidate = (event) => {
+    if (event.candidate && state.activeCall) {
+      fetch(apiUrl('/api/calls/signal'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from_user_id: state.user.id,
+          to_user_id: remoteUserId,
+          type: 'candidate',
+          data: event.candidate
+        })
+      }).catch(() => {});
+    }
+  };
+
+  rtcPeerConnection.ontrack = (event) => {
+    rtcRemoteStream = event.streams[0];
+    const remoteVid = $('remoteVideo');
+    const remoteAud = $('remoteAudio');
+
+    if (callType === 'video' && remoteVid) {
+      remoteVid.srcObject = rtcRemoteStream;
+      remoteVid.style.display = 'block';
+      $('callAvatar').style.display = 'none';
+    } else {
+      if (remoteVid) remoteVid.style.display = 'none';
+      $('callAvatar').style.display = 'inline-block';
+    }
+
+    if (remoteAud) {
+      remoteAud.srcObject = rtcRemoteStream;
+      remoteAud.play().catch(() => {});
+    }
+  };
+
+  rtcPeerConnection.onconnectionstatechange = () => {
+    if (!rtcPeerConnection) return;
+    const s = rtcPeerConnection.connectionState;
+    if (s === 'connected') {
+      onCallConnected();
+    } else if (s === 'disconnected' || s === 'failed' || s === 'closed') {
+      endCall(false);
+    }
+  };
+}
+
+function onCallConnected() {
+  stopRingtone();
+  $('callStatusText').textContent = 'متصل شد 🟢 (کیفیت HD)';
+  $('callTimerText').style.display = 'block';
+  $('callSignalBars').style.display = 'flex';
+  if (state.activeCall) state.activeCall.connected = true;
+
+  state.callSeconds = 0;
   clearInterval(state.callTimerInterval);
-  $('callModal').classList.remove('open');
-  playHapticSound('pop');
-  toast('تماس پایان یافت');
+  state.callTimerInterval = setInterval(() => {
+    state.callSeconds++;
+    const m = String(Math.floor(state.callSeconds / 60)).padStart(2, '0');
+    const s = String(state.callSeconds % 60).padStart(2, '0');
+    $('callTimerText').textContent = `${m}:${s}`;
+  }, 1000);
+  playHapticSound('sent');
 }
+
+async function handleCallSignal(data) {
+  if (!state.user || data.to_user_id !== state.user.id) return;
+
+  if (data.type === 'offer') {
+    if (state.activeCall) {
+      fetch(apiUrl('/api/calls/signal'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from_user_id: state.user.id,
+          to_user_id: data.from_user_id,
+          type: 'busy'
+        })
+      }).catch(() => {});
+      return;
+    }
+
+    state.pendingIncomingCall = data;
+    $('incomingCallAvatar').src = data.caller_avatar || DEFAULT_AVATAR;
+    $('incomingCallName').textContent = data.caller_name || 'کاربر تماس‌گیرنده';
+    $('incomingCallType').textContent = data.call_type === 'video' ? 'تماس تصویری ورودی... 📹' : 'تماس صوتی ورودی... 📞';
+    $('incomingCallModal').style.display = 'flex';
+    $('incomingCallModal').classList.add('open');
+    startRingtone(true);
+    playHapticSound('pop');
+  } else if (data.type === 'answer') {
+    if (state.activeCall && rtcPeerConnection) {
+      stopRingtone();
+      await rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(data.data));
+      while (iceCandidateQueue.length > 0) {
+        const cand = iceCandidateQueue.shift();
+        try { await rtcPeerConnection.addIceCandidate(new RTCIceCandidate(cand)); } catch {}
+      }
+      onCallConnected();
+    }
+  } else if (data.type === 'candidate') {
+    if (rtcPeerConnection && rtcPeerConnection.remoteDescription) {
+      try {
+        await rtcPeerConnection.addIceCandidate(new RTCIceCandidate(data.data));
+      } catch {}
+    } else {
+      iceCandidateQueue.push(data.data);
+    }
+  } else if (data.type === 'reject') {
+    stopRingtone();
+    toast('تماس رد شد 📵');
+    endCall(false);
+  } else if (data.type === 'busy') {
+    stopRingtone();
+    toast('مخاطب در حال مکالمه است 📵');
+    endCall(false);
+  } else if (data.type === 'end') {
+    stopRingtone();
+    toast('تماس پایان یافت');
+    endCall(false);
+  }
+}
+
+async function acceptIncomingCall() {
+  const incoming = state.pendingIncomingCall;
+  if (!incoming) return;
+  stopRingtone();
+  $('incomingCallModal').style.display = 'none';
+  $('incomingCallModal').classList.remove('open');
+
+  const type = incoming.call_type || 'voice';
+  $('callAvatar').src = incoming.caller_avatar || DEFAULT_AVATAR;
+  $('callName').textContent = incoming.caller_name || 'کاربر';
+  $('callStatusText').textContent = 'در حال اتصال...';
+  $('callTimerText').style.display = 'none';
+  $('callSignalBars').style.display = 'none';
+  $('callModal').style.display = 'flex';
+  $('callModal').classList.add('open');
+
+  const videoToggleBtn = $('callVideoToggleBtn');
+  if (videoToggleBtn) videoToggleBtn.style.display = type === 'video' ? 'grid' : 'none';
+
+  state.activeCall = {
+    type,
+    targetUserId: incoming.from_user_id,
+    targetUserName: incoming.caller_name,
+    targetUserAvatar: incoming.caller_avatar,
+    isCaller: false,
+    connected: false
+  };
+
+  try {
+    rtcLocalStream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: type === 'video'
+    });
+
+    const localVid = $('localVideo');
+    if (type === 'video' && localVid) {
+      localVid.srcObject = rtcLocalStream;
+      localVid.style.display = 'block';
+    } else if (localVid) {
+      localVid.style.display = 'none';
+    }
+
+    createRTCPeerConnection(incoming.from_user_id, type);
+    rtcLocalStream.getTracks().forEach(track => rtcPeerConnection.addTrack(track, rtcLocalStream));
+
+    await rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(incoming.data));
+    while (iceCandidateQueue.length > 0) {
+      const cand = iceCandidateQueue.shift();
+      try { await rtcPeerConnection.addIceCandidate(new RTCIceCandidate(cand)); } catch {}
+    }
+
+    const answer = await rtcPeerConnection.createAnswer();
+    await rtcPeerConnection.setLocalDescription(answer);
+
+    await fetch(apiUrl('/api/calls/signal'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from_user_id: state.user.id,
+        to_user_id: incoming.from_user_id,
+        type: 'answer',
+        data: answer
+      })
+    });
+  } catch (err) {
+    console.error('WebRTC accept error:', err);
+    toast('خطا در دسترسی به رسانه');
+    endCall(true);
+  }
+  state.pendingIncomingCall = null;
+}
+
+function rejectIncomingCall() {
+  stopRingtone();
+  $('incomingCallModal').style.display = 'none';
+  $('incomingCallModal').classList.remove('open');
+  if (state.pendingIncomingCall && state.user) {
+    fetch(apiUrl('/api/calls/signal'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from_user_id: state.user.id,
+        to_user_id: state.pendingIncomingCall.from_user_id,
+        type: 'reject'
+      })
+    }).catch(() => {});
+  }
+  state.pendingIncomingCall = null;
+  playHapticSound('pop');
+}
+
+function endCall(sendSignal = true) {
+  stopRingtone();
+  clearInterval(state.callTimerInterval);
+
+  if (sendSignal && state.activeCall && state.user) {
+    fetch(apiUrl('/api/calls/signal'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from_user_id: state.user.id,
+        to_user_id: state.activeCall.targetUserId,
+        type: 'end'
+      })
+    }).catch(() => {});
+  }
+
+  if (rtcLocalStream) {
+    try { rtcLocalStream.getTracks().forEach(t => t.stop()); } catch {}
+    rtcLocalStream = null;
+  }
+  if (rtcPeerConnection) {
+    try { rtcPeerConnection.close(); } catch {}
+    rtcPeerConnection = null;
+  }
+  rtcRemoteStream = null;
+  iceCandidateQueue = [];
+
+  const localVid = $('localVideo');
+  if (localVid) { localVid.srcObject = null; localVid.style.display = 'none'; }
+  const remoteVid = $('remoteVideo');
+  if (remoteVid) { remoteVid.srcObject = null; remoteVid.style.display = 'none'; }
+  const remoteAud = $('remoteAudio');
+  if (remoteAud) { remoteAud.srcObject = null; }
+  $('callAvatar').style.display = 'inline-block';
+
+  $('callModal').style.display = 'none';
+  $('callModal').classList.remove('open');
+  $('incomingCallModal').style.display = 'none';
+  $('incomingCallModal').classList.remove('open');
+
+  state.activeCall = null;
+  state.pendingIncomingCall = null;
+  playHapticSound('pop');
+}
+
 function toggleCallMute() {
   const btn = $('callMuteBtn');
   btn.classList.toggle('active');
+  const isMuted = btn.classList.contains('active');
+  if (rtcLocalStream) {
+    rtcLocalStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+  }
+  toast(isMuted ? 'میکروفون قطع شد 🔇' : 'میکروفون فعال شد 🎙️');
+  playHapticSound('pop');
+}
+
+function toggleCallVideo() {
+  const btn = $('callVideoToggleBtn');
+  btn.classList.toggle('active');
+  const isOff = btn.classList.contains('active');
+  if (rtcLocalStream) {
+    rtcLocalStream.getVideoTracks().forEach(t => t.enabled = !isOff);
+  }
+  const localVid = $('localVideo');
+  if (localVid) localVid.style.opacity = isOff ? '0' : '1';
+  toast(isOff ? 'دوربین خاموش شد' : 'دوربین روشن شد');
   playHapticSound('pop');
 }
 
@@ -8044,31 +8587,38 @@ function openOtherUserProfile(user) {
   state.activeSelectedUser = user;
   $('otherUserAvatar').src = user.avatar || DEFAULT_AVATAR;
   $('otherUserName').textContent = user.name || 'کاربر';
-  $('otherUserUsername').textContent = user.username ? `@${user.username}` : '';
 
   const isMyFriend = isFriend(user.id);
   const hasIncomingReq = state.chatRequestsList && state.chatRequestsList.some(r => r.otherUser?.id === user.id || r.sender_id === user.id);
   const hasPendingSent = (state.sentFriendRequests || []).includes(user.id);
 
-  // Stranger Privacy: Bio and Exact GPS
+  // Avatar tap behavior: strangers cannot enlarge
+  const ring = $('otherUserAvatarRing');
+  if (ring) {
+    ring.style.cursor = isMyFriend ? 'pointer' : 'default';
+    ring.title = isMyFriend ? 'مشاهده عکس پروفایل' : 'پروفایل قفل است';
+  }
+
+  // Stranger Privacy: Locked Profile
   if (isMyFriend) {
+    $('otherUserUsername').textContent = user.username ? `@${user.username}` : '';
+    $('otherUserUsername').style.display = user.username ? 'block' : 'none';
     $('otherUserBio').textContent = user.bio || 'اطلاعاتی ثبت نشده است.';
+    $('otherUserBio').style.display = 'block';
     $('otherUserBio').style.opacity = '1';
-  } else {
-    $('otherUserBio').textContent = '🔒 بیوگرافی و مشخصات کامل فقط برای دوستان قابل مشاهده است.';
-    $('otherUserBio').style.opacity = '0.75';
-  }
 
-  const d = (user.lat != null && user.lng != null && state.coords)
-    ? dist(state.coords.lat, state.coords.lng, Number(user.lat), Number(user.lng)).toFixed(1)
-    : '?';
+    const d = (user.lat != null && user.lng != null && state.coords)
+      ? dist(state.coords.lat, state.coords.lng, Number(user.lat), Number(user.lng)).toFixed(1)
+      : '?';
 
-  if ($('otherUserDistance')) {
-    $('otherUserDistance').textContent = d !== '?' ? `حدود ${d} کیلومتر فاصله` : 'موقعیت مکانی نامشخص';
-  }
+    if ($('otherUserDistance')) {
+      $('otherUserDistance').textContent = d !== '?' ? `حدود ${d} کیلومتر فاصله` : 'موقعیت مکانی نامشخص';
+      $('otherUserDistance').style.display = 'block';
+    }
 
-  if ($('otherUserGpsCoords')) {
-    if (isMyFriend) {
+    const gpsCard = $('otherUserGpsCard') || document.querySelector('.profile-gps-card');
+    if (gpsCard) gpsCard.style.display = 'flex';
+    if ($('otherUserGpsCoords')) {
       if (user.lat != null && user.lng != null) {
         $('otherUserGpsTitle').textContent = `فاصله تا شما: ${d} کیلومتر`;
         $('otherUserGpsCoords').textContent = `عرض: ${Number(user.lat).toFixed(4)} • طول: ${Number(user.lng).toFixed(4)}`;
@@ -8076,34 +8626,30 @@ function openOtherUserProfile(user) {
         $('otherUserGpsTitle').textContent = 'موقعیت مکانی';
         $('otherUserGpsCoords').textContent = 'مخفی در حالت روح یا آفلاین';
       }
-    } else {
-      $('otherUserGpsTitle').textContent = 'موقعیت مکانی: مخفی 🔒';
-      $('otherUserGpsCoords').textContent = 'مختصات دقیق و ناوبری برای افراد غریبه مخفی است (فقط برای دوستان)';
     }
-  }
 
-  // Navigation button: only visible/active for friends
-  const navBtn = $('otherUserNavBtn');
-  if (navBtn) {
-    navBtn.style.display = isMyFriend ? 'inline-flex' : 'none';
-  }
+    if ($('otherUserNavBtn')) $('otherUserNavBtn').style.display = 'inline-flex';
+    if ($('otherUserCallBtnsRow')) $('otherUserCallBtnsRow').style.display = 'grid';
+    if ($('otherUserRemoveFriendBtn')) $('otherUserRemoveFriendBtn').style.display = 'block';
 
-  // Action Button & Remove Friend Button
-  const actionBtn = $('otherUserActionBtn');
-  const removeBtn = $('otherUserRemoveFriendBtn');
-
-  if (isMyFriend) {
+    const actionBtn = $('otherUserActionBtn');
     if (actionBtn) {
       actionBtn.innerHTML = '<i class="fa-solid fa-comments"></i> ارسال پیام';
       actionBtn.className = 'btn-primary';
     }
-    if (removeBtn) {
-      removeBtn.style.display = 'block';
-    }
   } else {
-    if (removeBtn) {
-      removeBtn.style.display = 'none';
-    }
+    // Locked profile: Only Avatar and Name visible!
+    $('otherUserUsername').style.display = 'none';
+    $('otherUserBio').style.display = 'none';
+    if ($('otherUserDistance')) $('otherUserDistance').style.display = 'none';
+    
+    const gpsCard = $('otherUserGpsCard') || document.querySelector('.profile-gps-card');
+    if (gpsCard) gpsCard.style.display = 'none';
+    if ($('otherUserNavBtn')) $('otherUserNavBtn').style.display = 'none';
+    if ($('otherUserCallBtnsRow')) $('otherUserCallBtnsRow').style.display = 'none';
+    if ($('otherUserRemoveFriendBtn')) $('otherUserRemoveFriendBtn').style.display = 'none';
+
+    const actionBtn = $('otherUserActionBtn');
     if (actionBtn) {
       if (hasIncomingReq) {
         actionBtn.innerHTML = '<i class="fa-solid fa-user-check"></i> پذیرش درخواست دوستی';
@@ -8128,7 +8674,14 @@ function viewMyAvatarFull() {
 }
 
 function viewOtherUserAvatarFull() {
-  const avatarUrl = state.activeSelectedUser?.avatar || DEFAULT_AVATAR;
+  const user = state.activeSelectedUser;
+  if (!user) return;
+  if (!isFriend(user.id)) {
+    toast('🔒 پروفایل قفل است؛ امکان بزرگ‌نمایی تصویر برای افراد غیر دوست غیرفعال است');
+    playHapticSound('pop');
+    return;
+  }
+  const avatarUrl = user.avatar || DEFAULT_AVATAR;
   openImageLightbox(avatarUrl);
 }
 
