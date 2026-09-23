@@ -87,7 +87,7 @@ input, textarea { direction: rtl; }
 .hidden { display: none !important; }
 .solid { background: var(--panel-glass); backdrop-filter: blur(14px); border: 1px solid var(--border); }
 
-/* Static High-Performance Vector Map Background */
+/* High-Performance Real Map Styles */
 #map, .leaflet-container {
   position: absolute;
   inset: 0;
@@ -95,25 +95,18 @@ input, textarea { direction: rtl; }
   width: 100%;
   height: 100%;
   background-color: #0b111e;
-  background-image: 
-    radial-gradient(circle at 50% 50%, rgba(42, 171, 238, 0.12) 0%, transparent 65%),
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(rgba(42, 171, 238, 0.08) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(42, 171, 238, 0.08) 2px, transparent 2px);
-  background-size: 100% 100%, 28px 28px, 28px 28px, 140px 140px, 140px 140px;
-  background-position: center, center, center, center, center;
 }
 
-[data-theme="light"] #map, [data-theme="light"] .leaflet-container {
-  background-color: #f1f5f9;
-  background-image: 
-    radial-gradient(circle at 50% 50%, rgba(42, 171, 238, 0.09) 0%, transparent 65%),
-    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(rgba(42, 171, 238, 0.09) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(42, 171, 238, 0.09) 2px, transparent 2px);
-  background-size: 100% 100%, 28px 28px, 28px 28px, 140px 140px, 140px 140px;
+[data-theme="dark"] .leaflet-tile-pane {
+  filter: brightness(0.68) invert(1) contrast(1.5) hue-rotate(190deg) saturate(0.3) brightness(0.92);
+}
+
+[data-theme="light"] .leaflet-tile-pane {
+  filter: saturate(1.05) contrast(1.02);
+}
+
+.leaflet-tile {
+  transition: opacity 0.15s ease-in-out;
 }
 
 .leaflet-control-attribution,
@@ -4621,13 +4614,92 @@ function initMap() {
     center: [state.coords.lat, state.coords.lng],
     zoom: 13,
     minZoom: 3,
-    maxZoom: 18,
+    maxZoom: 19,
     maxBounds: [[-85, -180], [85, 180]],
     maxBoundsViscosity: 1.0,
     zoomControl: false,
-    attributionControl: false
+    attributionControl: false,
+    preferCanvas: true
   });
   state.map = map;
+
+  // Ultra-Fast Persistent Cached Tile Layer
+  const CachedTileLayer = L.TileLayer.extend({
+    createTile: function(coords, done) {
+      const tile = document.createElement('img');
+      tile.alt = '';
+      tile.setAttribute('role', 'presentation');
+      tile.crossOrigin = 'anonymous';
+      const url = this.getTileUrl(coords);
+
+      if (window.caches) {
+        caches.open('geosocial-map-tiles-v1').then(cache => {
+          cache.match(url).then(cachedResponse => {
+            if (cachedResponse) {
+              cachedResponse.blob().then(blob => {
+                tile.src = URL.createObjectURL(blob);
+                done(null, tile);
+              }).catch(() => {
+                tile.src = url;
+                L.DomEvent.on(tile, 'load', L.Util.bind(this._tileOnLoad, this, done, tile));
+                L.DomEvent.on(tile, 'error', L.Util.bind(this._tileOnError, this, done, tile));
+              });
+            } else {
+              fetch(url, { mode: 'cors' })
+                .then(res => {
+                  if (res.ok) {
+                    cache.put(url, res.clone()).catch(() => {});
+                    return res.blob();
+                  }
+                  throw new Error('Tile fetch error');
+                })
+                .then(blob => {
+                  tile.src = URL.createObjectURL(blob);
+                  done(null, tile);
+                })
+                .catch(() => {
+                  tile.src = url;
+                  L.DomEvent.on(tile, 'load', L.Util.bind(this._tileOnLoad, this, done, tile));
+                  L.DomEvent.on(tile, 'error', L.Util.bind(this._tileOnError, this, done, tile));
+                });
+            }
+          }).catch(() => {
+            tile.src = url;
+            L.DomEvent.on(tile, 'load', L.Util.bind(this._tileOnLoad, this, done, tile));
+            L.DomEvent.on(tile, 'error', L.Util.bind(this._tileOnError, this, done, tile));
+          });
+        }).catch(() => {
+          tile.src = url;
+          L.DomEvent.on(tile, 'load', L.Util.bind(this._tileOnLoad, this, done, tile));
+          L.DomEvent.on(tile, 'error', L.Util.bind(this._tileOnError, this, done, tile));
+        });
+      } else {
+        tile.src = url;
+        L.DomEvent.on(tile, 'load', L.Util.bind(this._tileOnLoad, this, done, tile));
+        L.DomEvent.on(tile, 'error', L.Util.bind(this._tileOnError, this, done, tile));
+      }
+      return tile;
+    }
+  });
+
+  const baseTiles = new CachedTileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    maxZoom: 19,
+    keepBuffer: 6,
+    updateWhenIdle: false,
+    attribution: ''
+  });
+  baseTiles.on('tileerror', function(error, tile) {
+    if (tile && !tile._hasFallback) {
+      tile._hasFallback = true;
+      const coords = error.coords;
+      if (coords) {
+        tile.src = `https://tile.openstreetmap.org/${coords.z}/${coords.x}/${coords.y}.png`;
+      }
+    }
+  });
+  baseTiles.addTo(map);
+
   userLayer = L.layerGroup().addTo(map);
 
   map.on('zoomend moveend', () => renderMarkers());
