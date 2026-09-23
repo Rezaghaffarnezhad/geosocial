@@ -97,17 +97,15 @@ input, textarea { direction: rtl; }
   background-color: #0b111e;
 }
 
-[data-theme="dark"] .leaflet-tile-pane,
-[data-theme="dark"] .leaflet-image-layer {
-  filter: brightness(0.68) invert(1) contrast(1.4) hue-rotate(190deg) saturate(0.35) brightness(0.92);
+[data-theme="dark"] .leaflet-tile-pane {
+  filter: brightness(0.68) invert(1) contrast(1.45) hue-rotate(190deg) saturate(0.3) brightness(0.94);
 }
 
-[data-theme="light"] .leaflet-tile-pane,
-[data-theme="light"] .leaflet-image-layer {
+[data-theme="light"] .leaflet-tile-pane {
   filter: saturate(1.05) contrast(1.02);
 }
 
-.leaflet-tile, .leaflet-image-layer {
+.leaflet-tile {
   transition: opacity 0.15s ease-in-out;
 }
 
@@ -4686,9 +4684,11 @@ function initMap() {
 
   const baseTiles = new CachedTileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     subdomains: 'abcd',
-    maxZoom: 19,
-    keepBuffer: 6,
+    maxZoom: 20,
+    keepBuffer: 10,
+    updateInterval: 80,
     updateWhenIdle: false,
+    updateWhenZooming: true,
     attribution: ''
   });
   baseTiles.on('tileerror', function(error, tile) {
@@ -4696,33 +4696,10 @@ function initMap() {
       tile._hasFallback = true;
       const coords = error.coords;
       if (coords) {
-        tile.src = `https://tile.openstreetmap.org/${coords.z}/${coords.x}/${coords.y}.png`;
+        tile.src = `https://a.tile.openstreetmap.fr/osmfr/${coords.z}/${coords.x}/${coords.y}.png`;
       }
     }
   });
-  // Real Fixed High-Definition Map Photos (Instant Zero-Load Street & Geographic Maps)
-  const worldBounds = [[-85, -180], [85, 180]];
-  const iranBounds = [[25.0, 44.0], [40.0, 63.0]];
-  const tehranBounds = [[35.50, 51.10], [35.88, 51.68]];
-
-  L.imageOverlay('/assets/map_world_real.jpg', worldBounds, {
-    opacity: 0.98,
-    interactive: false,
-    zIndex: 1
-  }).addTo(map);
-
-  L.imageOverlay('/assets/map_iran_real.jpg', iranBounds, {
-    opacity: 0.99,
-    interactive: false,
-    zIndex: 2
-  }).addTo(map);
-
-  L.imageOverlay('/assets/map_tehran_hd.jpg', tehranBounds, {
-    opacity: 0.99,
-    interactive: false,
-    zIndex: 3
-  }).addTo(map);
-
   baseTiles.addTo(map);
 
   userLayer = L.layerGroup().addTo(map);
