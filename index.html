@@ -3304,6 +3304,15 @@ input:checked + .slider:before { transform: translateX(20px); }
     <!-- Messages loaded dynamically -->
   </div>
 
+  <!-- Telegram Typing Indicator -->
+  <div id="typingIndicator" class="typing-indicator" style="padding:4px 16px;background:transparent;display:none;align-items:center;gap:8px">
+    <img id="typingAvatar" src="" style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
+    <div class="typing-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <span id="typingName" style="font-size:11px;color:var(--muted)">در حال نوشتن...</span>
+  </div>
+
   <!-- Scroll-to-Bottom FAB -->
   <button id="scrollBottomFab" class="scroll-bottom-fab" onclick="scrollChatToBottom()"><i class="fa-solid fa-chevron-down"></i></button>
 
@@ -4857,8 +4866,8 @@ async function startNavigationToUser(user, mode = 'driving') {
 
   const targetLat = Number(user.lat);
   const targetLng = Number(user.lng);
-  const myLat = Number(state.coords.lat);
-  const myLng = Number(state.coords.lng);
+  const myLat = Number(state.coords?.lat || (map.getCenter ? map.getCenter().lat : 35.6892));
+  const myLng = Number(state.coords?.lng || (map.getCenter ? map.getCenter().lng : 51.3890));
 
   state.currentNavTarget = {
     lat: targetLat,
@@ -8995,6 +9004,20 @@ function playVoiceAudio(e, id, url) {
   currentPlayingAudio.play().catch(() => {});
 }
 
+function seekVoiceAudio(e, id) {
+  e.stopPropagation();
+  if (currentPlayingAudio && currentPlayingMsgId === id && currentPlayingAudio.duration) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const pct = Math.max(0, Math.min(1, clickX / rect.width));
+    currentPlayingAudio.currentTime = pct * currentPlayingAudio.duration;
+    playHapticSound('pop');
+  } else {
+    const msg = state.activeMessages.find(m => m.id === id);
+    if (msg?.audio_url) playVoiceAudio(e, id, msg.audio_url);
+  }
+}
+
 function shareMyLocationInChat() {
   if (!state.activeConversationUser || !state.user) return;
   const newMsg = {
@@ -10933,6 +10956,12 @@ function applySystemTheme() {
   const subtitle = $('themeStatusSubtitle');
   if (subtitle) {
     subtitle.textContent = activeTheme === 'dark' ? 'حالت شب فعال است (لمس برای روز)' : 'حالت روز فعال است (لمس برای شب)';
+  }
+
+  // Apply stored accent color
+  const accent = localStorage.getItem('geosocial_theme_accent');
+  if (accent) {
+    setThemeAccent(accent);
   }
 }
 
