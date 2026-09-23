@@ -1219,9 +1219,17 @@ app.get('/api/conversations', (req, res) => {
   const convMap = {};
   for (const [key, msgs] of Object.entries(directMessages)) {
     if (!key.includes(user_id) || !Array.isArray(msgs) || msgs.length === 0) continue;
-    const parts = key.split('_');
-    const otherId = parts[0] === user_id ? parts[1] : parts[0];
-    if (!otherId) continue;
+    
+    // Safely resolve the other participant ID without breaking on underscores
+    let otherId = null;
+    if (msgs.length > 0 && msgs[0].sender_id && msgs[0].receiver_id) {
+      otherId = msgs[0].sender_id === user_id ? msgs[0].receiver_id : msgs[0].sender_id;
+    } else if (key.startsWith(user_id + '_')) {
+      otherId = key.substring(user_id.length + 1);
+    } else if (key.endsWith('_' + user_id)) {
+      otherId = key.substring(0, key.length - user_id.length - 1);
+    }
+    if (!otherId || otherId === user_id) continue;
 
     const lastMsg = msgs[msgs.length - 1];
     const unreadCount = msgs.filter(m => m.receiver_id === user_id && m.status !== 'read' && !m.seen).length;

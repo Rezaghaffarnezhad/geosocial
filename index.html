@@ -1633,21 +1633,17 @@ input, textarea { direction: rtl; }
 /* Telegram Profile & Settings View */
 .profile-content-scroll {
   flex: 1 1 auto;
-  min-height: 0 !important;
-  max-height: calc(100% - 56px) !important;
-  overflow-y: scroll !important;
+  min-height: 0;
+  height: calc(100% - 56px);
+  overflow-y: auto !important;
   overflow-x: hidden !important;
   padding: 16px 16px calc(140px + var(--safe-bottom)) !important;
   display: flex;
   flex-direction: column;
   gap: 14px;
   -webkit-overflow-scrolling: touch !important;
-  touch-action: pan-y !important;
-  overscroll-behavior-y: auto !important;
+  overscroll-behavior-y: contain;
   scrollbar-width: thin;
-}
-.profile-content-scroll * {
-  touch-action: pan-y;
 }
 .profile-header-card {
   background: var(--card-bg);
@@ -3172,7 +3168,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 </div>
 
 <!-- Unified Telegram Chat Hub (پیام‌ها، کانال‌ها، گروه‌ها و درخواست‌ها در یک هاب جذاب) -->
-<div id="chatsModal" class="modal-overlay" style="position:relative">
+<div id="chatsModal" class="modal-overlay">
   <div class="modal-header">
     <h3><i class="fa-solid fa-comments" style="color:var(--blue)"></i> گفتگوها</h3>
     <div style="display:flex;align-items:center;gap:6px">
@@ -6428,6 +6424,24 @@ function renderChatsList(q = '') {
       container.appendChild(item);
     });
   }
+
+  if (totalRendered === 0) {
+    const emptyBox = document.createElement('div');
+    emptyBox.style.cssText = 'padding:40px 20px;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:12px';
+    emptyBox.innerHTML = `
+      <div style="width:64px;height:64px;border-radius:50%;background:rgba(42,171,238,0.1);display:grid;place-items:center;color:var(--blue);font-size:28px">
+        <i class="fa-solid fa-comments"></i>
+      </div>
+      <b style="font-size:15px;color:var(--text)">${needle ? 'گفتگویی با این نام یافت نشد' : 'هنوز گفتگویی آغاز نشده است'}</b>
+      <div style="font-size:12px;max-width:280px;line-height:1.5">${needle ? 'عبارت جستجو را تغییر دهید یا نام کاربر دیگری را وارد کنید.' : 'می‌توانید با افراد حاضر در نقشه یا لیست افراد نزدیک گفتگو را شروع کنید.'}</div>
+      ${!needle ? `
+        <button class="btn-primary" style="width:auto;padding:8px 20px;border-radius:20px;font-size:12px;margin-top:6px" onclick="nav('people')">
+          <i class="fa-solid fa-user-plus"></i> مشاهده افراد نزدیک
+        </button>
+      ` : ''}
+    `;
+    container.appendChild(emptyBox);
+  }
 }
 
 // Attach Telegram Long-Press Peak Handler
@@ -7023,8 +7037,9 @@ function openChatRoom(user) {
     return;
   }
 
+  const hasIncomingPending = (state.chatRequestsList || []).some(r => (r.sender_id === user.id || r.otherUser?.id === user.id) && r.status === 'pending');
   const accepted = isChatAccepted(user.id);
-  state.isPreviewRequest = !accepted;
+  state.isPreviewRequest = hasIncomingPending && !accepted;
 
   if (state.isPreviewRequest) {
     // SAFE PREVIEW MODE (Instagram Security Standard):
@@ -8694,12 +8709,6 @@ async function sendDirectMessage() {
     return;
   }
 
-  // Prevent sending direct messages to strangers unless they are friends
-  if (!isFriend(state.activeConversationUser.id)) {
-    toast('ارسال پیام تنها پس از تایید دوستی امکان‌پذیر است 🔒');
-    return;
-  }
-
   if (state.editingMessage) {
     const editId = state.editingMessage.id;
     const msg = state.activeMessages.find(m => m.id === editId);
@@ -9641,16 +9650,16 @@ function initTelegramMiniApp() {
 
 // ====================================================
 // Telegram Touch Gestures (Swipe to Back, Pull to Refresh)
-// ====================================================
 function initPullToDismissModals() {
-  const panels = document.querySelectorAll('.modal-overlay, #channelViewModal, #chatRoom');
-  panels.forEach(panel => {
+  const dismissableSubModals = document.querySelectorAll('#chatRoom, #otherUserModal, #channelViewModal, #privacySettingsModal, #storageUsageModal, #themeSelectorModal, #profileQrModal, #followListModal, #createChannelModal, #editProfileModal, #serverConfigModal, #languageModal');
+  dismissableSubModals.forEach(panel => {
     if (panel.dataset.gesturesInit) return;
     panel.dataset.gesturesInit = 'true';
 
     let startX = 0, startY = 0;
     let currentX = 0, currentY = 0;
     let isHorizontalSwipe = false;
+    let isEdgeSwipe = false;
 
     panel.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
@@ -9660,17 +9669,19 @@ function initPullToDismissModals() {
       currentX = startX;
       currentY = startY;
       isHorizontalSwipe = false;
+      // Telegram Edge-Swipe Detection (within 60px of right or left edge)
+      isEdgeSwipe = (startX > window.innerWidth - 60 || startX < 60);
     }, { passive: true });
 
     panel.addEventListener('touchmove', (e) => {
-      if (e.touches.length !== 1) return;
+      if (!isEdgeSwipe || e.touches.length !== 1) return;
       currentX = e.touches[0].clientX;
       currentY = e.touches[0].clientY;
       const deltaX = currentX - startX;
       const deltaY = currentY - startY;
 
-      // Detect Edge / Body Swipe Right to Go Back (RTL Telegram style)
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 25) {
+      // Detect Horizontal Swipe Right to Go Back (RTL Telegram style)
+      if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5 && Math.abs(deltaX) > 20) {
         isHorizontalSwipe = true;
         const moveDist = deltaX > 0 ? deltaX : -deltaX;
         panel.style.transform = `translateX(${deltaX > 0 ? Math.min(moveDist, 300) : -Math.min(moveDist, 300)}px)`;
@@ -9683,7 +9694,7 @@ function initPullToDismissModals() {
         isHorizontalSwipe = false;
         const deltaX = currentX - startX;
         panel.style.transition = 'transform 0.22s cubic-bezier(0.33, 1, 0.68, 1)';
-        if (Math.abs(deltaX) > 85) {
+        if (Math.abs(deltaX) > 80) {
           panel.style.transform = deltaX > 0 ? 'translateX(100%)' : 'translateX(-100%)';
           setTimeout(() => {
             panel.style.transform = '';
@@ -9695,6 +9706,7 @@ function initPullToDismissModals() {
           setTimeout(() => { panel.style.transition = ''; }, 220);
         }
       }
+      isEdgeSwipe = false;
     };
 
     panel.addEventListener('touchend', finishSwipe, { passive: true });
