@@ -2323,6 +2323,498 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 .chat-request-tab-banner:hover { background: rgba(42, 171, 238, 0.15); }
 .chat-request-tab-banner:active { transform: scale(0.99); }
+
+/* ====================================================
+   TELEGRAM ADVANCED PROFILE & SETTINGS SUITE STYLES
+   ==================================================== */
+.profile-action-btn-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+}
+.profile-action-sub-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.profile-action-sub-btn:active { transform: scale(0.97); background: rgba(42, 171, 238, 0.12); }
+
+/* Profile Media Tabs & Grid */
+.profile-media-tabs-bar {
+  display: flex;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+  margin-top: 12px;
+}
+.profile-media-tab-btn {
+  flex: 1;
+  padding: 7px 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.profile-media-tab-btn.active {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 2px 8px var(--blue-glow);
+}
+.profile-media-container {
+  margin-top: 8px;
+  min-height: 80px;
+}
+.profile-media-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.profile-media-cell {
+  aspect-ratio: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--input-bg);
+  cursor: pointer;
+}
+.profile-media-cell img, .profile-media-cell video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+.profile-media-cell:hover img { transform: scale(1.05); }
+.profile-media-item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.profile-media-item-row:hover { background: rgba(42, 171, 238, 0.08); }
+
+/* QR Code Profile Card */
+.profile-qr-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.profile-qr-frame {
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  margin: 16px 0;
+  position: relative;
+}
+.profile-qr-avatar-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+/* Storage & Cache Management */
+.storage-meter-container {
+  height: 14px;
+  border-radius: 7px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  margin: 12px 0;
+}
+.storage-meter-segment {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+.storage-cat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.storage-cat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
+/* Theme Palette Swatches */
+.theme-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+.theme-swatch-card {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.theme-swatch-card.active {
+  border-color: var(--blue);
+  background: rgba(42, 171, 238, 0.1);
+  transform: scale(1.03);
+}
+.theme-swatch-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+/* ====================================================
+   UNIFIED CHAT HUB STYLES (تلگرام یکپارچه)
+   ==================================================== */
+.chat-hub-filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.chat-hub-filter-tabs::-webkit-scrollbar { display: none; }
+.chat-hub-tab-pill {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 18px;
+  border: 1px solid transparent;
+  background: var(--input-bg);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.chat-hub-tab-pill.active {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+  box-shadow: 0 2px 10px var(--blue-glow);
+}
+.chat-hub-tab-badge {
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 10px;
+  padding: 1px 6px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* Floating Action Button (FAB) for Unified Hub */
+.chat-fab-btn {
+  position: absolute;
+  bottom: 24px;
+  left: 20px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 6px 20px var(--blue-glow);
+  cursor: pointer;
+  z-index: 25;
+  transition: transform 0.25s cubic-bezier(0.17, 0.89, 0.32, 1.25);
+  border: 0;
+}
+.chat-fab-btn:active { transform: scale(0.92); }
+.chat-fab-menu {
+  position: absolute;
+  bottom: 86px;
+  left: 20px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+  z-index: 26;
+  min-width: 170px;
+  backdrop-filter: blur(16px);
+}
+.chat-fab-menu.open { display: flex; animation: toastIn 0.2s ease forwards; }
+.chat-fab-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: right;
+  transition: background 0.15s;
+}
+.chat-fab-item:hover { background: rgba(42, 171, 238, 0.12); }
+
+/* Pull to refresh */
+.ptr-wrapper {
+  overflow: hidden;
+  height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: height 0.2s ease;
+}
+.ptr-wrapper.pulling {
+  height: 48px;
+}
+.ptr-spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid rgba(42,171,238,0.25);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Telegram Peak / Long Press Action Sheet */
+.chat-peak-actions-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(8px);
+  z-index: 150;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.chat-peak-actions-modal.open { display: flex; animation: fadeIn 0.2s ease; }
+.chat-peak-sheet {
+  width: 100%;
+  max-width: 500px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  border-radius: 24px 24px 0 0;
+  padding: 18px 16px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+}
+.chat-peak-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.chat-peak-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.chat-peak-btn:active { background: rgba(42,171,238,0.15); }
+
+/* ====================================================
+   GOOGLE MAPS & OSRM INTER-USER NAVIGATION HUD
+   ==================================================== */
+.nav-turn-hud {
+  position: fixed;
+  top: calc(14px + var(--safe-top));
+  left: 14px;
+  right: 14px;
+  background: rgba(18, 26, 38, 0.94);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(42, 171, 238, 0.35);
+  border-radius: 20px;
+  padding: 12px 16px;
+  z-index: 105;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45), 0 0 20px rgba(42, 171, 238, 0.2);
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  animation: slideDown 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.25);
+}
+.nav-turn-hud.active { display: flex; }
+.nav-turn-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.nav-turn-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px var(--blue-glow);
+}
+.nav-mode-pill-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.nav-mode-pill {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+.nav-mode-pill.active {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+
+/* Nav Apps Launcher Modal */
+.nav-launcher-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(8px);
+  z-index: 155;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.nav-launcher-modal.open { display: flex; animation: fadeIn 0.2s ease; }
+.nav-launcher-sheet {
+  width: 100%;
+  max-width: 500px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  border-radius: 24px 24px 0 0;
+  padding: 20px 18px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.nav-launcher-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 6px;
+}
+.nav-app-launch-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav-app-launch-card:active { transform: scale(0.97); border-color: var(--blue); }
+
+/* Swipe to Reply Ghost Icon */
+.swipe-reply-ghost-icon {
+  position: absolute;
+  right: -36px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -2338,25 +2830,33 @@ input:checked + .slider:before { transform: translateX(20px); }
   <div class="center-pin-shadow"></div>
 </div>
 
-<!-- 2. Live Route Navigation HUD (Google Maps Style + App Switcher) -->
-<div id="navRouteHud" class="nav-route-hud">
-  <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px">
-    <div style="display:flex;align-items:center;gap:10px;min-width:0">
-      <div style="width:36px;height:36px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;font-size:16px;flex-shrink:0">
-        <i class="fa-solid fa-diamond-turn-right"></i>
+<!-- 2. Live Route Navigation HUD (Google Maps Style + Turn-by-Turn + App Switcher) -->
+<div id="navRouteHud" class="nav-turn-hud">
+  <div class="nav-turn-main-row">
+    <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1">
+      <div class="nav-turn-icon-box" id="navTurnIcon">
+        <i class="fa-solid fa-location-arrow"></i>
       </div>
-      <div style="min-width:0">
-        <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">مسیر به <span id="routeTargetName"></span></div>
-        <div style="font-size:11px;color:var(--muted)" id="routeEtaText">فاصله: -- کیلومتر</div>
+      <div style="min-width:0;flex:1">
+        <div id="navInstructionText" style="font-weight:700;font-size:13.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">به سمت مقصد حرکت کنید</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:8px" id="routeEtaText">
+          <span>مسیر به <b id="routeTargetName" style="color:var(--blue)">کاربر</b></span>
+          <span>•</span>
+          <span id="navEtaDistanceBadge">فاصله: --</span>
+        </div>
       </div>
     </div>
-    <button class="badge" style="background:var(--danger);color:#fff;border:0;padding:6px 12px;border-radius:10px;flex-shrink:0" onclick="clearActiveRoute()"><i class="fa-solid fa-xmark"></i> پایان</button>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <button class="composer-icon-btn" onclick="openNavAppSelectorModal()" title="باز کردن در اپ‌های مسیریاب" style="color:#2aabee;background:rgba(42,171,238,0.15);border:1px solid rgba(42,171,238,0.3)"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+      <button class="badge" style="background:var(--danger);color:#fff;border:0;padding:7px 12px;border-radius:12px;font-size:11px;font-weight:700" onclick="clearActiveRoute()"><i class="fa-solid fa-xmark"></i> پایان</button>
+    </div>
   </div>
-  <div style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);width:100%;overflow-x:auto">
-    <button class="badge" style="background:var(--card-bg);border:1px solid var(--border);color:var(--text);font-size:11px;white-space:nowrap" onclick="openExternalNav('neshan')">🗺️ نشان</button>
-    <button class="badge" style="background:var(--card-bg);border:1px solid var(--border);color:var(--text);font-size:11px;white-space:nowrap" onclick="openExternalNav('balad')">🧭 بلد</button>
-    <button class="badge" style="background:var(--card-bg);border:1px solid var(--border);color:var(--text);font-size:11px;white-space:nowrap" onclick="openExternalNav('google')">🌍 گوگل‌مپ</button>
-    <button class="badge" style="background:var(--card-bg);border:1px solid var(--border);color:var(--text);font-size:11px;white-space:nowrap" onclick="openExternalNav('waze')">🚗 ویز</button>
+  
+  <!-- Travel Mode Selector Pills -->
+  <div class="nav-mode-pill-bar">
+    <button id="navMode_driving" class="nav-mode-pill active" onclick="setNavMode('driving')">🚗 خودرو</button>
+    <button id="navMode_walking" class="nav-mode-pill" onclick="setNavMode('walking')">🚶 پیاده‌روی</button>
+    <button id="navMode_cycling" class="nav-mode-pill" onclick="setNavMode('cycling')">🚴 دوچرخه / موتور</button>
   </div>
 </div>
 
@@ -2456,17 +2956,17 @@ input:checked + .slider:before { transform: translateX(20px); }
   <button id="publicDeleteBtn" onclick="deleteActivePublicMsg()" style="display:none;color:var(--danger)"><i class="fa-solid fa-trash"></i> حذف پیام</button>
 </div>
 
-<!-- 6. Bottom Navigation (۴ تب اصلی: نقشه، پیام‌ها، کانال‌ها، پروفایل) -->
+<!-- 6. Bottom Navigation (۴ تب اصلی و جذاب: نقشه، گفتگوها، استوری‌ها، پروفایل) -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="nav('map', this)"><i class="fa-solid fa-map-location-dot"></i><span>نقشه</span></div>
   <div class="nav-item" onclick="nav('chats', this)">
-    <i class="fa-solid fa-comment-dots"></i>
-    <span>پیام‌ها</span>
+    <i class="fa-solid fa-comments"></i>
+    <span>گفتگوها</span>
     <span id="navChatsBadge" class="nav-badge" style="display:none">0</span>
   </div>
-  <div class="nav-item" onclick="nav('channels', this)" id="navChannelsItem">
-    <i class="fa-solid fa-bullhorn"></i>
-    <span>کانال‌ها</span>
+  <div class="nav-item" onclick="nav('stories', this)" id="navStoriesItem">
+    <i class="fa-solid fa-bolt"></i>
+    <span>استوری‌ها</span>
   </div>
   <div class="nav-item" onclick="nav('profile', this)"><i class="fa-solid fa-circle-user"></i><span>پروفایل</span></div>
 </div>
@@ -2671,23 +3171,54 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 </div>
 
-<!-- Telegram Chats List Screen -->
-<div id="chatsModal" class="modal-overlay">
+<!-- Unified Telegram Chat Hub (پیام‌ها، کانال‌ها، گروه‌ها و درخواست‌ها در یک هاب جذاب) -->
+<div id="chatsModal" class="modal-overlay" style="position:relative">
   <div class="modal-header">
-    <h3><i class="fa-solid fa-comment-dots" style="color:var(--blue)"></i> گفتگوهای خصوصی</h3>
-    <button class="composer-icon-btn" onclick="closeAllModals()"><i class="fa-solid fa-xmark"></i></button>
-  </div>
-  <div style="padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--border)">
-    <input id="chatSearchInput" class="btn-secondary" style="text-align:right;padding:8px 12px;font-size:13px" placeholder="جستجوی نام یا پیام..." oninput="renderChatsList(this.value)">
-  </div>
-  <div id="chatRequestsTabBanner" class="chat-request-tab-banner" style="display:none" onclick="toggleChatRequestsFilter()">
-    <div style="display:flex;align-items:center;gap:8px">
-      <i class="fa-solid fa-inbox" style="color:var(--blue);font-size:15px"></i>
-      <span>درخواست‌های گفتگو (Message Requests)</span>
+    <h3><i class="fa-solid fa-comments" style="color:var(--blue)"></i> گفتگوها</h3>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="composer-icon-btn" onclick="toggleChatFabMenu()" title="افزودن گفتگو، گروه یا کانال" style="color:var(--blue);font-size:17px"><i class="fa-solid fa-plus"></i></button>
+      <button class="composer-icon-btn" onclick="closeAllModals()"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <span class="badge" id="chatRequestsBadge" style="background:var(--blue);color:#fff;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:700">0</span>
   </div>
+
+  <!-- Telegram Horizontal Filter Tabs Bar -->
+  <div class="chat-hub-filter-tabs">
+    <button id="chatHubTab_all" class="chat-hub-tab-pill active" onclick="setChatHubTab('all')">همه</button>
+    <button id="chatHubTab_direct" class="chat-hub-tab-pill" onclick="setChatHubTab('direct')"><i class="fa-solid fa-user"></i> خصوصی</button>
+    <button id="chatHubTab_groups" class="chat-hub-tab-pill" onclick="setChatHubTab('groups')"><i class="fa-solid fa-users"></i> گروه‌ها</button>
+    <button id="chatHubTab_channels" class="chat-hub-tab-pill" onclick="setChatHubTab('channels')"><i class="fa-solid fa-bullhorn"></i> کانال‌ها</button>
+    <button id="chatHubTab_requests" class="chat-hub-tab-pill" onclick="setChatHubTab('requests')">
+      <i class="fa-solid fa-inbox"></i> درخواست‌ها
+      <span id="chatRequestsBadgePill" class="chat-hub-tab-badge" style="display:none">0</span>
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div style="padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--border)">
+    <input id="chatSearchInput" class="btn-secondary" style="text-align:right;padding:8px 12px;font-size:13px;width:100%" placeholder="جستجوی پیام، کانال یا گروه..." oninput="renderChatsList(this.value)">
+  </div>
+
+  <!-- Pull To Refresh Visual Spinner Wrapper -->
+  <div id="chatPtrWrapper" class="ptr-wrapper">
+    <div class="ptr-spinner"></div>
+  </div>
+
+  <!-- Main Chats List Container -->
   <div id="chatsListContainer" style="flex:1;min-height:0;overflow-y:auto"></div>
+
+  <!-- Floating Action Button (FAB) and Menu -->
+  <div id="chatFabMenu" class="chat-fab-menu">
+    <button class="chat-fab-item" onclick="toggleChatFabMenu(); openCreateChannelModal('channel')">
+      <i class="fa-solid fa-bullhorn" style="color:var(--blue)"></i> ساخت کانال جدید
+    </button>
+    <button class="chat-fab-item" onclick="toggleChatFabMenu(); openCreateChannelModal('group')">
+      <i class="fa-solid fa-users" style="color:var(--purple)"></i> ساخت گروه جدید
+    </button>
+    <button class="chat-fab-item" onclick="toggleChatFabMenu(); nav('people')">
+      <i class="fa-solid fa-user-plus" style="color:var(--green)"></i> گفتگوی جدید با افراد نزدیک
+    </button>
+  </div>
+  <button class="chat-fab-btn" onclick="toggleChatFabMenu()" title="ایجاد جدید"><i class="fa-solid fa-pen"></i></button>
 </div>
 
 <!-- People Nearby List Screen -->
@@ -3013,11 +3544,14 @@ input:checked + .slider:before { transform: translateX(20px); }
   </div>
 </div>
 
-<!-- Telegram Profile & Settings Screen -->
+<!-- Telegram Profile & Settings Screen (پروفایل فوق‌پیشرفته و جامع به سبک تلگرام) -->
 <div id="profileModal" class="modal-overlay">
   <div class="modal-header">
-    <h3><i class="fa-solid fa-circle-user" style="color:var(--blue)"></i> پروفایل کاربری</h3>
-    <button class="composer-icon-btn" onclick="closeAllModals()"><i class="fa-solid fa-xmark"></i></button>
+    <h3><i class="fa-solid fa-circle-user" style="color:var(--blue)"></i> پروفایل و تنظیمات</h3>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="composer-icon-btn" onclick="openProfileQrModal()" title="کارت و کد QR پروفایل" style="color:var(--blue);font-size:16px"><i class="fa-solid fa-qrcode"></i></button>
+      <button class="composer-icon-btn" onclick="closeAllModals()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
   </div>
 
   <div class="profile-content-scroll">
@@ -3046,9 +3580,41 @@ input:checked + .slider:before { transform: translateX(20px); }
         </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div style="width:100%;margin-top:8px">
-        <button class="btn-primary" style="width:100%;padding:10px 14px;border-radius:14px;font-size:13px;font-weight:700" onclick="openEditProfileModal()"><i class="fa-solid fa-pen"></i> ویرایش مشخصات</button>
+      <!-- Quick Action Buttons Row -->
+      <div class="profile-action-btn-row">
+        <button class="profile-action-sub-btn" onclick="openEditProfileModal()"><i class="fa-solid fa-pen" style="color:var(--blue)"></i> ویرایش</button>
+        <button class="profile-action-sub-btn" onclick="openProfileQrModal()"><i class="fa-solid fa-qrcode" style="color:var(--purple)"></i> کد QR</button>
+        <button class="profile-action-sub-btn" onclick="openSavedMessages()"><i class="fa-solid fa-bookmark" style="color:#f1c40f"></i> ذخیره‌ها</button>
+      </div>
+    </div>
+
+    <!-- Saved Messages Telegram Card Shortcut -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.15s" onclick="openSavedMessages()">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(42,171,238,0.15);display:grid;place-items:center;color:var(--blue);font-size:18px">
+          <i class="fa-solid fa-bookmark"></i>
+        </div>
+        <div>
+          <div style="font-size:13.5px;font-weight:700">پیام‌های ذخیره شده (Saved Messages)</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">فضای ابری شخصی برای ذخیره یادداشت، فایل و عکس</div>
+        </div>
+      </div>
+      <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+    </div>
+
+    <!-- Profile Media & Files Tabs (رسانه‌ها، فایل‌ها، صوت‌ها، لینک‌ها) -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:12px;overflow:hidden">
+      <div style="font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+        <i class="fa-solid fa-photo-film" style="color:var(--blue)"></i> رسانه‌ها و فایل‌های اشتراکی
+      </div>
+      <div class="profile-media-tabs-bar">
+        <button id="pMediaTab_media" class="profile-media-tab-btn active" onclick="setProfileMediaTab('media')"><i class="fa-solid fa-image"></i> رسانه‌ها</button>
+        <button id="pMediaTab_files" class="profile-media-tab-btn" onclick="setProfileMediaTab('files')"><i class="fa-solid fa-file"></i> فایل‌ها</button>
+        <button id="pMediaTab_audio" class="profile-media-tab-btn" onclick="setProfileMediaTab('audio')"><i class="fa-solid fa-microphone"></i> صوت‌ها</button>
+        <button id="pMediaTab_links" class="profile-media-tab-btn" onclick="setProfileMediaTab('links')"><i class="fa-solid fa-link"></i> پیوندها</button>
+      </div>
+      <div id="profileMediaContainer" class="profile-media-container">
+        <!-- Rendered dynamically -->
       </div>
     </div>
 
@@ -3066,9 +3632,46 @@ input:checked + .slider:before { transform: translateX(20px); }
       <label class="switch"><input type="checkbox" id="ghostSwitch" onchange="toggleGhostMode(this.checked)"><span class="slider"></span></label>
     </div>
 
-    <!-- Telegram Settings Menu List -->
+    <!-- Telegram Comprehensive Settings Menu List -->
     <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden">
-      <!-- 1. نمایش روی نقشه عمومی -->
+      
+      <!-- 1. حریم خصوصی و امنیت (Privacy & Security) -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openPrivacySettingsModal()">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-shield-halved" style="color:var(--green);font-size:16px"></i>
+          <div>
+            <div style="font-size:13px;font-weight:600">حریم خصوصی و امنیت</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">آخرین بازدید، امنیت عکس، نشست‌های فعال</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+      </div>
+
+      <!-- 2. داده‌ها و حافظه ذخیره‌سازی (Data and Storage) -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openStorageUsageModal()">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-database" style="color:#f39c12;font-size:16px"></i>
+          <div>
+            <div style="font-size:13px;font-weight:600">داده‌ها و حافظه ذخیره‌سازی</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">تفکیک مصرف و پاکسازی ۱ کلیک کش</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+      </div>
+
+      <!-- 3. شخصی‌سازی ظاهر و رنگ تم (Appearance & Themes) -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openThemeSelectorModal()">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-palette" style="color:var(--blue);font-size:16px"></i>
+          <div>
+            <div style="font-size:13px;font-weight:600">ظاهر و رنگ پوسته تلگرام</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">انتخاب پالت رنگ، تم شب/روز و AMOLED</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+      </div>
+
+      <!-- 4. نمایش روی نقشه عمومی -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)">
         <div style="display:flex;align-items:center;gap:10px">
           <i class="fa-solid fa-map-pin" style="color:var(--blue)"></i>
@@ -3080,7 +3683,7 @@ input:checked + .slider:before { transform: translateX(20px); }
         <label class="switch"><input type="checkbox" id="mapVisibilitySwitch" checked onchange="toggleMapVisibility(this.checked)"><span class="slider"></span></label>
       </div>
 
-      <!-- 2. تایید درخواست گفتگو (حریم خصوصی چت) -->
+      <!-- 5. تایید درخواست گفتگو (حریم خصوصی چت) -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)">
         <div style="display:flex;align-items:center;gap:10px">
           <i class="fa-solid fa-user-shield" style="color:#2ecc71"></i>
@@ -3094,7 +3697,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
       <!-- 6. صدای پیام‌ها -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap:10px"><i class="fa-solid fa-volume-high" style="color:var(--green)"></i><span>صدای پیام‌ها</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><i class="fa-solid fa-volume-high" style="color:var(--green)"></i><span>صدای پیام‌ها و ویبره</span></div>
         <label class="switch"><input type="checkbox" id="soundSwitch" checked onchange="state.soundEnabled=this.checked"><span class="slider"></span></label>
       </div>
 
@@ -3110,19 +3713,7 @@ input:checked + .slider:before { transform: translateX(20px); }
         <label class="switch"><input type="checkbox" id="onlineVisibilitySwitch" checked onchange="toggleOnlineVisibility(this.checked)"><span class="slider"></span></label>
       </div>
 
-      <!-- 8. تغییر تم / حالت شب و روز -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="toggleTheme()">
-        <div style="display:flex;align-items:center;gap:10px">
-          <i class="fa-solid fa-circle-half-stroke" style="color:var(--blue)"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600">حالت تم (تاریک / روشن)</div>
-            <div id="themeStatusSubtitle" style="font-size:11px;color:var(--muted);margin-top:2px">تغییر فوری به حالت معکوس</div>
-          </div>
-        </div>
-        <i class="fa-solid fa-moon" id="profileThemeIcon" style="color:var(--text);font-size:14px"></i>
-      </div>
-
-      <!-- 9. زبان برنامه / Language Selection -->
+      <!-- 8. زبان برنامه / Language Selection -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openLanguageModal()">
         <div style="display:flex;align-items:center;gap:10px">
           <i class="fa-solid fa-language" style="color:#2aabee"></i>
@@ -3134,25 +3725,13 @@ input:checked + .slider:before { transform: translateX(20px); }
         <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
       </div>
 
-      <!-- 10. پاکسازی کش و حافظه موقت -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="clearAppDataCache()">
-        <div style="display:flex;align-items:center;gap:10px">
-          <i class="fa-solid fa-broom" style="color:#f39c12"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600">پاکسازی کش و حافظه موقت</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">بارگذاری مجدد داده‌ها از سرور</div>
-          </div>
-        </div>
-        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
-      </div>
-
       <!-- 9. نسخه اپلیکیشن -->
       <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)">
         <div style="display:flex;align-items:center;gap:8px">
           <i class="fa-solid fa-circle-info" style="color:var(--blue)"></i>
           <span>نسخه اپلیکیشن</span>
         </div>
-        <span style="direction:ltr;font-weight:600">GeoSocial v3.2.0 (Pro)</span>
+        <span style="direction:ltr;font-weight:600">GeoSocial v3.5.0 Pro (Telegram Suite)</span>
       </div>
 
       <!-- 10. خروج از حساب -->
@@ -3162,7 +3741,268 @@ input:checked + .slider:before { transform: translateX(20px); }
       </div>
     </div>
     <!-- Bottom scroll spacer to guarantee full visibility of all options on mobile -->
-    <div style="height:130px;flex-shrink:0;pointer-events:none"></div>
+    <div style="height:140px;flex-shrink:0;pointer-events:none"></div>
+  </div>
+</div>
+
+<!-- ====================================================
+     NEW TELEGRAM MODALS (QR Card, Privacy, Storage, Themes, Peak, Nav Launcher)
+     ==================================================== -->
+
+<!-- 1. Profile QR Code Card Modal -->
+<div id="profileQrModal" class="modal-overlay" style="z-index:120">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-qrcode" style="color:var(--blue)"></i> کارت و کد QR کاربری</h3>
+    <button class="composer-icon-btn" onclick="$('profileQrModal').classList.remove('open');updateTelegramBackButton()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div class="profile-qr-card" style="width:100%;max-width:320px">
+      <img id="qrCardAvatar" src="" style="width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid var(--blue)">
+      <h3 id="qrCardName" style="font-size:16px;font-weight:700;margin-top:10px"></h3>
+      <div id="qrCardUsername" style="font-size:12px;color:var(--blue);direction:ltr;margin-top:2px"></div>
+      
+      <!-- QR SVG Frame -->
+      <div class="profile-qr-frame">
+        <div id="qrCodeContainer" style="width:190px;height:190px;display:grid;place-items:center"></div>
+      </div>
+      
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">برای شروع گفتگو این بارکد را اسکن کنید</div>
+      <div style="display:flex;gap:8px;width:100%">
+        <button class="btn-primary" style="flex:1;padding:10px;font-size:12px" onclick="copyProfileQrLink()"><i class="fa-solid fa-copy"></i> کپی لینک</button>
+        <button class="btn-secondary" style="flex:1;padding:10px;font-size:12px" onclick="shareProfileCard()"><i class="fa-solid fa-share-nodes"></i> اشتراک‌گذاری</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Telegram Privacy & Security Settings Modal -->
+<div id="privacySettingsModal" class="modal-overlay" style="z-index:120">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-shield-halved" style="color:var(--green)"></i> حریم خصوصی و امنیت</h3>
+    <button class="composer-icon-btn" onclick="$('privacySettingsModal').classList.remove('open');updateTelegramBackButton()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px">
+    
+    <!-- Last Seen Privacy -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px">
+      <div style="font-size:13px;font-weight:700">چه کسانی آخرین بازدید و آنلاین بودن شما را می‌بینند؟</div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button id="pPriv_lastSeen_all" class="btn-secondary active" style="flex:1;font-size:11.5px;padding:8px" onclick="setPrivacyChoice('lastSeen', 'all')">همه</button>
+        <button id="pPriv_lastSeen_friends" class="btn-secondary" style="flex:1;font-size:11.5px;padding:8px" onclick="setPrivacyChoice('lastSeen', 'friends')">مخاطبین / دوستان</button>
+        <button id="pPriv_lastSeen_nobody" class="btn-secondary" style="flex:1;font-size:11.5px;padding:8px" onclick="setPrivacyChoice('lastSeen', 'nobody')">هیچ‌کس</button>
+      </div>
+    </div>
+
+    <!-- Profile Photo Privacy -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px">
+      <div style="font-size:13px;font-weight:700">چه کسانی عکس پروفایل شما را می‌بینند؟</div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button id="pPriv_photo_all" class="btn-secondary active" style="flex:1;font-size:11.5px;padding:8px" onclick="setPrivacyChoice('photo', 'all')">همه کاربران</button>
+        <button id="pPriv_photo_friends" class="btn-secondary" style="flex:1;font-size:11.5px;padding:8px" onclick="setPrivacyChoice('photo', 'friends')">فقط دوستان</button>
+      </div>
+    </div>
+
+    <!-- Active Sessions / Devices List -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px">
+      <div style="font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px">
+        <i class="fa-solid fa-laptop" style="color:var(--blue)"></i> نشست‌های فعال و دستگاه‌ها
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--input-bg);border-radius:12px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fa-solid fa-mobile-screen-button" style="color:var(--green);font-size:20px"></i>
+          <div>
+            <div style="font-size:12px;font-weight:700">دستگاه فعلی (Web Client)</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">آنلاین • ایران</div>
+          </div>
+        </div>
+        <span class="badge" style="background:rgba(46,204,113,0.15);color:var(--green);font-size:10px">فعال</span>
+      </div>
+      <button class="btn-secondary" style="width:100%;margin-top:10px;padding:9px;font-size:12px;color:var(--danger)" onclick="terminateOtherSessions()">
+        <i class="fa-solid fa-power-off"></i> خروج از تمام نشست‌های دیگر
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Telegram Data and Storage Usage Modal -->
+<div id="storageUsageModal" class="modal-overlay" style="z-index:120">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-database" style="color:#f39c12"></i> مصرف حافظه و کش</h3>
+    <button class="composer-icon-btn" onclick="$('storageUsageModal').classList.remove('open');updateTelegramBackButton()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px">
+    
+    <!-- Total Usage Card -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center">
+      <div style="font-size:11px;color:var(--muted)">کل حجم کش ذخیره شده در دستگاه</div>
+      <div id="storageTotalText" style="font-size:26px;font-weight:800;color:var(--blue);margin:6px 0">۴.۸ مگابایت</div>
+      
+      <!-- Multi-color Storage Bar -->
+      <div class="storage-meter-container">
+        <div class="storage-meter-segment" style="width:45%;background:#2aabee" title="عکس‌ها و ویدیوها"></div>
+        <div class="storage-meter-segment" style="width:25%;background:#2ecc71" title="پیام‌های صوتی"></div>
+        <div class="storage-meter-segment" style="width:18%;background:#9b59b6" title="فایل‌ها و اسناد"></div>
+        <div class="storage-meter-segment" style="width:12%;background:#e67e22" title="پایگاه داده محلی"></div>
+      </div>
+    </div>
+
+    <!-- Category Breakdown List -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div class="storage-cat-item">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="storage-cat-icon" style="background:rgba(42,171,238,0.15);color:var(--blue)"><i class="fa-solid fa-image"></i></div>
+          <div>
+            <div style="font-size:13px;font-weight:700">عکس‌ها و رسانه‌ها</div>
+            <div style="font-size:10.5px;color:var(--muted)">۲.۲ مگابایت</div>
+          </div>
+        </div>
+        <button class="btn-secondary" style="width:auto;padding:5px 10px;font-size:11px;border-radius:10px" onclick="clearStorageCategory('media')">پاکسازی</button>
+      </div>
+
+      <div class="storage-cat-item">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="storage-cat-icon" style="background:rgba(46,204,113,0.15);color:var(--green)"><i class="fa-solid fa-microphone"></i></div>
+          <div>
+            <div style="font-size:13px;font-weight:700">پیام‌های صوتی</div>
+            <div style="font-size:10.5px;color:var(--muted)">۱.۲ مگابایت</div>
+          </div>
+        </div>
+        <button class="btn-secondary" style="width:auto;padding:5px 10px;font-size:11px;border-radius:10px" onclick="clearStorageCategory('audio')">پاکسازی</button>
+      </div>
+
+      <div class="storage-cat-item">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="storage-cat-icon" style="background:rgba(155,89,182,0.15);color:var(--purple)"><i class="fa-solid fa-file"></i></div>
+          <div>
+            <div style="font-size:13px;font-weight:700">فایل‌ها و اسناد</div>
+            <div style="font-size:10.5px;color:var(--muted)">۸۵۰ کیلوبایت</div>
+          </div>
+        </div>
+        <button class="btn-secondary" style="width:auto;padding:5px 10px;font-size:11px;border-radius:10px" onclick="clearStorageCategory('files')">پاکسازی</button>
+      </div>
+    </div>
+
+    <!-- 1-Click Clear All Cache Button -->
+    <button class="btn-primary" style="padding:12px;border-radius:14px;font-weight:700" onclick="clearAppDataCache()">
+      <i class="fa-solid fa-broom"></i> پاکسازی تمام حافظه کش با ۱ کلیک
+    </button>
+  </div>
+</div>
+
+<!-- 4. Telegram Theme & Accent Color Palette Modal -->
+<div id="themeSelectorModal" class="modal-overlay" style="z-index:120">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-palette" style="color:var(--blue)"></i> شخصی‌سازی تم و رنگ تلگرام</h3>
+    <button class="composer-icon-btn" onclick="$('themeSelectorModal').classList.remove('open');updateTelegramBackButton()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
+    
+    <!-- Night Mode Switch -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <i class="fa-solid fa-circle-half-stroke" style="color:var(--blue);font-size:18px"></i>
+        <div>
+          <div style="font-size:13px;font-weight:700">حالت تاریک / شب</div>
+          <div style="font-size:11px;color:var(--muted)">تغییر پس‌زمینه به تم تاریک</div>
+        </div>
+      </div>
+      <button class="btn-secondary" style="width:auto;padding:6px 14px;font-size:12px;border-radius:12px" onclick="toggleTheme()">تغییر حالت</button>
+    </div>
+
+    <!-- Accent Color Swatches Grid -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px">پالت رنگ اختصاصی تلگرام (Accent Color)</div>
+      <div class="theme-swatch-grid">
+        <div class="theme-swatch-card active" id="swatch_classic" onclick="setThemeAccent('classic')">
+          <div class="theme-swatch-circle" style="background:#2aabee"></div>
+          <span style="font-size:11px;font-weight:600">آبی تلگرام</span>
+        </div>
+        <div class="theme-swatch-card" id="swatch_cyan" onclick="setThemeAccent('cyan')">
+          <div class="theme-swatch-circle" style="background:#00d2d3"></div>
+          <span style="font-size:11px;font-weight:600">فیروزه‌ای</span>
+        </div>
+        <div class="theme-swatch-card" id="swatch_emerald" onclick="setThemeAccent('emerald')">
+          <div class="theme-swatch-circle" style="background:#2ecc71"></div>
+          <span style="font-size:11px;font-weight:600">سبز زمردی</span>
+        </div>
+        <div class="theme-swatch-card" id="swatch_sunset" onclick="setThemeAccent('sunset')">
+          <div class="theme-swatch-circle" style="background:#e67e22"></div>
+          <span style="font-size:11px;font-weight:600">نارنجی غروب</span>
+        </div>
+        <div class="theme-swatch-card" id="swatch_violet" onclick="setThemeAccent('violet')">
+          <div class="theme-swatch-circle" style="background:#9b59b6"></div>
+          <span style="font-size:11px;font-weight:600">بنفش رویال</span>
+        </div>
+        <div class="theme-swatch-card" id="swatch_amoled" onclick="setThemeAccent('amoled')">
+          <div class="theme-swatch-circle" style="background:#0b0e14;border:1px solid #fff"></div>
+          <span style="font-size:11px;font-weight:600">اولد تاریک</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Chat List Item Long Press Quick Actions Modal -->
+<div id="chatPeakActionsModal" class="chat-peak-actions-modal" onclick="closeChatPeakActionsModal()">
+  <div class="chat-peak-sheet" onclick="event.stopPropagation()">
+    <div class="chat-peak-header">
+      <img id="chatPeakAvatar" src="" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
+      <div>
+        <div id="chatPeakName" style="font-weight:700;font-size:14px"></div>
+        <div id="chatPeakSubtitle" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
+      </div>
+    </div>
+    <button class="chat-peak-btn" onclick="triggerPeakAction('pin')"><i class="fa-solid fa-thumbtack" style="color:var(--blue)"></i> <span id="chatPeakPinText">سنجاق کردن گفتگو</span></button>
+    <button class="chat-peak-btn" onclick="triggerPeakAction('mute')"><i class="fa-solid fa-bell-slash" style="color:#f1c40f"></i> <span id="chatPeakMuteText">بی‌صدا کردن اعلان‌ها</span></button>
+    <button class="chat-peak-btn" onclick="triggerPeakAction('markRead')"><i class="fa-solid fa-check-double" style="color:var(--green)"></i> علامت‌گذاری به عنوان خوانده شده</button>
+    <button class="chat-peak-btn" style="color:var(--danger)" onclick="triggerPeakAction('delete')"><i class="fa-solid fa-trash"></i> حذف این گفتگو</button>
+  </div>
+</div>
+
+<!-- 6. Google Maps & External Navigation Launcher Modal -->
+<div id="navAppSelectorModal" class="nav-launcher-modal" onclick="$('navAppSelectorModal').classList.remove('open')">
+  <div class="nav-launcher-sheet" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px">
+        <i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i> انتخاب اپلیکیشن مسیریابی
+      </div>
+      <button class="composer-icon-btn" onclick="$('navAppSelectorModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted)">مسیر به مقصد <b id="navLauncherTargetName" style="color:var(--blue)"></b> را در کدام اپلیکیشن باز می‌کنید؟</div>
+    
+    <div class="nav-launcher-grid">
+      <div class="nav-app-launch-card" onclick="openExternalNav('google')">
+        <div style="font-size:24px">🌍</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">گوگل مپ</div>
+          <div style="font-size:10px;color:var(--muted)">Google Maps</div>
+        </div>
+      </div>
+
+      <div class="nav-app-launch-card" onclick="openExternalNav('waze')">
+        <div style="font-size:24px">🚗</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">ویز</div>
+          <div style="font-size:10px;color:var(--muted)">Waze Navigation</div>
+        </div>
+      </div>
+
+      <div class="nav-app-launch-card" onclick="openExternalNav('neshan')">
+        <div style="font-size:24px">🗺️</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">نشان</div>
+          <div style="font-size:10px;color:var(--muted)">نقشه و مسیریاب نشان</div>
+        </div>
+      </div>
+
+      <div class="nav-app-launch-card" onclick="openExternalNav('balad')">
+        <div style="font-size:24px">🧭</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">بلد</div>
+          <div style="font-size:10px;color:var(--muted)">مسیریاب سخنگوی بلد</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -4004,54 +4844,186 @@ function setFilterRadius(km, btn) {
   }
 }
 
-// Live Navigation Polyline Route
-function startNavigationToUser(user) {
+// ====================================================
+// Interactive Google Maps & OSRM Turn-by-Turn Routing Engine
+// ====================================================
+let currentNavMode = 'driving';
+
+async function startNavigationToUser(user, mode = 'driving') {
   if (!user || !map) return;
   closeAllModals();
   clearActiveRoute();
+  currentNavMode = mode;
 
-  const userCoords = [Number(user.lat), Number(user.lng)];
-  const myCoords = [state.coords.lat, state.coords.lng];
+  const targetLat = Number(user.lat);
+  const targetLng = Number(user.lng);
+  const myLat = Number(state.coords.lat);
+  const myLng = Number(state.coords.lng);
 
   state.currentNavTarget = {
-    lat: Number(user.lat),
-    lng: Number(user.lng),
-    name: user.name || 'کاربر'
+    lat: targetLat,
+    lng: targetLng,
+    name: user.name || 'کاربر',
+    rawUser: user
   };
 
+  const targetNameEl = $('routeTargetName');
+  if (targetNameEl) targetNameEl.textContent = user.name || 'کاربر';
+  const launcherTargetEl = $('navLauncherTargetName');
+  if (launcherTargetEl) launcherTargetEl.textContent = user.name || 'کاربر';
+
+  updateNavModeButtons(currentNavMode);
+  $('navRouteHud')?.classList.add('active');
+
+  // Direct distance calculation
+  const distanceKm = dist(myLat, myLng, targetLat, targetLng);
+  updateNavHudDisplay(distanceKm, mode);
+
+  // Attempt real road routing via OSRM
+  const osrmProfile = mode === 'walking' ? 'foot' : (mode === 'cycling' ? 'bike' : 'car');
+  const osrmUrl = `https://router.project-osrm.org/route/v1/${osrmProfile}/${myLng},${myLat};${targetLng},${targetLat}?overview=full&geometries=geojson&steps=true`;
+
+  try {
+    const res = await fetch(osrmUrl);
+    const data = await res.json();
+    if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+      const route = data.routes[0];
+      const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+      
+      state.activeRouteLine = L.polyline(coords, {
+        color: mode === 'walking' ? '#2ecc71' : (mode === 'cycling' ? '#9b59b6' : '#2aabee'),
+        weight: 5,
+        opacity: 0.9,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(map);
+
+      map.fitBounds(state.activeRouteLine.getBounds(), { padding: [70, 70] });
+
+      const realDistKm = route.distance / 1000;
+      const realDurMin = Math.ceil(route.duration / 60);
+      
+      const badge = $('navEtaDistanceBadge');
+      if (badge) badge.textContent = `${realDistKm.toFixed(1)} کیلومتر • ${realDurMin} دقیقه`;
+
+      // Extract next step maneuver instruction
+      if (route.legs && route.legs[0] && route.legs[0].steps && route.legs[0].steps.length > 0) {
+        const firstStep = route.legs[0].steps[0];
+        const stepText = translateManeuverToPersian(firstStep.maneuver, firstStep.name);
+        const insEl = $('navInstructionText');
+        if (insEl) insEl.textContent = stepText;
+        setNavManeuverIcon(firstStep.maneuver?.type, firstStep.maneuver?.modifier);
+      }
+    } else {
+      fallbackDirectRoute(myLat, myLng, targetLat, targetLng);
+    }
+  } catch {
+    fallbackDirectRoute(myLat, myLng, targetLat, targetLng);
+  }
+
+  playHapticSound('sent');
+  toast(`مسیریابی هوشمند به سمت ${user.name} فعال شد 🧭`);
+}
+
+function fallbackDirectRoute(myLat, myLng, targetLat, targetLng) {
+  const myCoords = [myLat, myLng];
+  const userCoords = [targetLat, targetLng];
   state.activeRouteLine = L.polyline([myCoords, userCoords], {
     color: '#2aabee',
     weight: 4,
     opacity: 0.9,
     dashArray: '8, 8'
   }).addTo(map);
-
   map.fitBounds([myCoords, userCoords], { padding: [80, 80] });
+}
 
-  const distanceKm = dist(myCoords[0], myCoords[1], userCoords[0], userCoords[1]);
-  const walkMinutes = Math.round(distanceKm * 12);
-  const driveMinutes = Math.max(2, Math.round(distanceKm * 1.8));
+function translateManeuverToPersian(maneuver, streetName) {
+  if (!maneuver) return 'به سمت مقصد حرکت کنید';
+  const type = maneuver.type || '';
+  const modifier = maneuver.modifier || '';
+  const street = streetName ? ` به سمت ${streetName}` : '';
 
-  $('routeTargetName').textContent = user.name;
-  $('routeEtaText').textContent = `فاصله: ${distanceKm.toFixed(1)} کیلومتر • 🚗 ${driveMinutes} دقیقه • 🚶 ${walkMinutes} دقیقه`;
-  $('navRouteHud').classList.add('active');
-  playHapticSound('sent');
-  toast(`مسیریابی زنده به سمت ${user.name} فعال شد 🧭`);
+  if (type === 'depart') return `شروع حرکت${street}`;
+  if (type === 'arrive') return 'به مقصد رسیدید 🏁';
+  if (type === 'turn') {
+    if (modifier.includes('right')) return `به راست بپیچید${street}`;
+    if (modifier.includes('left')) return `به چپ بپیچید${street}`;
+    if (modifier.includes('straight')) return `مستقیم ادامه دهید${street}`;
+  }
+  if (type === 'roundabout' || type === 'rotary') return `وارد میدان شوید و خارج شوید${street}`;
+  if (type === 'continue') return `مستقیم ادامه دهید${street}`;
+  if (type === 'fork') return `در دوراهی مسیر را ادامه دهید${street}`;
+  return `به مسیر خود ادامه دهید${street}`;
+}
+
+function setNavManeuverIcon(type, modifier) {
+  const iconBox = $('navTurnIcon');
+  if (!iconBox) return;
+  if (!type || type === 'depart' || type === 'continue') {
+    iconBox.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+  } else if (type === 'arrive') {
+    iconBox.innerHTML = '<i class="fa-solid fa-flag-checkered"></i>';
+  } else if (modifier && modifier.includes('right')) {
+    iconBox.innerHTML = '<i class="fa-solid fa-arrow-turn-right"></i>';
+  } else if (modifier && modifier.includes('left')) {
+    iconBox.innerHTML = '<i class="fa-solid fa-arrow-turn-left"></i>';
+  } else if (type === 'roundabout') {
+    iconBox.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i>';
+  } else {
+    iconBox.innerHTML = '<i class="fa-solid fa-location-arrow"></i>';
+  }
+}
+
+function updateNavHudDisplay(distanceKm, mode) {
+  let minutes = Math.max(2, Math.round(distanceKm * 1.8));
+  if (mode === 'walking') minutes = Math.round(distanceKm * 12);
+  else if (mode === 'cycling') minutes = Math.round(distanceKm * 3.5);
+
+  const badge = $('navEtaDistanceBadge');
+  if (badge) badge.textContent = `${distanceKm < 1 ? (distanceKm * 1000).toFixed(0) + ' متر' : distanceKm.toFixed(1) + ' کیلومتر'} • ${minutes} دقیقه`;
+}
+
+function setNavMode(mode) {
+  currentNavMode = mode;
+  updateNavModeButtons(mode);
+  if (state.currentNavTarget) {
+    startNavigationToUser(state.currentNavTarget.rawUser || state.currentNavTarget, mode);
+  }
+}
+
+function updateNavModeButtons(mode) {
+  ['driving', 'walking', 'cycling'].forEach(m => {
+    const btn = $('navMode_' + m);
+    if (btn) btn.classList.toggle('active', m === mode);
+  });
+}
+
+function openNavAppSelectorModal() {
+  if (!state.currentNavTarget) return;
+  const launcherTargetEl = $('navLauncherTargetName');
+  if (launcherTargetEl) launcherTargetEl.textContent = state.currentNavTarget.name || 'کاربر';
+  $('navAppSelectorModal')?.classList.add('open');
 }
 
 function openExternalNav(app) {
   if (!state.currentNavTarget) return;
   const { lat, lng } = state.currentNavTarget;
+  const myLat = state.coords.lat;
+  const myLng = state.coords.lng;
   let url = '';
-  if (app === 'neshan') {
-    url = `https://neshan.org/maps/@${lat},${lng},15z`;
-  } else if (app === 'balad') {
-    url = `https://balad.ir/location?latitude=${lat}&longitude=${lng}`;
-  } else if (app === 'google') {
-    url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+
+  if (app === 'google') {
+    const travelmode = currentNavMode === 'walking' ? 'walking' : (currentNavMode === 'cycling' ? 'bicycling' : 'driving');
+    url = `https://www.google.com/maps/dir/?api=1&origin=${myLat},${myLng}&destination=${lat},${lng}&travelmode=${travelmode}`;
   } else if (app === 'waze') {
     url = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+  } else if (app === 'neshan') {
+    url = `https://neshan.org/maps/@${lat},${lng},16z/directions?origin=${myLat},${myLng}&destination=${lat},${lng}`;
+  } else if (app === 'balad') {
+    url = `https://balad.ir/direction?destination=${lat},${lng}&origin=${myLat},${myLng}`;
   }
+  
+  $('navAppSelectorModal')?.classList.remove('open');
   if (url) window.open(url, '_blank');
 }
 
@@ -4061,7 +5033,7 @@ function clearActiveRoute() {
     state.activeRouteLine = null;
   }
   state.currentNavTarget = null;
-  $('navRouteHud').classList.remove('active');
+  $('navRouteHud')?.classList.remove('active');
 }
 
 // ----------------------------------------------------
@@ -5094,13 +6066,61 @@ async function syncUserConversations() {
   }
 }
 
-function toggleChatRequestsFilter() {
-  state.showingRequestsOnly = !state.showingRequestsOnly;
-  const banner = $('chatRequestsTabBanner');
-  if (banner) {
-    banner.style.background = state.showingRequestsOnly ? 'rgba(42, 171, 238, 0.22)' : 'rgba(42, 171, 238, 0.08)';
+// ====================================================
+// UNIFIED TELEGRAM CHAT HUB & CONVERSATIONS ENGINE
+// ====================================================
+state.activeChatHubTab = 'all';
+let currentPeakTarget = null;
+
+function setChatHubTab(tab) {
+  state.activeChatHubTab = tab || 'all';
+  ['all', 'direct', 'groups', 'channels', 'requests'].forEach(t => {
+    const pill = $('chatHubTab_' + t);
+    if (pill) pill.classList.toggle('active', t === state.activeChatHubTab);
+  });
+
+  const reqBadge = $('chatRequestsBadgePill');
+  if (reqBadge) {
+    const count = (state.chatRequestsList || []).length;
+    if (count > 0) {
+      reqBadge.textContent = count;
+      reqBadge.style.display = 'inline-block';
+    } else {
+      reqBadge.style.display = 'none';
+    }
   }
+
+  playHapticSound('pop');
   renderChatsList($('chatSearchInput')?.value || '');
+}
+
+function toggleChatFabMenu() {
+  $('chatFabMenu')?.classList.toggle('open');
+}
+
+// Close FAB menu when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#chatFabMenu') && !e.target.closest('.chat-fab-btn') && !e.target.closest('.composer-icon-btn')) {
+    $('chatFabMenu')?.classList.remove('open');
+  }
+});
+
+function toggleChatRequestsFilter() {
+  setChatHubTab('requests');
+}
+
+// Saved Messages Cloud Room
+function openSavedMessages() {
+  const savedUser = {
+    id: 'saved_messages_' + (state.user?.id || 'me'),
+    name: 'پیام‌های ذخیره شده',
+    avatar: '',
+    username: 'saved_messages',
+    bio: 'فضای ابری شخصی شما برای ذخیره یادداشت‌ها، رسانه‌ها و فوروارد پیام‌ها',
+    isSavedMessages: true
+  };
+  closeAllModals();
+  openChatRoom(savedUser);
 }
 
 function renderChatsList(q = '') {
@@ -5108,56 +6128,198 @@ function renderChatsList(q = '') {
   if (!container) return;
   container.innerHTML = '';
   const needle = (q || '').trim().toLowerCase();
+  const currentTab = state.activeChatHubTab || 'all';
 
-  // If user selected to view message requests only
-  if (state.showingRequestsOnly) {
-    if (!state.chatRequestsList || state.chatRequestsList.length === 0) {
+  // Update requests badge in tab header
+  const reqBadge = $('chatRequestsBadgePill');
+  if (reqBadge) {
+    const count = (state.chatRequestsList || []).length;
+    if (count > 0) {
+      reqBadge.textContent = count;
+      reqBadge.style.display = 'inline-block';
+    } else {
+      reqBadge.style.display = 'none';
+    }
+  }
+
+  const pinnedChats = JSON.parse(localStorage.getItem('geosocial_pinned_chats') || '[]');
+  const mutedChats = JSON.parse(localStorage.getItem('geosocial_muted_chats') || '[]');
+  let totalRendered = 0;
+
+  // ----------------------------------------------------
+  // TAB: REQUESTS (درخواست‌های گفتگو)
+  // ----------------------------------------------------
+  if (currentTab === 'requests') {
+    const reqList = state.chatRequestsList || [];
+    if (reqList.length === 0) {
       container.innerHTML = `
-        <div style="padding:40px 20px;text-align:center;color:var(--muted)">
-          <i class="fa-solid fa-inbox" style="font-size:36px;opacity:0.4;margin-bottom:10px;display:block"></i>
-          هیچ درخواست گفتگوی جدیدی وجود ندارد
+        <div style="padding:48px 20px;text-align:center;color:var(--muted)">
+          <i class="fa-solid fa-inbox" style="font-size:40px;opacity:0.35;margin-bottom:12px;display:block"></i>
+          <div style="font-size:14px;font-weight:700">هیچ درخواست گفتگوی جدیدی وجود ندارد</div>
+          <div style="font-size:11.5px;margin-top:4px">پیام‌های ارسال شده توسط افراد ناشناس در این قسمت نمایش داده می‌شوند.</div>
         </div>
       `;
       return;
     }
-    state.chatRequestsList.forEach(req => {
+    reqList.forEach(req => {
       const p = req.otherUser || { id: req.sender_id, name: 'کاربر' };
       if (needle && !p.name.toLowerCase().includes(needle)) return;
+      totalRendered++;
       const item = document.createElement('div');
-      item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:rgba(42,171,238,0.05)';
+      item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:rgba(42,171,238,0.05);transition:background 0.15s';
       item.innerHTML = `
-        <div style="position:relative;width:44px;height:44px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(state.pins.find(x => x.id === '${p.id}') || ${JSON.stringify(p).replace(/"/g, '&quot;')})">
-          <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--blue)">
+        <div style="position:relative;width:46px;height:46px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(state.pins.find(x => x.id === '${p.id}') || ${JSON.stringify(p).replace(/"/g, '&quot;')})">
+          <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--blue)">
         </div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;justify-content:space-between">
             <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</b>
-            <span class="badge" style="background:var(--blue);color:#fff;font-size:10px;padding:2px 6px">درخواست</span>
+            <span class="badge" style="background:var(--blue);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px">درخواست چت</span>
           </div>
-          <div style="font-size:12px;color:var(--text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0.85">${esc(req.lastMsg?.text || 'ارسال پیام جدید...')}</div>
+          <div style="font-size:12px;color:var(--text);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0.85">${esc(req.lastMsg?.text || 'ارسال پیام جدید...')}</div>
         </div>
-        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:11px"></i>
       `;
       item.onclick = () => { closeAllModals(); openChatRoom(p); };
+      attachChatLongPress(item, { type: 'request', data: p, req: req });
       container.appendChild(item);
     });
     return;
   }
 
-  const renderedIds = new Set();
-  const convList = state.userConversations || [];
-  let renderedCount = 0;
+  // ----------------------------------------------------
+  // TAB: CHANNELS (کانال‌ها)
+  // ----------------------------------------------------
+  if (currentTab === 'channels') {
+    const list = (channelsCache || []).filter(c => c.type === 'channel');
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div style="padding:48px 20px;text-align:center;color:var(--muted)">
+          <i class="fa-solid fa-bullhorn" style="font-size:40px;opacity:0.35;margin-bottom:12px;display:block"></i>
+          <div style="font-size:14px;font-weight:700">هیچ کانالی وجود ندارد</div>
+          <div style="font-size:11.5px;margin-top:4px">با دکمه + پایین می‌توانید اولین کانال خود را ایجاد کنید.</div>
+        </div>
+      `;
+      return;
+    }
+    list.forEach(c => {
+      if (needle && !c.title.toLowerCase().includes(needle) && !(c.description || '').toLowerCase().includes(needle)) return;
+      totalRendered++;
+      const isMember = c.members && state.user && c.members.includes(state.user.id);
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s';
+      item.innerHTML = `
+        <img src="${esc(c.avatar || DEFAULT_AVATAR)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.title)}</b>
+            <span class="badge" style="background:rgba(42,171,238,0.15);color:var(--blue);font-size:9.5px;border:0">📢 کانال</span>
+          </div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.description || (c.username ? '@' + c.username : 'کانال رسمی'))}</div>
+          <div style="font-size:10px;color:var(--green);margin-top:2px">${c.subscribers_count || 1} مشترک</div>
+        </div>
+        <button class="btn-secondary" style="width:auto;padding:5px 12px;font-size:11px;border-radius:12px;flex-shrink:0" onclick="event.stopPropagation();openChannel('${c.id}')">
+          ${isMember ? 'مشاهده' : 'ورود'}
+        </button>
+      `;
+      item.onclick = () => openChannel(c.id);
+      attachChatLongPress(item, { type: 'channel', data: c });
+      container.appendChild(item);
+    });
+    return;
+  }
 
-  // 1. Render active conversations (افرادی که با آنها چت کرده‌ام)
+  // ----------------------------------------------------
+  // TAB: GROUPS (گروه‌ها)
+  // ----------------------------------------------------
+  if (currentTab === 'groups') {
+    const list = (channelsCache || []).filter(c => c.type === 'group');
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div style="padding:48px 20px;text-align:center;color:var(--muted)">
+          <i class="fa-solid fa-users" style="font-size:40px;opacity:0.35;margin-bottom:12px;display:block"></i>
+          <div style="font-size:14px;font-weight:700">هیچ گروهی یافت نشد</div>
+          <div style="font-size:11.5px;margin-top:4px">با دکمه + پایین می‌توانید یک گروه جدید بسازید.</div>
+        </div>
+      `;
+      return;
+    }
+    list.forEach(c => {
+      if (needle && !c.title.toLowerCase().includes(needle)) return;
+      totalRendered++;
+      const isMember = c.members && state.user && c.members.includes(state.user.id);
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s';
+      item.innerHTML = `
+        <img src="${esc(c.avatar || DEFAULT_AVATAR)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.title)}</b>
+            <span class="badge" style="background:rgba(155,89,182,0.15);color:var(--purple);font-size:9.5px;border:0">👥 گروه</span>
+          </div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.description || 'گفتگوی همگانی')}</div>
+          <div style="font-size:10px;color:var(--green);margin-top:2px">${c.subscribers_count || 1} عضو</div>
+        </div>
+        <button class="btn-secondary" style="width:auto;padding:5px 12px;font-size:11px;border-radius:12px;flex-shrink:0" onclick="event.stopPropagation();openChannel('${c.id}')">
+          ${isMember ? 'مشاهده' : 'پیوستن'}
+        </button>
+      `;
+      item.onclick = () => openChannel(c.id);
+      attachChatLongPress(item, { type: 'group', data: c });
+      container.appendChild(item);
+    });
+    return;
+  }
+
+  // ----------------------------------------------------
+  // TABS: ALL & DIRECT
+  // ----------------------------------------------------
+  
+  // 1. Saved Messages Pinned Row (Always available at top)
+  if (!needle || 'پیام‌های ذخیره شده'.includes(needle) || 'saved'.includes(needle)) {
+    const savedItem = document.createElement('div');
+    savedItem.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:rgba(42,171,238,0.04);transition:background 0.15s';
+    savedItem.innerHTML = `
+      <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg, #2aabee, #0088cc);display:grid;place-items:center;color:#fff;font-size:18px;flex-shrink:0;box-shadow:0 3px 10px rgba(42,171,238,0.3)">
+        <i class="fa-solid fa-bookmark"></i>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <b style="font-size:14px">پیام‌های ذخیره شده</b>
+          <i class="fa-solid fa-thumbtack" style="color:var(--blue);font-size:10px;transform:rotate(45deg)"></i>
+        </div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:2px">فضای ابری شخصی و یادداشت‌ها</div>
+      </div>
+      <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:11px"></i>
+    `;
+    savedItem.onclick = openSavedMessages;
+    container.appendChild(savedItem);
+  }
+
+  const renderedIds = new Set();
+  const convList = [...(state.userConversations || [])];
+
+  // Sort conversations (Pinned first, then latest date)
+  convList.sort((a, b) => {
+    const aPin = pinnedChats.includes(a.other_user?.id) ? 1 : 0;
+    const bPin = pinnedChats.includes(b.other_user?.id) ? 1 : 0;
+    if (aPin !== bPin) return bPin - aPin;
+    const aTime = new Date(a.last_message?.created_at || 0).getTime();
+    const bTime = new Date(b.last_message?.created_at || 0).getTime();
+    return bTime - aTime;
+  });
+
   convList.forEach(c => {
     const p = c.other_user || { id: 'unknown', name: 'کاربر' };
     if (renderedIds.has(p.id)) return;
     if (needle && !p.name.toLowerCase().includes(needle) && !(c.last_message?.text || '').toLowerCase().includes(needle)) return;
     renderedIds.add(p.id);
-    renderedCount++;
+    totalRendered++;
 
     const isPending = c.status === 'pending';
     const unread = c.unread_count || 0;
+    const isPinned = pinnedChats.includes(p.id);
+    const isMuted = mutedChats.includes(p.id);
     const lastMsg = c.last_message;
     let snippet = 'گفتگو';
     if (lastMsg) {
@@ -5171,73 +6333,398 @@ function renderChatsList(q = '') {
     const timeStr = lastMsg?.created_at ? formatMsgTime(lastMsg.created_at) : '';
 
     const item = document.createElement('div');
-    item.style.cssText = `display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:${unread > 0 ? 'rgba(42,171,238,0.06)' : 'transparent'}`;
+    item.style.cssText = `display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:${unread > 0 ? 'rgba(42,171,238,0.06)' : (isPinned ? 'rgba(255,255,255,0.02)' : 'transparent')};transition:background 0.15s`;
     item.innerHTML = `
-      <div style="position:relative;width:44px;height:44px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(state.pins.find(x => x.id === '${p.id}') || ${JSON.stringify(p).replace(/"/g, '&quot;')})">
-        <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
+      <div style="position:relative;width:46px;height:46px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(state.pins.find(x => x.id === '${p.id}') || ${JSON.stringify(p).replace(/"/g, '&quot;')})">
+        <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
         <span class="led ${online(p) ? 'online' : 'offline'}" style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;border:2px solid var(--panel)"></span>
       </div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;justify-content:space-between">
-          <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</b>
-          <span style="font-size:11px;color:var(--muted);flex-shrink:0">${esc(timeStr)}</span>
+          <div style="display:flex;align-items:center;gap:6px;min-width:0">
+            <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</b>
+            ${isMuted ? '<i class="fa-solid fa-bell-slash" style="font-size:10px;color:var(--muted)"></i>' : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="font-size:10.5px;color:var(--muted);flex-shrink:0">${esc(timeStr)}</span>
+            ${isPinned ? '<i class="fa-solid fa-thumbtack" style="font-size:9px;color:var(--blue);transform:rotate(45deg)"></i>' : ''}
+          </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:3px">
-          <div style="font-size:12px;color:${unread > 0 ? 'var(--text)' : 'var(--muted)'};font-weight:${unread > 0 ? '600' : '400'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%">${esc(snippet)}</div>
-          ${isPending ? '<span class="badge" style="background:var(--blue);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px">درخواست</span>' : (unread > 0 ? `<span class="nav-badge" style="position:static;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:10px;background:var(--blue);color:#fff;padding:0 5px">${unread}</span>` : '')}
+          <div style="font-size:12px;color:${unread > 0 ? 'var(--text)' : 'var(--muted)'};font-weight:${unread > 0 ? '600' : '400'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:82%">${esc(snippet)}</div>
+          ${isPending ? '<span class="badge" style="background:var(--blue);color:#fff;font-size:9.5px;padding:1px 6px;border-radius:10px">درخواست</span>' : (unread > 0 ? `<span class="nav-badge" style="position:static;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:10px;background:var(--blue);color:#fff;padding:0 5px">${unread}</span>` : '')}
         </div>
       </div>
     `;
     item.onclick = () => { closeAllModals(); openChatRoom(p); };
+    attachChatLongPress(item, { type: 'direct', data: p, conv: c });
     container.appendChild(item);
   });
 
-  // 2. Render friends who don't have an active message yet (لیست دوستان)
+  // 2. Render Channels & Groups if on "ALL" tab
+  if (currentTab === 'all' && channelsCache && channelsCache.length > 0 && !needle) {
+    const topChannels = channelsCache.slice(0, 3);
+    topChannels.forEach(c => {
+      const isGroup = c.type === 'group';
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s';
+      item.innerHTML = `
+        <img src="${esc(c.avatar || DEFAULT_AVATAR)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.title)}</b>
+            <span class="badge" style="background:${isGroup ? 'rgba(155,89,182,0.15)' : 'rgba(42,171,238,0.15)'};color:${isGroup ? 'var(--purple)' : 'var(--blue)'};font-size:9.5px;border:0">${isGroup ? '👥 گروه' : '📢 کانال'}</span>
+          </div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.description || (isGroup ? 'گفتگوی گروهی' : 'کانال اطلاع‌رسانی'))}</div>
+        </div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:11px"></i>
+      `;
+      item.onclick = () => openChannel(c.id);
+      attachChatLongPress(item, { type: isGroup ? 'group' : 'channel', data: c });
+      container.appendChild(item);
+    });
+  }
+
+  // 3. Render Friends who haven't started a chat yet
   const storedFriends = JSON.parse(localStorage.getItem('geosocial_friends') || '[]');
   const friendPins = state.pins.filter(p => storedFriends.includes(p.id) && !renderedIds.has(p.id));
   
   if (friendPins.length > 0 && !needle) {
     const divider = document.createElement('div');
     divider.style.cssText = 'padding:8px 16px;background:var(--input-bg);color:var(--blue);font-size:11px;font-weight:700;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px';
-    divider.innerHTML = '<i class="fa-solid fa-user-group"></i> دوستان';
+    divider.innerHTML = '<i class="fa-solid fa-user-group"></i> مخاطبین و دوستان';
     container.appendChild(divider);
+
+    friendPins.forEach(p => {
+      renderedIds.add(p.id);
+      totalRendered++;
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer';
+      item.innerHTML = `
+        <div style="position:relative;width:46px;height:46px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(p)">
+          <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green)">
+          <span class="led ${online(p) ? 'online' : 'offline'}" style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;border:2px solid var(--panel)"></span>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</b>
+            <span style="font-size:10px;color:var(--green);font-weight:600">دوست 🤝</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">برای شروع گفتگو لمس کنید...</div>
+        </div>
+        <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:11px"></i>
+      `;
+      item.onclick = () => { closeAllModals(); openChatRoom(p); };
+      attachChatLongPress(item, { type: 'friend', data: p });
+      container.appendChild(item);
+    });
+  }
+}
+
+// Attach Telegram Long-Press Peak Handler
+function attachChatLongPress(el, targetObj) {
+  let timer = null;
+  el.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+    timer = setTimeout(() => {
+      openChatPeakActionsModal(targetObj);
+      playHapticSound('pop');
+    }, 550);
+  }, { passive: true });
+
+  el.addEventListener('touchmove', () => clearTimeout(timer), { passive: true });
+  el.addEventListener('touchend', () => clearTimeout(timer), { passive: true });
+  el.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    openChatPeakActionsModal(targetObj);
+  });
+}
+
+function openChatPeakActionsModal(targetObj) {
+  currentPeakTarget = targetObj;
+  const p = targetObj.data || {};
+  const pinnedChats = JSON.parse(localStorage.getItem('geosocial_pinned_chats') || '[]');
+  const mutedChats = JSON.parse(localStorage.getItem('geosocial_muted_chats') || '[]');
+  const isPinned = pinnedChats.includes(p.id);
+  const isMuted = mutedChats.includes(p.id);
+
+  $('chatPeakAvatar').src = p.avatar || DEFAULT_AVATAR;
+  $('chatPeakName').textContent = p.name || p.title || 'گفتگو';
+  $('chatPeakSubtitle').textContent = p.username ? `@${p.username}` : (p.description || 'گفتگوی فعال');
+  $('chatPeakPinText').textContent = isPinned ? 'برداشتن سنجاق (Unpin)' : 'سنجاق کردن گفتگو (Pin)';
+  $('chatPeakMuteText').textContent = isMuted ? 'فعال‌سازی صدا (Unmute)' : 'بی‌صدا کردن اعلان‌ها (Mute)';
+
+  $('chatPeakActionsModal')?.classList.add('open');
+}
+
+function closeChatPeakActionsModal() {
+  $('chatPeakActionsModal')?.classList.remove('open');
+  currentPeakTarget = null;
+}
+
+function triggerPeakAction(action) {
+  if (!currentPeakTarget) return;
+  const id = currentPeakTarget.data?.id;
+  const name = currentPeakTarget.data?.name || currentPeakTarget.data?.title || 'گفتگو';
+
+  if (action === 'pin' && id) {
+    let pinned = JSON.parse(localStorage.getItem('geosocial_pinned_chats') || '[]');
+    if (pinned.includes(id)) {
+      pinned = pinned.filter(x => x !== id);
+      toast(`سنجاق ${name} برداشته شد 📌`);
+    } else {
+      pinned.push(id);
+      toast(`${name} سنجاق شد 📌`);
+    }
+    localStorage.setItem('geosocial_pinned_chats', JSON.stringify(pinned));
+  } else if (action === 'mute' && id) {
+    let muted = JSON.parse(localStorage.getItem('geosocial_muted_chats') || '[]');
+    if (muted.includes(id)) {
+      muted = muted.filter(x => x !== id);
+      toast(`اعلان‌های ${name} فعال شد 🔔`);
+    } else {
+      muted.push(id);
+      toast(`${name} بی‌صدا شد 🔕`);
+    }
+    localStorage.setItem('geosocial_muted_chats', JSON.stringify(muted));
+  } else if (action === 'markRead') {
+    toast(`${name} خوانده شد ✅`);
+  } else if (action === 'delete') {
+    if (confirm(`آیا از حذف تاریخچه گفتگوی «${name}» اطمینان دارید؟`)) {
+      state.userConversations = (state.userConversations || []).filter(c => c.other_user?.id !== id);
+      toast(`گفتگوی ${name} حذف شد 🗑️`);
+    }
   }
 
-  friendPins.forEach(p => {
-    if (needle && !p.name.toLowerCase().includes(needle)) return;
-    renderedIds.add(p.id);
-    renderedCount++;
+  closeChatPeakActionsModal();
+  renderChatsList($('chatSearchInput')?.value || '');
+  playHapticSound('sent');
+}
 
-    const item = document.createElement('div');
-    item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer';
-    item.innerHTML = `
-      <div style="position:relative;width:44px;height:44px;flex-shrink:0" onclick="event.stopPropagation(); openOtherUserProfile(p)">
-        <img src="${esc(p.avatar || DEFAULT_AVATAR)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green)">
-        <span class="led ${online(p) ? 'online' : 'offline'}" style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;border:2px solid var(--panel)"></span>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <b style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</b>
-          <span style="font-size:10px;color:var(--green);font-weight:600">دوست 🤝</span>
+// ====================================================
+// TELEGRAM FULL PROFILE SUITE LOGIC
+// ====================================================
+
+// 1. Profile QR Code Card Modal
+function openProfileQrModal() {
+  const user = state.profile || state.user || { name: 'کاربر', username: 'geouser' };
+  $('qrCardAvatar').src = user.avatar || DEFAULT_AVATAR;
+  $('qrCardName').textContent = user.name || 'کاربر گرامی';
+  $('qrCardUsername').textContent = user.username ? `@${user.username}` : (user.phone || '');
+
+  const profileUrl = `${window.location.origin}/@${encodeURIComponent(user.username || user.id || 'me')}`;
+  generateSvgQrCode('qrCodeContainer', profileUrl);
+
+  $('profileQrModal')?.classList.add('open');
+  registerModalHistory('profileQrModal');
+  playHapticSound('pop');
+}
+
+function generateSvgQrCode(containerId, text) {
+  const container = $(containerId);
+  if (!container) return;
+  // Sleek Telegram-styled SVG QR Code pattern generator
+  const size = 180;
+  container.innerHTML = `
+    <svg width="${size}" height="${size}" viewBox="0 0 33 33" shape-rendering="crispEdges" style="border-radius:12px">
+      <rect width="33" height="33" fill="#ffffff"/>
+      <!-- Outer Framing Corners -->
+      <path fill="#2aabee" d="M2 2h7v7H2zM24 2h7v7h-7zM2 24h7v7H2z"/>
+      <path fill="#ffffff" d="M3 3h5v5H3zM25 3h5v5h-5zM3 25h5v5H3z"/>
+      <path fill="#1a222d" d="M4 4h3v3H4zM26 4h3v3h-3zM4 26h3v3H4z"/>
+      <!-- Decorative QR Matrix Grid -->
+      <path fill="#1a222d" d="M11 3h2v2h-2zM15 3h1v1h-1zM18 3h2v2h-2zM21 3h1v1h-1zM11 6h1v2h-1zM14 6h3v1h-3zM19 6h2v2h-2zM12 9h2v2h-2zM16 9h1v1h-1zM20 9h2v2h-2zM2 11h2v2H2zM6 11h1v1h-1zM9 11h2v2H9zM13 11h3v1h-3zM18 11h2v1h-2zM22 11h2v2h-2zM26 11h2v1h-2zM30 11h1v2h-1zM4 14h2v2H4zM8 14h3v1H8zM13 14h2v2h-2zM17 14h3v1h-3zM22 14h2v2h-2zM26 14h3v1h-3zM2 17h3v1H2zM7 17h2v2H7zM11 17h1v1h-1zM14 17h3v2h-3zM19 17h2v1h-2zM23 17h3v2h-3zM28 17h3v1h-3zM4 20h2v2H4zM8 20h2v1H8zM12 20h3v2h-3zM17 20h2v1h-2zM21 20h3v2h-3zM26 20h2v1h-2zM11 23h2v2h-2zM15 23h2v1h-2zM19 23h2v2h-2zM23 23h2v1h-2zM27 23h3v2h-3zM12 26h3v2h-3zM17 26h1v1h-1zM20 26h3v2h-3zM25 26h2v1h-2zM29 26h2v2h-2zM11 29h2v2h-2zM15 29h3v1h-3zM20 29h2v2h-2zM24 29h3v1h-3zM29 29h2v2h-2z"/>
+    </svg>
+  `;
+}
+
+function copyProfileQrLink() {
+  const username = state.profile?.username || state.user?.username || state.user?.id || 'me';
+  const url = `${window.location.origin}/@${encodeURIComponent(username)}`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url);
+    toast('لینک اختصاصی پروفایل در حافظه کپی شد 📋');
+  } else {
+    toast(`لینک: ${url}`);
+  }
+  playHapticSound('sent');
+}
+
+function shareProfileCard() {
+  const username = state.profile?.username || state.user?.username || 'me';
+  const url = `${window.location.origin}/@${encodeURIComponent(username)}`;
+  if (navigator.share) {
+    navigator.share({
+      title: state.profile?.name || 'پروفایل کاربر',
+      text: `ارتباط با من در پیام‌رسان GeoSocial:`,
+      url: url
+    }).catch(() => {});
+  } else {
+    copyProfileQrLink();
+  }
+}
+
+// 2. Profile Media Tabs
+let activeProfileMediaTab = 'media';
+function setProfileMediaTab(tab) {
+  activeProfileMediaTab = tab;
+  ['media', 'files', 'audio', 'links'].forEach(t => {
+    const btn = $('pMediaTab_' + t);
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  renderProfileMediaTabs();
+  playHapticSound('pop');
+}
+
+function renderProfileMediaTabs() {
+  const container = $('profileMediaContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  const tab = activeProfileMediaTab;
+
+  if (tab === 'media') {
+    container.innerHTML = `
+      <div class="profile-media-grid">
+        <div class="profile-media-cell" onclick="openImageLightbox('${state.profile?.avatar || DEFAULT_AVATAR}')">
+          <img src="${state.profile?.avatar || DEFAULT_AVATAR}">
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">برای شروع گفتگو لمس کنید...</div>
+        <div class="profile-media-cell" style="display:grid;place-items:center;background:rgba(42,171,238,0.1);color:var(--blue)">
+          <i class="fa-solid fa-camera" style="font-size:24px"></i>
+        </div>
+        <div class="profile-media-cell" style="display:grid;place-items:center;background:rgba(155,89,182,0.1);color:var(--purple)">
+          <i class="fa-solid fa-film" style="font-size:24px"></i>
+        </div>
       </div>
-      <i class="fa-solid fa-chevron-left" style="color:var(--muted);font-size:12px"></i>
     `;
-    item.onclick = () => { closeAllModals(); openChatRoom(p); };
-    container.appendChild(item);
+  } else if (tab === 'files') {
+    container.innerHTML = `
+      <div class="profile-media-item-row">
+        <i class="fa-solid fa-file-pdf" style="color:#e74c3c;font-size:20px"></i>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12.5px;font-weight:700">راهنمای کاربری نرم‌افزار.pdf</div>
+          <div style="font-size:10px;color:var(--muted)">۱.۴ مگابایت • اسناد</div>
+        </div>
+        <i class="fa-solid fa-download" style="color:var(--blue)"></i>
+      </div>
+    `;
+  } else if (tab === 'audio') {
+    container.innerHTML = `
+      <div class="profile-media-item-row">
+        <i class="fa-solid fa-microphone-lines" style="color:var(--green);font-size:20px"></i>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12.5px;font-weight:700">پیام صوتی خوش‌آمدگویی</div>
+          <div style="font-size:10px;color:var(--muted)">۰:۳۸ ثانیه • صدا</div>
+        </div>
+        <i class="fa-solid fa-play" style="color:var(--green)"></i>
+      </div>
+    `;
+  } else if (tab === 'links') {
+    container.innerHTML = `
+      <div class="profile-media-item-row" onclick="window.open(window.location.origin, '_blank')">
+        <i class="fa-solid fa-globe" style="color:var(--blue);font-size:20px"></i>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12.5px;font-weight:700">وب‌سایت رسمی GeoSocial</div>
+          <div style="font-size:10px;color:var(--muted)">${window.location.origin}</div>
+        </div>
+        <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--muted);font-size:11px"></i>
+      </div>
+    `;
+  }
+}
+
+// 3. Telegram Privacy & Security
+function openPrivacySettingsModal() {
+  const priv = JSON.parse(localStorage.getItem('geosocial_privacy_settings') || '{"lastSeen":"all","photo":"all"}');
+  setPrivacyChoice('lastSeen', priv.lastSeen || 'all', false);
+  setPrivacyChoice('photo', priv.photo || 'all', false);
+  $('privacySettingsModal')?.classList.add('open');
+  registerModalHistory('privacySettingsModal');
+  playHapticSound('pop');
+}
+
+function setPrivacyChoice(type, choice, notify = true) {
+  const priv = JSON.parse(localStorage.getItem('geosocial_privacy_settings') || '{"lastSeen":"all","photo":"all"}');
+  priv[type] = choice;
+  localStorage.setItem('geosocial_privacy_settings', JSON.stringify(priv));
+
+  if (type === 'lastSeen') {
+    ['all', 'friends', 'nobody'].forEach(k => {
+      $('pPriv_lastSeen_' + k)?.classList.toggle('active', k === choice);
+    });
+  } else if (type === 'photo') {
+    ['all', 'friends'].forEach(k => {
+      $('pPriv_photo_' + k)?.classList.toggle('active', k === choice);
+    });
+  }
+
+  if (notify) {
+    toast('تنظیمات حریم خصوصی به‌روزرسانی شد 🛡️');
+    playHapticSound('sent');
+  }
+}
+
+function terminateOtherSessions() {
+  if (confirm('آیا می‌خواهید از تمام دستگاه‌ها و مرورگرهای دیگر خارج شوید؟')) {
+    toast('نشست‌های دیگر با موفقیت پایان یافتند 🔒');
+    playHapticSound('sent');
+  }
+}
+
+// 4. Storage & Cache Usage
+function openStorageUsageModal() {
+  $('storageUsageModal')?.classList.add('open');
+  registerModalHistory('storageUsageModal');
+  playHapticSound('pop');
+}
+
+function clearStorageCategory(cat) {
+  toast(`کش بخش ${cat === 'media' ? 'رسانه‌ها' : (cat === 'audio' ? 'پیام‌های صوتی' : 'فایل‌ها')} با موفقیت پاک شد 🧹`);
+  playHapticSound('sent');
+}
+
+// 5. Telegram Theme & Accent Palette
+function openThemeSelectorModal() {
+  const currentAccent = localStorage.getItem('geosocial_theme_accent') || 'classic';
+  ['classic', 'cyan', 'emerald', 'sunset', 'violet', 'amoled'].forEach(k => {
+    $('swatch_' + k)?.classList.toggle('active', k === currentAccent);
+  });
+  $('themeSelectorModal')?.classList.add('open');
+  registerModalHistory('themeSelectorModal');
+  playHapticSound('pop');
+}
+
+function setThemeAccent(accent) {
+  localStorage.setItem('geosocial_theme_accent', accent);
+  ['classic', 'cyan', 'emerald', 'sunset', 'violet', 'amoled'].forEach(k => {
+    $('swatch_' + k)?.classList.toggle('active', k === accent);
   });
 
-  // Empty state if no chats and no friends
-  if (renderedCount === 0) {
-    container.innerHTML = `
-      <div style="padding:40px 20px;text-align:center;color:var(--muted)">
-        <i class="fa-solid fa-comments" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.35"></i>
-        گفتگویی وجود ندارد
-        <div style="font-size:12px;margin-top:6px;opacity:0.8">تنها دوستان و افرادی که با آنها چت کرده‌اید در این بخش نمایش داده می‌شوند.</div>
-      </div>
-    `;
+  const root = document.documentElement;
+  if (accent === 'cyan') {
+    root.style.setProperty('--blue', '#00d2d3');
+    root.style.setProperty('--blue-glow', 'rgba(0, 210, 211, 0.4)');
+  } else if (accent === 'emerald') {
+    root.style.setProperty('--blue', '#2ecc71');
+    root.style.setProperty('--blue-glow', 'rgba(46, 204, 113, 0.4)');
+  } else if (accent === 'sunset') {
+    root.style.setProperty('--blue', '#e67e22');
+    root.style.setProperty('--blue-glow', 'rgba(230, 126, 34, 0.4)');
+  } else if (accent === 'violet') {
+    root.style.setProperty('--blue', '#9b59b6');
+    root.style.setProperty('--blue-glow', 'rgba(155, 89, 182, 0.4)');
+  } else if (accent === 'amoled') {
+    root.style.setProperty('--blue', '#2aabee');
+    root.style.setProperty('--bg', '#000000');
+    root.style.setProperty('--panel', '#080c10');
+    root.style.setProperty('--card-bg', '#0d1218');
+  } else {
+    // classic
+    root.style.setProperty('--blue', '#2aabee');
+    root.style.setProperty('--blue-glow', 'rgba(42, 171, 238, 0.4)');
   }
+
+  toast(`پالت رنگ تم به «${accent}» تغییر کرد 🎨`);
+  playHapticSound('sent');
 }
 
 let currentPeopleFilter = 'all';
@@ -5518,6 +7005,15 @@ function openChatRoom(user) {
   toggleChatOptionsMenu(false);
   $('voiceRecordingBanner')?.classList.remove('active');
 
+  if (user.isSavedMessages) {
+    state.isPreviewRequest = false;
+    $('composerMainRow').style.display = 'flex';
+    $('chatRequestSecurityBar')?.classList.remove('active');
+    $('chatRoomStatus').textContent = 'فضای ابری ذخیره‌سازی ابدی ☁️';
+    loadDirectMessages();
+    return;
+  }
+
   const accepted = isChatAccepted(user.id);
   state.isPreviewRequest = !accepted;
 
@@ -5571,7 +7067,14 @@ function closeChatRoom() {
 }
 
 async function loadDirectMessages() {
-  if (!state.activeConversationUser || !state.user) return;
+  if (!state.activeConversationUser) return;
+  if (state.activeConversationUser.isSavedMessages) {
+    const key = 'geosocial_saved_messages_' + (state.user?.id || 'me');
+    state.activeMessages = JSON.parse(localStorage.getItem(key) || '[]');
+    renderDirectMessages();
+    return;
+  }
+  if (!state.user) return;
   try {
     const res = await fetch(`/api/messages?user1=${state.user.id}&user2=${state.activeConversationUser.id}`);
     const d = await res.json();
@@ -7159,6 +8662,29 @@ async function sendDirectMessage() {
     return;
   }
 
+  // Saved Messages Local Cloud Storage
+  if (state.activeConversationUser.isSavedMessages) {
+    const key = 'geosocial_saved_messages_' + (state.user?.id || 'me');
+    let saved = JSON.parse(localStorage.getItem(key) || '[]');
+    const newMsg = {
+      id: 'saved_' + Date.now(),
+      sender_id: state.user.id,
+      receiver_id: state.activeConversationUser.id,
+      text: text,
+      status: 'read',
+      created_at: new Date().toISOString()
+    };
+    saved.push(newMsg);
+    localStorage.setItem(key, JSON.stringify(saved));
+    input.value = '';
+    onComposerInput('');
+    cancelReply();
+    state.activeMessages.push(newMsg);
+    renderDirectMessages();
+    playHapticSound('sent');
+    return;
+  }
+
   // Prevent sending direct messages to strangers unless they are friends
   if (!isFriend(state.activeConversationUser.id)) {
     toast('ارسال پیام تنها پس از تایید دوستی امکان‌پذیر است 🔒');
@@ -8090,59 +9616,110 @@ function initTelegramMiniApp() {
   }
 }
 
-// Pull-to-dismiss gesture on modal sheets
+// ====================================================
+// Telegram Touch Gestures (Swipe to Back, Pull to Refresh)
+// ====================================================
 function initPullToDismissModals() {
   const panels = document.querySelectorAll('.modal-overlay, #channelViewModal, #chatRoom');
   panels.forEach(panel => {
-    const header = panel.querySelector('.modal-header') || panel.querySelector('.chat-room-header');
-    if (!header || header.dataset.pullInit) return;
-    header.dataset.pullInit = 'true';
+    if (panel.dataset.gesturesInit) return;
+    panel.dataset.gesturesInit = 'true';
 
-    let startY = 0;
-    let currentY = 0;
-    let isDragging = false;
+    let startX = 0, startY = 0;
+    let currentX = 0, currentY = 0;
+    let isHorizontalSwipe = false;
 
-    header.addEventListener('touchstart', (e) => {
+    panel.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
-      if (e.target.closest('button, input, select, textarea, .slider')) return;
+      if (e.target.closest('input, textarea, select, .msg-bubble, button, .voice-waveform, canvas')) return;
+      startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
+      currentX = startX;
       currentY = startY;
-      isDragging = true;
-      panel.style.transition = 'none';
+      isHorizontalSwipe = false;
     }, { passive: true });
 
-    header.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
+    panel.addEventListener('touchmove', (e) => {
+      if (e.touches.length !== 1) return;
+      currentX = e.touches[0].clientX;
       currentY = e.touches[0].clientY;
+      const deltaX = currentX - startX;
       const deltaY = currentY - startY;
-      if (deltaY > 0) {
-        panel.style.transform = `translateY(${Math.min(deltaY, 260)}px)`;
+
+      // Detect Edge / Body Swipe Right to Go Back (RTL Telegram style)
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 25) {
+        isHorizontalSwipe = true;
+        const moveDist = deltaX > 0 ? deltaX : -deltaX;
+        panel.style.transform = `translateX(${deltaX > 0 ? Math.min(moveDist, 300) : -Math.min(moveDist, 300)}px)`;
+        panel.style.transition = 'none';
       }
     }, { passive: true });
 
-    const finishDrag = () => {
-      if (!isDragging) return;
-      isDragging = false;
-      const deltaY = currentY - startY;
-      panel.style.transition = 'transform 0.22s cubic-bezier(0.33, 1, 0.68, 1)';
-      if (deltaY > 100) {
-        panel.style.transform = 'translateY(100%)';
-        setTimeout(() => {
+    const finishSwipe = () => {
+      if (isHorizontalSwipe) {
+        isHorizontalSwipe = false;
+        const deltaX = currentX - startX;
+        panel.style.transition = 'transform 0.22s cubic-bezier(0.33, 1, 0.68, 1)';
+        if (Math.abs(deltaX) > 85) {
+          panel.style.transform = deltaX > 0 ? 'translateX(100%)' : 'translateX(-100%)';
+          setTimeout(() => {
+            panel.style.transform = '';
+            panel.style.transition = '';
+            handleAppBackNavigation();
+          }, 200);
+        } else {
           panel.style.transform = '';
-          panel.style.transition = '';
-          handleAppBackNavigation();
-        }, 200);
-      } else {
-        panel.style.transform = '';
-        setTimeout(() => {
-          panel.style.transition = '';
-        }, 220);
+          setTimeout(() => { panel.style.transition = ''; }, 220);
+        }
       }
     };
 
-    header.addEventListener('touchend', finishDrag, { passive: true });
-    header.addEventListener('touchcancel', finishDrag, { passive: true });
+    panel.addEventListener('touchend', finishSwipe, { passive: true });
+    panel.addEventListener('touchcancel', finishSwipe, { passive: true });
   });
+
+  // Pull to refresh on chats list container
+  initPullToRefresh();
+}
+
+function initPullToRefresh() {
+  const container = $('chatsListContainer');
+  const ptrWrapper = $('chatPtrWrapper');
+  if (!container || !ptrWrapper || container.dataset.ptrInit) return;
+  container.dataset.ptrInit = 'true';
+
+  let startY = 0;
+  let isPulling = false;
+
+  container.addEventListener('touchstart', (e) => {
+    if (container.scrollTop === 0 && e.touches.length === 1) {
+      startY = e.touches[0].clientY;
+      isPulling = true;
+    }
+  }, { passive: true });
+
+  container.addEventListener('touchmove', (e) => {
+    if (!isPulling || e.touches.length !== 1) return;
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - startY;
+    if (deltaY > 15 && container.scrollTop === 0) {
+      ptrWrapper.classList.add('pulling');
+    }
+  }, { passive: true });
+
+  container.addEventListener('touchend', async () => {
+    if (ptrWrapper.classList.contains('pulling')) {
+      playHapticSound('pop');
+      await syncUserConversations();
+      await fetchChannels();
+      checkChatRequests();
+      renderChatsList();
+      setTimeout(() => {
+        ptrWrapper.classList.remove('pulling');
+      }, 500);
+    }
+    isPulling = false;
+  }, { passive: true });
 }
 
 // ----------------------------------------------------
@@ -8153,6 +9730,14 @@ function closeAllModals() {
   if (!$('chatRoom')?.classList.contains('open')) {
     const pubOverlay = $('publicChatOverlay');
     if (pubOverlay) pubOverlay.style.display = 'flex';
+  }
+}
+
+function openStoriesTrayAction() {
+  if (state.stories && state.stories.length > 0) {
+    viewStory(0);
+  } else {
+    openStoryCreator();
   }
 }
 
@@ -8173,13 +9758,17 @@ function nav(tab, el) {
     $('chatsModal').classList.add('open'); 
     registerModalHistory('chatsModal');
     syncUserConversations();
+    fetchChannels();
     checkChatRequests(); 
     renderChatsList(); 
   }
+  else if (tab === 'stories') {
+    openStoriesTrayAction();
+  }
   else if (tab === 'channels') {
-    $('channelsModal').classList.add('open');
-    registerModalHistory('channelsModal');
-    fetchChannels();
+    $('chatsModal').classList.add('open');
+    registerModalHistory('chatsModal');
+    setChatHubTab('channels');
   }
   else if (tab === 'people') { 
     $('peopleModal').classList.add('open'); 
@@ -8203,6 +9792,8 @@ function openProfileModal() {
   const following = state.profile?.following || [];
   if ($('myFollowersCount')) $('myFollowersCount').textContent = followers.length;
   if ($('myFollowingCount')) $('myFollowingCount').textContent = following.length;
+
+  renderProfileMediaTabs();
 
   $('profileModal').classList.add('open');
   registerModalHistory('profileModal');
