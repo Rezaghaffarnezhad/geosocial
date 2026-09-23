@@ -4700,9 +4700,10 @@ function initMap() {
       }
     }
   });
-  // Real Fixed Map Photos (Instant Zero-Load Street & Geographic Map)
+  // Real Fixed High-Definition Map Photos (Instant Zero-Load Street & Geographic Maps)
   const worldBounds = [[-85, -180], [85, 180]];
   const iranBounds = [[25.0, 44.0], [40.0, 63.0]];
+  const tehranBounds = [[35.50, 51.10], [35.88, 51.68]];
 
   L.imageOverlay('/assets/map_world_real.jpg', worldBounds, {
     opacity: 0.98,
@@ -4714,6 +4715,12 @@ function initMap() {
     opacity: 0.99,
     interactive: false,
     zIndex: 2
+  }).addTo(map);
+
+  L.imageOverlay('/assets/map_tehran_hd.jpg', tehranBounds, {
+    opacity: 0.99,
+    interactive: false,
+    zIndex: 3
   }).addTo(map);
 
   baseTiles.addTo(map);
