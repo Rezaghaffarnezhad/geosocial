@@ -4071,7 +4071,7 @@ input:checked + .slider:before { transform: translateX(20px); }
       </div>
 
       <div id="otherUserActionsWrap" style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:8px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
+        <div id="otherUserPrimaryBtnGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
           <button id="otherUserActionBtn" class="btn-primary" onclick="handleOtherUserAction()"><i class="fa-solid fa-comments"></i> ارسال پیام</button>
           <button id="otherUserNavBtn" class="btn-secondary" onclick="startNavigationToUser(state.activeSelectedUser)"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i> مسیریابی زنده</button>
         </div>
@@ -9813,20 +9813,49 @@ function nav(tab, el) {
   else if (tab === 'profile') openProfileModal();
 }
 
-function openProfileModal() {
-  $('myProfileAvatar').src = state.profile?.avatar || DEFAULT_AVATAR;
-  $('myProfileName').textContent = state.profile?.name || 'کاربر گرامی';
-  $('myProfileUsername').textContent = state.profile?.username ? `@${state.profile.username}` : (state.profile?.phone || '');
-  $('myProfileBio').textContent = state.profile?.bio || 'بیوگرافی ثبت نشده است.';
-  if ($('ghostSwitch')) $('ghostSwitch').checked = !!state.profile?.ghost;
-  if ($('mapVisibilitySwitch')) $('mapVisibilitySwitch').checked = !state.profile?.ghost;
-  if ($('requireChatApprovalSwitch')) $('requireChatApprovalSwitch').checked = state.profile?.requireApproval !== false;
-  if ($('onlineVisibilitySwitch')) $('onlineVisibilitySwitch').checked = !state.profile?.ghost;
+function updateGhostCardUI(isGhost) {
+  const card = $('ghostStatusCard');
+  const icon = $('ghostCardIcon');
+  const iconWrap = $('ghostCardIconWrapper');
+  const title = $('ghostCardTitle');
+  const subtitle = $('ghostCardSubtitle');
+  const sw = $('ghostSwitch');
+  const mapSw = $('mapVisibilitySwitch');
 
-  const followers = state.profile?.followers || [];
-  const following = state.profile?.following || [];
-  if ($('myFollowersCount')) $('myFollowersCount').textContent = followers.length;
-  if ($('myFollowingCount')) $('myFollowingCount').textContent = following.length;
+  if (sw) sw.checked = !!isGhost;
+  if (mapSw) mapSw.checked = !isGhost;
+
+  if (isGhost) {
+    if (card) { card.style.background = 'rgba(155, 89, 182, 0.12)'; card.style.borderColor = 'rgba(155, 89, 182, 0.35)'; }
+    if (iconWrap) iconWrap.style.background = 'rgba(155, 89, 182, 0.22)';
+    if (icon) { icon.className = 'fa-solid fa-ghost'; icon.style.color = '#9b59b6'; }
+    if (title) title.innerHTML = '<span style="color:#9b59b6">حالت روح فعال است (مخفی) 👻</span>';
+    if (subtitle) subtitle.textContent = 'موقعیت شما روی نقشه برای دیگران مخفی شده است';
+  } else {
+    if (card) { card.style.background = 'rgba(46, 204, 113, 0.1)'; card.style.borderColor = 'rgba(46, 204, 113, 0.35)'; }
+    if (iconWrap) iconWrap.style.background = 'rgba(46, 204, 113, 0.22)';
+    if (icon) { icon.className = 'fa-solid fa-location-dot'; icon.style.color = 'var(--green)'; }
+    if (title) title.innerHTML = '<span style="color:var(--green)">موقعیت فعال و نمایان است 📍</span>';
+    if (subtitle) subtitle.textContent = 'موقعیت شما روی نقشه برای افراد نزدیک قابل مشاهده است';
+  }
+}
+
+function openProfileModal() {
+  const p = state.profile || state.user || {};
+  $('myProfileAvatar').src = p.avatar || DEFAULT_AVATAR;
+  $('myProfileName').textContent = p.name || 'کاربر گرامی';
+  $('myProfileUsername').textContent = p.username ? `@${p.username}` : (p.phone || '');
+  $('myProfileBio').textContent = p.bio || 'بیوگرافی ثبت نشده است.';
+
+  updateGhostCardUI(!!p.ghost);
+
+  if ($('requireChatApprovalSwitch')) $('requireChatApprovalSwitch').checked = p.requireApproval !== false;
+  if ($('onlineVisibilitySwitch')) $('onlineVisibilitySwitch').checked = !p.ghost;
+
+  const fCount = Array.isArray(p.followers) ? p.followers.length : (Number(p.followers) || 0);
+  const fgCount = Array.isArray(p.following) ? p.following.length : (Number(p.following) || 0);
+  if ($('myFollowersCount')) $('myFollowersCount').textContent = fCount;
+  if ($('myFollowingCount')) $('myFollowingCount').textContent = fgCount;
 
   renderProfileMediaTabs();
 
@@ -10315,6 +10344,7 @@ function openOtherUserProfile(user) {
       }
     }
 
+    if ($('otherUserPrimaryBtnGrid')) $('otherUserPrimaryBtnGrid').style.gridTemplateColumns = '1fr 1fr';
     if ($('otherUserNavBtn')) $('otherUserNavBtn').style.display = 'inline-flex';
     if ($('otherUserCallBtnsRow')) $('otherUserCallBtnsRow').style.display = 'grid';
     if ($('otherUserRemoveFriendBtn')) $('otherUserRemoveFriendBtn').style.display = 'block';
@@ -10332,6 +10362,7 @@ function openOtherUserProfile(user) {
     
     const gpsCard = $('otherUserGpsCard') || document.querySelector('.profile-gps-card');
     if (gpsCard) gpsCard.style.display = 'none';
+    if ($('otherUserPrimaryBtnGrid')) $('otherUserPrimaryBtnGrid').style.gridTemplateColumns = '1fr';
     if ($('otherUserNavBtn')) $('otherUserNavBtn').style.display = 'none';
     if ($('otherUserCallBtnsRow')) $('otherUserCallBtnsRow').style.display = 'none';
     if ($('otherUserRemoveFriendBtn')) $('otherUserRemoveFriendBtn').style.display = 'none';
@@ -10939,12 +10970,15 @@ function startChatWithOtherUser() {
 }
 
 function toggleGhostMode(isGhost) {
+  if (!state.profile) state.profile = state.user || {};
   state.profile.ghost = isGhost;
-  state.user.ghost = isGhost;
+  if (state.user) state.user.ghost = isGhost;
   localStorage.setItem('geosocial_user', JSON.stringify(state.profile));
+  updateGhostCardUI(isGhost);
   renderMyMarker();
   syncUserToServer();
   toast(isGhost ? 'حالت روح فعال شد (مخفی شدید) 👻' : 'موقعیت شما روی نقشه نمایان شد 📍');
+  playHapticSound('pop');
 }
 
 function applySystemTheme() {
