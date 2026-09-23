@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3600 1800" width="3600" height="1800">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="oceanDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070c16" />
+      <stop offset="50%" stop-color="#0c1424" />
+      <stop offset="100%" stop-color="#080e1a" />
+    </linearGradient>
+    <radialGradient id="iranGlow" cx="64%" cy="40%" r="20%">
+      <stop offset="0%" stop-color="rgba(42, 171, 238, 0.18)" />
+      <stop offset="100%" stop-color="rgba(42, 171, 238, 0)" />
+    </radialGradient>
+    <radialGradient id="europeGlow" cx="53%" cy="32%" r="15%">
+      <stop offset="0%" stop-color="rgba(42, 171, 238, 0.12)" />
+      <stop offset="100%" stop-color="rgba(42, 171, 238, 0)" />
+    </radialGradient>
+
+    <!-- Land Patterns & Fills -->
+    <linearGradient id="landGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#152033" />
+      <stop offset="100%" stop-color="#101a2b" />
+    </linearGradient>
+    <linearGradient id="iranGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a2942" />
+      <stop offset="100%" stop-color="#132035" />
+    </linearGradient>
+
+    <pattern id="gridPattern" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+      <circle cx="60" cy="60" r="1.2" fill="rgba(42,171,238,0.25)" />
+    </pattern>
+  </defs>
+
+  <!-- Base Oceans Layer -->
+  <rect width="3600" height="1800" fill="url(#oceanDark)" />
+  <rect width="3600" height="1800" fill="url(#gridPattern)" />
+  <rect width="3600" height="1800" fill="url(#iranGlow)" />
+  <rect width="3600" height="1800" fill="url(#europeGlow)" />
+
+  <!-- Latitude and Longitude Reference Grid Lines -->
+  <g stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4,6">
+    <!-- Latitudes -->
+    <line x1="0" y1="300" x2="3600" y2="300" />
+    <line x1="0" y1="600" x2="3600" y2="600" />
+    <line x1="0" y1="900" x2="3600" y2="900" stroke="rgba(42,171,238,0.2)" stroke-width="1.5" stroke-dasharray="none" /> <!-- Equator -->
+    <line x1="0" y1="1200" x2="3600" y2="1200" />
+    <line x1="0" y1="1500" x2="3600" y2="1500" />
+    <!-- Longitudes -->
+    <line x1="600" y1="0" x2="600" y2="1800" />
+    <line x1="1200" y1="0" x2="1200" y2="1800" />
+    <line x1="1800" y1="0" x2="1800" y2="1800" stroke="rgba(42,171,238,0.2)" stroke-width="1.5" stroke-dasharray="none" /> <!-- Prime Meridian -->
+    <line x1="2400" y1="0" x2="2400" y2="1800" />
+    <line x1="3000" y1="0" x2="3000" y2="1800" />
+  </g>
+
+  <!-- World Continents Geometries (High Quality Stylized Vector Masses) -->
+  <g fill="url(#landGrad)" stroke="#1f324d" stroke-width="2" stroke-linejoin="round">
+    <!-- North America -->
+    <path d="M 400 200 Q 550 180 750 250 T 950 350 T 1050 550 T 900 750 T 700 850 T 600 700 T 450 550 T 350 350 Z" />
+    <path d="M 750 820 L 850 950 L 920 1050 L 870 1080 L 800 980 Z" /> <!-- Central America -->
+
+    <!-- South America -->
+    <path d="M 900 1050 Q 1100 1100 1200 1250 T 1150 1550 T 950 1700 T 880 1500 T 850 1250 Z" />
+
+    <!-- Europe -->
+    <path d="M 1750 350 Q 1900 300 2100 380 T 2150 600 T 1950 680 T 1750 620 T 1680 450 Z" />
+    <path d="M 1700 380 L 1750 340 L 1780 420 L 1720 450 Z" /> <!-- British Isles -->
+    <path d="M 1880 250 Q 1920 180 1980 220 T 1950 380 Z" /> <!-- Scandinavia -->
+
+    <!-- Africa -->
+    <path d="M 1700 680 Q 2000 650 2150 780 T 2250 1050 T 2100 1450 T 1900 1550 T 1750 1300 T 1600 950 T 1650 750 Z" />
+    <path d="M 2260 1300 Q 2300 1280 2320 1400 T 2280 1480 Z" /> <!-- Madagascar -->
+
+    <!-- Asia & Eurasia -->
+    <path d="M 2100 350 Q 2600 280 3100 380 T 3350 650 T 3150 950 T 2800 950 T 2550 1050 T 2400 850 T 2150 650 Z" />
+    <path d="M 2600 900 Q 2750 920 2780 1150 T 2650 1250 T 2550 1050 Z" /> <!-- Indian Subcontinent -->
+    <path d="M 2950 950 Q 3050 1050 3080 1200 T 2980 1250 Z" /> <!-- SE Asia -->
+    <path d="M 3250 550 Q 3320 600 3300 800 T 3200 850 Z" /> <!-- Japan Archipelago -->
+
+    <!-- Middle East & Iran Special High-Detail Zone -->
+    <!-- Caspian Sea Cutout / Water body -->
+    <!-- Persian Gulf & Oman Sea Water bodies -->
+    <!-- Australia & Oceania -->
+    <path d="M 2900 1300 Q 3250 1250 3350 1450 T 3150 1680 T 2850 1550 T 2850 1380 Z" />
+    <path d="M 3400 1550 Q 3450 1580 3420 1680 Z" /> <!-- New Zealand -->
+  </g>
+
+  <!-- Iran & Regional Focus Polygon (Highlighted Georeferenced Homeland Area) -->
+  <!-- Longitude ~44°E to 63°E (x: 2240 to 2430), Latitude ~25°N to 40°N (y: 650 to 800) -->
+  <g>
+    <path d="M 2250 650 Q 2320 640 2380 645 T 2440 680 T 2430 760 T 2380 810 T 2310 815 T 2260 760 T 2230 700 Z" 
+          fill="url(#iranGrad)" stroke="rgba(42, 171, 238, 0.6)" stroke-width="2.5" />
+
+    <!-- Caspian Sea (North of Iran) -->
+    <path d="M 2280 610 Q 2320 600 2330 645 T 2300 660 T 2275 640 Z" fill="#0c1424" stroke="rgba(42, 171, 238, 0.4)" stroke-width="1.5" />
+
+    <!-- Persian Gulf & Sea of Oman (South of Iran) -->
+    <path d="M 2270 780 Q 2320 785 2360 805 T 2420 820 T 2390 835 T 2310 810 Z" fill="#0c1424" stroke="rgba(42, 171, 238, 0.4)" stroke-width="1.5" />
+  </g>
+
+  <!-- Major Geographic Artery Lines (Global Connections / Major Highways) -->
+  <g stroke="rgba(42, 171, 238, 0.22)" stroke-width="1.5" stroke-dasharray="3,3" fill="none">
+    <!-- Middle East Network -->
+    <path d="M 2310 670 L 2360 690 L 2340 740 L 2270 720 Z" />
+    <path d="M 2310 670 L 2180 620 L 1950 550 L 1800 480" />
+    <path d="M 2310 670 L 2600 850 L 2900 950 L 3200 650" />
+  </g>
+
+  <!-- Major City Nodes (Glowing Coordinates) -->
+  <g>
+    <!-- Tehran (Center of Network) -->
+    <circle cx="2314" cy="670" r="8" fill="rgba(42, 171, 238, 0.3)" />
+    <circle cx="2314" cy="670" r="4" fill="#2aabee" />
+    <text x="2314" y="660" fill="#ffffff" font-size="16" font-family="'Vazirmatn', sans-serif" font-weight="bold" text-anchor="middle">تهران</text>
+
+    <!-- Isfahan -->
+    <circle cx="2318" cy="710" r="3.5" fill="#2aabee" />
+    <text x="2318" y="725" fill="rgba(255,255,255,0.75)" font-size="12" font-family="'Vazirmatn', sans-serif" text-anchor="middle">اصفهان</text>
+
+    <!-- Mashhad -->
+    <circle cx="2395" cy="660" r="3.5" fill="#2aabee" />
+    <text x="2395" y="650" fill="rgba(255,255,255,0.75)" font-size="12" font-family="'Vazirmatn', sans-serif" text-anchor="middle">مشهد</text>
+
+    <!-- Shiraz -->
+    <circle cx="2325" cy="745" r="3.5" fill="#2aabee" />
+    <text x="2325" y="760" fill="rgba(255,255,255,0.75)" font-size="12" font-family="'Vazirmatn', sans-serif" text-anchor="middle">شیراز</text>
+
+    <!-- Tabriz -->
+    <circle cx="2262" cy="635" r="3.5" fill="#2aabee" />
+    <text x="2262" y="625" fill="rgba(255,255,255,0.75)" font-size="12" font-family="'Vazirmatn', sans-serif" text-anchor="middle">تبریز</text>
+
+    <!-- Global Metropolises -->
+    <!-- Dubai -->
+    <circle cx="2352" cy="790" r="3" fill="rgba(255,255,255,0.6)" />
+    <text x="2352" y="805" fill="rgba(255,255,255,0.5)" font-size="11" font-family="sans-serif" text-anchor="middle">Dubai</text>
+
+    <!-- Istanbul -->
+    <circle cx="2090" cy="610" r="3" fill="rgba(255,255,255,0.6)" />
+    <text x="2090" y="600" fill="rgba(255,255,255,0.5)" font-size="11" font-family="sans-serif" text-anchor="middle">Istanbul</text>
+
+    <!-- London -->
+    <circle cx="1800" cy="480" r="3" fill="rgba(255,255,255,0.6)" />
+    <text x="1800" y="470" fill="rgba(255,255,255,0.5)" font-size="11" font-family="sans-serif" text-anchor="middle">London</text>
+
+    <!-- Tokyo -->
+    <circle cx="3200" cy="650" r="3" fill="rgba(255,255,255,0.6)" />
+    <text x="3200" y="640" fill="rgba(255,255,255,0.5)" font-size="11" font-family="sans-serif" text-anchor="middle">Tokyo</text>
+
+    <!-- New York -->
+    <circle cx="1060" cy="560" r="3" fill="rgba(255,255,255,0.6)" />
+    <text x="1060" y="550" fill="rgba(255,255,255,0.5)" font-size="11" font-family="sans-serif" text-anchor="middle">New York</text>
+  </g>
+
+  <!-- Decorative Compass & Cyber Radar Rings -->
+  <g transform="translate(180, 1620)">
+    <circle cx="0" cy="0" r="60" fill="none" stroke="rgba(42, 171, 238, 0.2)" stroke-width="1.5" />
+    <circle cx="0" cy="0" r="40" fill="none" stroke="rgba(42, 171, 238, 0.4)" stroke-width="1" stroke-dasharray="2,4" />
+    <path d="M 0 -50 L 6 -15 L 0 0 L -6 -15 Z" fill="#2aabee" />
+    <path d="M 0 50 L 6 15 L 0 0 L -6 15 Z" fill="rgba(255,255,255,0.3)" />
+    <text x="0" y="-55" fill="#2aabee" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">N</text>
+    <text x="70" y="4" fill="rgba(255,255,255,0.4)" font-size="10" font-family="sans-serif">GEOSOCIAL OFFLINE MAP ENGINE</text>
+  </g>
+</svg>

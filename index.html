@@ -4698,6 +4698,14 @@ function initMap() {
       }
     }
   });
+  // Static Local Georeferenced Map Asset (Instant Zero-Load Offline Base)
+  const staticMapBounds = [[-85, -180], [85, 180]];
+  L.imageOverlay('/assets/map_world.svg', staticMapBounds, {
+    opacity: 0.98,
+    interactive: false,
+    zIndex: 1
+  }).addTo(map);
+
   baseTiles.addTo(map);
 
   userLayer = L.layerGroup().addTo(map);
