@@ -4708,6 +4708,42 @@ function initMap() {
   renderMarkers();
   renderPublicOverlayMessages();
   setupLocateButton();
+  preloadNearbyTiles(state.coords.lat, state.coords.lng);
+}
+
+function latLngToTile(lat, lng, zoom) {
+  const n = Math.pow(2, zoom);
+  const x = Math.floor((lng + 180) / 360 * n);
+  const latRad = lat * Math.PI / 180;
+  const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
+  return { x, y, z: zoom };
+}
+
+function preloadNearbyTiles(lat, lng) {
+  if (!window.caches || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+  caches.open('geosocial-map-tiles-v1').then(cache => {
+    const subdomains = ['a', 'b', 'c', 'd'];
+    const zooms = [10, 11, 12, 13, 14, 15];
+    zooms.forEach(z => {
+      const center = latLngToTile(lat, lng, z);
+      const span = z >= 14 ? 2 : 1;
+      for (let dx = -span; dx <= span; dx++) {
+        for (let dy = -span; dy <= span; dy++) {
+          const x = center.x + dx;
+          const y = center.y + dy;
+          const s = subdomains[Math.abs(x + y) % 4];
+          const url = `https://${s}.basemaps.cartocdn.com/rastertiles/voyager/${z}/${x}/${y}.png`;
+          cache.match(url).then(cached => {
+            if (!cached) {
+              fetch(url, { mode: 'cors' }).then(res => {
+                if (res.ok) cache.put(url, res.clone());
+              }).catch(() => {});
+            }
+          }).catch(() => {});
+        }
+      }
+    });
+  }).catch(() => {});
 }
 
 
@@ -5287,6 +5323,7 @@ function locateMe(force = false) {
       }
       syncUserToServer();
       updateAreaArrivalTimestamp();
+      preloadNearbyTiles(state.coords.lat, state.coords.lng);
       toast('موقعیت مکانی شما با GPS بروزرسانی شد 🧭');
     }, () => toast('موقعیت پیش‌فرض فعال شد 📍'), { enableHighAccuracy: true });
   }
