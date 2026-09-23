@@ -1645,6 +1645,11 @@ input, textarea { direction: rtl; }
   overscroll-behavior-y: contain;
   scrollbar-width: thin;
 }
+.profile-content-scroll > * {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
 .profile-header-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -9860,6 +9865,8 @@ function openProfileModal() {
   renderProfileMediaTabs();
 
   $('profileModal').classList.add('open');
+  const scrollEl = document.querySelector('#profileModal .profile-content-scroll');
+  if (scrollEl) scrollEl.scrollTop = 0;
   registerModalHistory('profileModal');
 }
 
