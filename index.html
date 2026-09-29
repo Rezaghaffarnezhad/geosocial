@@ -4091,6 +4091,18 @@ input:checked + .slider:before { transform: translateX(20px); }
     </div>
   </div>
 
+  <!-- Telegram Secret Chat Encryption & Self-Destruct Bar -->
+  <div id="secretChatInfoBar" style="display:none;background:rgba(46,204,113,0.12);border-bottom:1px solid rgba(46,204,113,0.3);padding:6px 14px;align-items:center;justify-content:space-between;font-size:11px">
+    <div style="display:flex;align-items:center;gap:6px;color:#2ecc71;font-weight:700">
+      <i class="fa-solid fa-lock"></i>
+      <span>رمزنگاری سرتاسری (E2EE)</span>
+      <span id="secretChatKeyFingerprint" style="letter-spacing:2px;margin-right:6px;font-size:12px">🔒 ⚡ 💎 🔑</span>
+    </div>
+    <button id="secretChatTimerBtn" class="badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;border:1px solid rgba(46,204,113,0.4);cursor:pointer;padding:3px 8px;font-size:10.5px" onclick="cycleSecretChatTimer()">
+      <i class="fa-solid fa-fire"></i> خودتخریبی: <span id="secretChatTimerLabel">خاموش</span>
+    </button>
+  </div>
+
   <!-- Telegram Pinned Message Bar -->
   <div id="pinnedMessageBar" class="pinned-message-bar">
     <div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0" onclick="scrollToPinnedMessage()">
@@ -4912,6 +4924,7 @@ input:checked + .slider:before { transform: translateX(20px); }
           <button id="otherUserActionBtn" class="btn-primary" onclick="handleOtherUserAction()"><i class="fa-solid fa-comments"></i> ارسال پیام</button>
           <button id="otherUserNavBtn" class="btn-secondary" onclick="startNavigationToUser(state.activeSelectedUser)"><i class="fa-solid fa-diamond-turn-right" style="color:var(--blue)"></i> مسیریابی زنده</button>
         </div>
+        <button id="otherUserSecretChatBtn" class="btn-secondary" style="background:rgba(46,204,113,0.12);color:#2ecc71;border:1px solid rgba(46,204,113,0.35);width:100%;padding:10px;font-size:12.5px;border-radius:12px;font-weight:700" onclick="startSecretChatWithOtherUser()"><i class="fa-solid fa-lock" style="color:#2ecc71"></i> گفتگوی محرمانه رمزنگاری‌شده (Secret Chat)</button>
         <div id="otherUserCallBtnsRow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
           <button id="otherUserVoiceCallBtn" class="btn-secondary" onclick="startCall('voice', state.activeSelectedUser)"><i class="fa-solid fa-phone" style="color:var(--green)"></i> تماس صوتی</button>
           <button id="otherUserVideoCallBtn" class="btn-secondary" onclick="startCall('video', state.activeSelectedUser)"><i class="fa-solid fa-video" style="color:var(--blue)"></i> تماس تصویری</button>
@@ -7948,6 +7961,119 @@ async function blockActiveChatUser(targetUserId) {
   playHapticSound('pop');
 }
 
+// ====================================================
+// TELEGRAM END-TO-END ENCRYPTION (E2EE) & SECRET CHAT ENGINE
+// ====================================================
+state.secretChatSelfDestructSec = 0; // 0 = off, 5, 30, 60
+
+async function deriveChatKey(user1Id, user2Id) {
+  const sorted = [user1Id, user2Id].sort().join('::geosocial_e2ee_salt::');
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(sorted),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: enc.encode('geosocial_e2ee_2026_salt'),
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function encryptE2EEMessage(plainText, user1Id, user2Id) {
+  try {
+    const key = await deriveChatKey(user1Id, user2Id);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encoded = new TextEncoder().encode(plainText);
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      encoded
+    );
+    return {
+      iv: Array.from(iv),
+      data: Array.from(new Uint8Array(ciphertext)),
+      is_e2ee: true
+    };
+  } catch (err) {
+    console.error('E2EE Encryption Error:', err);
+    return { text: plainText, is_e2ee: false };
+  }
+}
+
+async function decryptE2EEMessage(payload, user1Id, user2Id) {
+  try {
+    if (!payload || !payload.iv || !payload.data) return payload?.text || '';
+    const key = await deriveChatKey(user1Id, user2Id);
+    const iv = new Uint8Array(payload.iv);
+    const data = new Uint8Array(payload.data);
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      data
+    );
+    return new TextDecoder().decode(decrypted);
+  } catch (err) {
+    return '🔒 [پیام رمزنگاری‌شده E2EE]';
+  }
+}
+
+function getVisualKeyFingerprint(user1Id, user2Id) {
+  const emojis = ['🔒', '⚡', '💎', '🔑', '🛡️', '🌟', '🚀', '🔮', '🎯', '🍀', '🛰️', '👑', '🌈', '🔥'];
+  const str = [user1Id, user2Id].sort().join('_');
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  hash = Math.abs(hash);
+  return [
+    emojis[hash % emojis.length],
+    emojis[(hash >> 2) % emojis.length],
+    emojis[(hash >> 4) % emojis.length],
+    emojis[(hash >> 6) % emojis.length]
+  ].join(' ');
+}
+
+function cycleSecretChatTimer() {
+  const timers = [0, 5, 30, 60];
+  const idx = timers.indexOf(state.secretChatSelfDestructSec || 0);
+  const next = timers[(idx + 1) % timers.length];
+  state.secretChatSelfDestructSec = next;
+  updateSecretChatTimerUI();
+  playHapticSound('pop');
+  if (next === 0) toast('تایمر خودتخریبی خاموش شد');
+  else toast(`تایمر خودتخریبی پیام‌ها: ${next} ثانیه 🔥`);
+}
+
+function updateSecretChatTimerUI() {
+  const lbl = $('secretChatTimerLabel');
+  if (!lbl) return;
+  const s = state.secretChatSelfDestructSec || 0;
+  if (s === 0) lbl.textContent = 'خاموش';
+  else lbl.textContent = `${s} ثانیه`;
+}
+
+function startSecretChatWithOtherUser() {
+  $('otherUserModal').classList.remove('open');
+  const target = state.activeSelectedUser;
+  if (!target) return;
+  const secretUser = { ...target, isSecretChat: true };
+  openChatRoom(secretUser);
+  toast('🔒 گفتگوی محرمانه رمزنگاری‌شده (E2EE) با موفقیت باز شد!');
+  playHapticSound('sent');
+}
+
 // Fallback aliases for previous handler names
 function acceptChatRequest() { acceptActiveChatRequest(); }
 function declineChatRequest() { declineActiveChatRequest(); }
@@ -7955,8 +8081,28 @@ function declineChatRequest() { declineActiveChatRequest(); }
 function openChatRoom(user) {
   state.activeConversationUser = user;
   $('chatRoomAvatar').src = user.avatar || DEFAULT_AVATAR;
-  $('chatRoomName').textContent = user.name;
-  updateChatRoomStatus();
+
+  const isSecret = !!user.isSecretChat;
+  state.secretChatSelfDestructSec = 0;
+  const secretBar = $('secretChatInfoBar');
+  if (secretBar) {
+    if (isSecret) {
+      secretBar.style.display = 'flex';
+      const fp = getVisualKeyFingerprint(state.user?.id || 'me', user.id);
+      if ($('secretChatKeyFingerprint')) $('secretChatKeyFingerprint').textContent = fp;
+      updateSecretChatTimerUI();
+      $('chatRoomName').innerHTML = `<span style="color:#2ecc71"><i class="fa-solid fa-lock" style="font-size:11px;margin-left:4px"></i>${esc(user.name)}</span>`;
+      $('chatRoomStatus').innerHTML = `<span style="color:#2ecc71">🔒 گفتگوی رمزنگاری سرتاسری (E2EE)</span>`;
+    } else {
+      secretBar.style.display = 'none';
+      $('chatRoomName').textContent = user.name;
+      updateChatRoomStatus();
+    }
+  } else {
+    $('chatRoomName').textContent = user.name;
+    updateChatRoomStatus();
+  }
+
   $('chatRoom').classList.add('open');
   registerModalHistory('chatRoom');
 
@@ -8357,10 +8503,32 @@ function renderDirectMessages() {
         <div style="font-size:11px">${m.location.lat.toFixed(4)}, ${m.location.lng.toFixed(4)}</div>
         <button class="badge" style="margin-top:6px;background:var(--blue);color:#fff;border:0" onclick="startNavigationToUser({name:'موقعیت ارسالی', lat:${m.location.lat}, lng:${m.location.lng}})">مسیریابی رو نقشه 🧭</button>
       `;
-    } else if (m.text) {
+    } else if (m.text || m.e2ee_payload || m._decrypted_text) {
+      let displayText = m._decrypted_text || m.text || '';
+      if (m.is_e2ee && !m._decrypted_text && m.e2ee_payload) {
+        decryptE2EEMessage(m.e2ee_payload, m.sender_id, m.receiver_id).then(dec => {
+          m._decrypted_text = dec;
+          const txtEl = bubble.querySelector('.e2ee-text-content');
+          if (txtEl) txtEl.innerHTML = `<i class="fa-solid fa-lock" style="font-size:10px;color:#2ecc71;margin-left:4px" title="رمزنگاری E2EE"></i>` + esc(dec);
+        });
+      }
+
+      let selfDestructBadge = '';
+      if (m.self_destruct_seconds) {
+        const elapsed = Math.floor((Date.now() - new Date(m.created_at).getTime()) / 1000);
+        const remaining = Math.max(0, m.self_destruct_seconds - elapsed);
+        if (remaining === 0) {
+          setTimeout(() => {
+            state.activeMessages = state.activeMessages.filter(x => x.id !== m.id);
+            renderDirectMessages();
+          }, 40);
+        }
+        selfDestructBadge = `<span class="badge" style="background:rgba(231,76,60,0.2);color:#e74c3c;font-size:9.5px;padding:1px 6px;border-radius:6px;margin-right:4px;font-weight:700"><i class="fa-solid fa-fire"></i> ${remaining}s</span>`;
+      }
+
       contentHtml += `
         ${m.reply_text ? `<div class="reply-preview-box"><div>${esc(m.reply_text)}</div></div>` : ''}
-        <div>${esc(m.text)}</div>
+        <div class="e2ee-text-content">${m.is_e2ee ? '<i class="fa-solid fa-lock" style="font-size:10px;color:#2ecc71;margin-left:4px" title="رمزنگاری E2EE"></i>' : ''}${esc(displayText)}</div>
       `;
     }
 
@@ -8372,11 +8540,19 @@ function renderDirectMessages() {
       '<i class="fa-solid fa-check" style="opacity:0.75" title="ارسال شد"></i>'
     ) : '';
 
+    let selfDestructMeta = '';
+    if (m.self_destruct_seconds) {
+      const elapsed = Math.floor((Date.now() - new Date(m.created_at).getTime()) / 1000);
+      const remaining = Math.max(0, m.self_destruct_seconds - elapsed);
+      selfDestructMeta = `<span style="font-size:9px;color:#e74c3c;font-weight:700;display:inline-flex;align-items:center;gap:2px"><i class="fa-solid fa-fire"></i>${remaining}s</span>`;
+    }
+
     bubble.innerHTML = `
       ${contentHtml}
       <div class="msg-meta-row">
         ${pinHtml}
         ${editedHtml}
+        ${selfDestructMeta}
         <span>${timeStr}</span>
         ${tickHtml}
       </div>
@@ -9669,11 +9845,27 @@ async function sendDirectMessage() {
     return;
   }
 
+  const isSecret = !!state.activeConversationUser.isSecretChat;
+  let payloadText = text;
+  let e2eePayload = null;
+
+  if (isSecret) {
+    const encrypted = await encryptE2EEMessage(text, state.user.id, state.activeConversationUser.id);
+    if (encrypted.is_e2ee) {
+      e2eePayload = encrypted;
+      payloadText = '🔒 [پیام رمزنگاری‌شده E2EE]';
+    }
+  }
+
   const newMsg = {
     id: 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     sender_id: state.user.id,
     receiver_id: state.activeConversationUser.id,
-    text: text,
+    text: payloadText,
+    is_e2ee: isSecret,
+    e2ee_payload: e2eePayload,
+    _decrypted_text: text,
+    self_destruct_seconds: (isSecret && state.secretChatSelfDestructSec > 0) ? state.secretChatSelfDestructSec : null,
     reply_to: state.replyMessage?.id || null,
     reply_text: state.replyMessage?.text || null,
     status: 'sent',

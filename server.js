@@ -1268,8 +1268,8 @@ app.get('/api/conversations', (req, res) => {
 });
 
 app.post('/api/messages', (req, res) => {
-  const { sender_id, receiver_id, text, audio_url, media_url, media_type, location, poll, contact, file_info, reply_to, reply_text, forward_from } = req.body || {};
-  if (!sender_id || !receiver_id || (!text && !audio_url && !media_url && !location && !poll && !contact && !file_info)) {
+  const { sender_id, receiver_id, text, audio_url, media_url, media_type, location, poll, contact, file_info, reply_to, reply_text, forward_from, is_e2ee, e2ee_payload, self_destruct_seconds } = req.body || {};
+  if (!sender_id || !receiver_id || (!text && !audio_url && !media_url && !location && !poll && !contact && !file_info && !e2ee_payload)) {
     return res.status(400).json({ success: false, error: 'Missing parameters' });
   }
   
@@ -1294,6 +1294,9 @@ app.post('/api/messages', (req, res) => {
     sender_id,
     receiver_id,
     text: text ? text.trim() : null,
+    is_e2ee: !!is_e2ee,
+    e2ee_payload: e2ee_payload || null,
+    self_destruct_seconds: self_destruct_seconds || null,
     audio_url: audio_url || null,
     media_url: media_url || null,
     media_type: media_type || null,
