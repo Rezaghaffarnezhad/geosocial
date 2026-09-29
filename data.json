@@ -1,6 +1,85 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": "usr_09148528876",
+      "phone": "09148528876",
+      "name": "رضامن",
+      "username": "user_8876",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "bio": "عضو جدید GeoSocial 🌟",
+      "lat": 35.6892,
+      "lng": 51.389,
+      "online": false,
+      "last_seen": "2026-09-29T18:14:39.717Z"
+    }
+  ],
   "publicMessages": [],
   "directMessages": {},
-  "stories": []
+  "stories": [],
+  "highlights": [],
+  "posts": [],
+  "follows": {},
+  "chatRequests": {},
+  "channels": [
+    {
+      "id": "ch_tehran_news",
+      "title": "کانال جامع رویدادها و اخبار شهری",
+      "username": "city_events",
+      "description": "اطلاعیه‌ها، اخبار رویدادها و برنامه‌های اجتماعی تهران و استان‌های مجاور",
+      "avatar": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=150",
+      "type": "channel",
+      "is_public": true,
+      "subscribers_count": 124,
+      "creator_id": "system",
+      "members": [
+        "u1",
+        "u2",
+        "u3"
+      ],
+      "created_at": "2026-09-29T18:13:25.254Z"
+    },
+    {
+      "id": "grp_neighborhood",
+      "title": "گروه چت و گفتگوهای محله",
+      "username": "local_hangout",
+      "description": "گروه آزاد برای گفتگو، تبادل نظر، هماهنگی دورهمی‌ها و رویدادهای محلی",
+      "avatar": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=150",
+      "type": "group",
+      "is_public": true,
+      "subscribers_count": 68,
+      "creator_id": "system",
+      "members": [
+        "u1",
+        "u2",
+        "u3"
+      ],
+      "created_at": "2026-09-29T18:13:25.264Z"
+    }
+  ],
+  "channelMessages": {
+    "ch_tehran_news": [
+      {
+        "id": "cm_1",
+        "channel_id": "ch_tehran_news",
+        "sender_id": "system",
+        "sender_name": "مدیریت کانال",
+        "sender_avatar": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=150",
+        "text": "🎉 به کانال جامع شهری خوش آمدید! در این بخش می‌توانید جدیدترین رویدادها، اطلاع‌رسانی‌ها و گردهمایی‌های محلی را دنبال کنید.",
+        "views": 124,
+        "created_at": "2026-09-29T17:13:25.264Z"
+      }
+    ],
+    "grp_neighborhood": [
+      {
+        "id": "cm_2",
+        "channel_id": "grp_neighborhood",
+        "sender_id": "system",
+        "sender_name": "مدیر گروه",
+        "sender_avatar": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=150",
+        "text": "سلام دوستان عزیز! به گروه چت همسایگان و افراد نزدیک خوش آمدید 👋 لطفاً احترام و رعایت حریم خصوصی را مد نظر داشته باشید.",
+        "views": 68,
+        "created_at": "2026-09-29T17:43:25.264Z"
+      }
+    ]
+  }
 }
