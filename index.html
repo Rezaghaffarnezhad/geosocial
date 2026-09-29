@@ -1175,7 +1175,7 @@ body.in-chat-room .bottom-nav {
   50% { transform: scale(1.12); }
 }
 
-/* Fullscreen Modals & Drawers with bottom padding for permanent nav bar */
+/* Fullscreen Modals & Drawers */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1183,16 +1183,37 @@ body.in-chat-room .bottom-nav {
   background: var(--bg);
   display: flex;
   flex-direction: column;
-  padding-bottom: 84px; /* Leaves room for permanent bottom dock */
+  padding-bottom: calc(74px + var(--safe-bottom)); /* Leaves room for permanent bottom dock */
   transform: translateY(100%);
   transition: transform 0.28s cubic-bezier(0.33, 1, 0.68, 1);
   overflow: hidden;
 }
 .modal-overlay.open { transform: translateY(0); }
-  transition: transform 0.28s cubic-bezier(0.33, 1, 0.68, 1);
-  overflow: hidden;
+
+/* Sub-modals & Deep Overlay Screens with full height */
+#otherUserModal,
+#createChannelModal,
+#editProfileModal,
+#storyCreatorStudio,
+#channelViewModal,
+#callModal,
+#incomingCallModal,
+#authScreen,
+#encryptionKeyModal,
+#selfDestructModal,
+#avatarCropModal,
+#avatarActionSheet,
+#languageModal,
+#storageUsageModal,
+#privacySettingsModal,
+#themeSelectorModal,
+#profileQrModal,
+#followListModal,
+#carpoolModal,
+#localMarketModal {
+  padding-bottom: 0 !important;
+  z-index: 120 !important;
 }
-.modal-overlay.open { transform: translateY(0); }
 
 .modal-header {
   height: 56px;
@@ -10791,6 +10812,67 @@ function updateTelegramBackButton() {
   }
 }
 
+function updateBottomNavVisibility() {
+  const isDeepModalOpen = Boolean(document.querySelector(`
+    #chatRoom.open,
+    #storyViewer.active,
+    #storyViewer.open,
+    #storyCreatorStudio.open,
+    #otherUserModal.open,
+    #createChannelModal.open,
+    #editProfileModal.open,
+    #channelViewModal.open,
+    #channelInfoModal.open,
+    #callModal.open,
+    #incomingCallModal.open,
+    #authScreen.open,
+    #encryptionKeyModal.open,
+    #selfDestructModal.open,
+    #avatarCropModal.open,
+    #avatarActionSheet.open,
+    #languageModal.open,
+    #storageUsageModal.open,
+    #privacySettingsModal.open,
+    #themeSelectorModal.open,
+    #profileQrModal.open,
+    #followListModal.open,
+    #carpoolModal.open,
+    #localMarketModal.open,
+    #imageLightboxModal.open,
+    #reactionPicker.open,
+    .modal-overlay.open:not(#chatsModal):not(#pulseModal):not(#peopleModal):not(#profileModal)
+  `));
+
+  if (isDeepModalOpen) {
+    document.body.classList.add('hide-bottom-nav');
+    if ($('chatRoom')?.classList.contains('open')) {
+      document.body.classList.add('in-chat-room');
+    } else {
+      document.body.classList.remove('in-chat-room');
+    }
+  } else {
+    document.body.classList.remove('hide-bottom-nav');
+    document.body.classList.remove('in-chat-room');
+  }
+}
+
+function initBottomNavAutoManager() {
+  updateBottomNavVisibility();
+  try {
+    const observer = new MutationObserver(() => {
+      updateBottomNavVisibility();
+      updateTelegramBackButton();
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['class', 'style']
+    });
+  } catch (e) {
+    console.warn('MutationObserver not available:', e);
+  }
+}
+
 const navStack = [];
 
 function pushNavState(id, closeFn) {
@@ -12657,6 +12739,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initTelegramMiniApp();
   applySystemTheme();
   initPullToDismissModals();
+  initBottomNavAutoManager();
   if (localStorage.getItem('geosocial_public_composer_collapsed') === '1') {
     $('publicOverlayComposer')?.classList.add('collapsed');
     $('publicChatOverlay')?.classList.add('collapsed');
