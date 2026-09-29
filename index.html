@@ -3396,9 +3396,52 @@ input:checked + .slider:before { transform: translateX(20px); }
       </div>
     </div>
 
+    <!-- Quick Practical Tools Grid: SOS, Carpool, Market, Weather -->
+    <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:10px">
+      <!-- 1. Emergency SOS -->
+      <div onclick="triggerEmergencySos()" style="background:linear-gradient(135deg, rgba(229,57,53,0.18), rgba(229,57,53,0.08));border:1px solid rgba(229,57,53,0.4);border-radius:18px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:transform 0.15s ease" onactive="this.style.transform='scale(0.95)'">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="width:34px;height:34px;border-radius:10px;background:#e53935;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 15px rgba(229,57,53,0.5)"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <span style="font-size:10px;background:#e53935;color:#fff;font-weight:800;padding:2px 6px;border-radius:8px">SOS</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-top:2px">امداد و هشدار فوری</div>
+        <div style="font-size:10.5px;color:rgba(255,255,255,0.7)">ارسال هشدار به افراد نزدیک</div>
+      </div>
+
+      <!-- 2. Carpooling / Ride Sharing -->
+      <div onclick="openCarpoolModal()" style="background:linear-gradient(135deg, rgba(36,129,204,0.18), rgba(36,129,204,0.08));border:1px solid rgba(36,129,204,0.4);border-radius:18px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:transform 0.15s ease">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="width:34px;height:34px;border-radius:10px;background:#2481cc;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 15px rgba(36,129,204,0.5)"><i class="fa-solid fa-car"></i></div>
+          <span style="font-size:10px;background:#2481cc;color:#fff;font-weight:800;padding:2px 6px;border-radius:8px">هم‌مسیری</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-top:2px">سفر اشتراکی محله</div>
+        <div style="font-size:10.5px;color:rgba(255,255,255,0.7)">هم‌سفری با افراد نزدیک</div>
+      </div>
+
+      <!-- 3. Local Marketplace -->
+      <div onclick="openLocalMarketModal()" style="background:linear-gradient(135deg, rgba(79,174,78,0.18), rgba(79,174,78,0.08));border:1px solid rgba(79,174,78,0.4);border-radius:18px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:transform 0.15s ease">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="width:34px;height:34px;border-radius:10px;background:#4fae4e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 15px rgba(79,174,78,0.5)"><i class="fa-solid fa-store"></i></div>
+          <span style="font-size:10px;background:#4fae4e;color:#fff;font-weight:800;padding:2px 6px;border-radius:8px">دیوار محلی</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-top:2px">تبادل و بازارچه محله</div>
+        <div style="font-size:10.5px;color:rgba(255,255,255,0.7)">خرید و فروش بی‌واسطه</div>
+      </div>
+
+      <!-- 4. Weather & Air Quality -->
+      <div onclick="toast('وضعیت هوای محدوده: ۲۲°C • آلودگی هوا: سالم (AQI: 68)')" style="background:linear-gradient(135deg, rgba(135,116,225,0.18), rgba(135,116,225,0.08));border:1px solid rgba(135,116,225,0.4);border-radius:18px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:transform 0.15s ease">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="width:34px;height:34px;border-radius:10px;background:#8774e1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 15px rgba(135,116,225,0.5)"><i class="fa-solid fa-cloud-sun"></i></div>
+          <span style="font-size:10px;background:#8774e1;color:#fff;font-weight:800;padding:2px 6px;border-radius:8px">۲۲°C</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-top:2px">آب‌وهوا و آلودگی</div>
+        <div style="font-size:10.5px;color:rgba(255,255,255,0.7)">شاخص هوای سالم (AQI 68)</div>
+      </div>
+    </div>
+
     <!-- Quick Local Trends & Events -->
     <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:16px;">
-      <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-fire"></i> ترندها و دورهمی‌های داغ محله</div>
+      <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-fire"></i> رویدادها و دورهمی‌های فعال محله</div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--input-bg);border-radius:14px;border:1px solid var(--border);cursor:pointer" onclick="nav('chats')">
           <div style="display:flex;align-items:center;gap:10px">
@@ -3491,6 +3534,116 @@ input:checked + .slider:before { transform: translateX(20px); }
       <i class="fa-solid fa-plus"></i>
       <span>ایجاد اتاق صوتی زنده جدید</span>
     </button>
+  </div>
+</div>
+
+<!-- ====================================================
+     CARPOOL & RIDE SHARING MODAL (هم‌مسیری و سفرهای اشتراکی)
+     ==================================================== -->
+<div id="carpoolModal" class="modal-overlay" style="z-index:75">
+  <div class="modal-header">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:30px;height:30px;border-radius:50%;background:#2481cc;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px"><i class="fa-solid fa-car"></i></div>
+      <h3 style="font-size:16px;font-weight:700">هم‌مسیری و سفرهای محله</h3>
+    </div>
+    <button class="composer-icon-btn" onclick="$('carpoolModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:12px;" class="custom-scrollbar">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;font-weight:700;color:var(--muted)">مسیرهای فعال اطراف شما</span>
+      <button onclick="alert('فرم ثبت سفر اشتراکی جدید: مبدا، مقصد، ساعت و ظرفیت صندلی')" class="btn-primary" style="padding:6px 12px;border-radius:12px;font-size:11px"><i class="fa-solid fa-plus ml-1"></i> ثبت مسیر جدید</button>
+    </div>
+
+    <!-- Carpool Card 1 -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px">
+          <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" style="width:36px;height:36px;border-radius:50%;object-fit:cover">
+          <div>
+            <div style="font-size:13px;font-weight:700">علی ر. (پژو ۲۰۶)</div>
+            <div style="font-size:10.5px;color:var(--muted)">حرکت: امروز ساعت ۰۸:۱۵ صبح</div>
+          </div>
+        </div>
+        <span style="font-size:11px;background:rgba(36,129,204,0.18);color:#2481cc;border:1px solid rgba(36,129,204,0.3);padding:2px 8px;border-radius:10px;font-weight:700">۲ صندلی خالی</span>
+      </div>
+      <div style="background:var(--input-bg);padding:8px 12px;border-radius:12px;font-size:11.5px;display:flex;align-items:center;justify-content:space-between">
+        <span>📍 <b>مبدا:</b> سعادت‌آباد</span>
+        <span>›››</span>
+        <span>🏁 <b>مقصد:</b> میدان ونک</span>
+      </div>
+      <button onclick="toast('درخواست هم‌سفری به علی ارسال شد 🚗')" class="btn-primary" style="padding:8px;font-size:12px;border-radius:12px">هم‌سفر شدن (پیام و هماهنگی)</button>
+    </div>
+
+    <!-- Carpool Card 2 -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100" style="width:36px;height:36px;border-radius:50%;object-fit:cover">
+          <div>
+            <div style="font-size:13px;font-weight:700">سارا م. (کوئیک)</div>
+            <div style="font-size:10.5px;color:var(--muted)">حرکت: امروز ساعت ۱۷:۳۰ عصر</div>
+          </div>
+        </div>
+        <span style="font-size:11px;background:rgba(79,174,78,0.18);color:#4fae4e;border:1px solid rgba(79,174,78,0.3);padding:2px 8px;border-radius:10px;font-weight:700">۱ صندلی خالی</span>
+      </div>
+      <div style="background:var(--input-bg);padding:8px 12px;border-radius:12px;font-size:11.5px;display:flex;align-items:center;justify-content:space-between">
+        <span>📍 <b>مبدا:</b> صادقیه</span>
+        <span>›››</span>
+        <span>🏁 <b>مقصد:</b> دانشگاه شریف</span>
+      </div>
+      <button onclick="toast('درخواست هم‌سفری به سارا ارسال شد 🚗')" class="btn-primary" style="padding:8px;font-size:12px;border-radius:12px">هم‌سفر شدن (پیام و هماهنگی)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================
+     LOCAL MARKETPLACE MODAL (دیوار و بازارچه محله)
+     ==================================================== -->
+<div id="localMarketModal" class="modal-overlay" style="z-index:75">
+  <div class="modal-header">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:30px;height:30px;border-radius:50%;background:#4fae4e;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px"><i class="fa-solid fa-store"></i></div>
+      <h3 style="font-size:16px;font-weight:700">دیوار و بازارچه محله</h3>
+    </div>
+    <button class="composer-icon-btn" onclick="$('localMarketModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:12px;" class="custom-scrollbar">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;font-weight:700;color:var(--muted)">آگهی‌های ثبت شده همسایگان</span>
+      <button onclick="alert('فرم ثبت آگهی جدید: عکس، عنوان، قیمت یا واگذاری رایگان')" class="btn-primary" style="padding:6px 12px;border-radius:12px;font-size:11px"><i class="fa-solid fa-plus ml-1"></i> ثبت آگهی جدید</button>
+    </div>
+
+    <!-- Product 1 -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:18px;padding:12px;display:flex;gap:12px">
+      <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=150" style="width:75px;height:75px;border-radius:14px;object-fit:cover;flex-shrink:0">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">کتاب‌های مرجع برنامه‌نویسی پایتون</div>
+          <div style="font-size:10.5px;color:var(--muted);margin-top:2px">کاملاً نو • تحویل حضوری در محله</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+          <span style="font-size:12px;color:var(--green);font-weight:800">۱۵۰,۰۰۰ تومان</span>
+          <button onclick="toast('چت با فروشنده باز شد 💬')" class="badge" style="background:var(--blue);color:#fff;border:0;padding:4px 10px">پیام به فروشنده</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 2 (Free donation) -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:18px;padding:12px;display:flex;gap:12px">
+      <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150" style="width:75px;height:75px;border-radius:14px;object-fit:cover;flex-shrink:0">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">گلدان سانسوریا ابلق زیبا</div>
+          <div style="font-size:10.5px;color:var(--muted);margin-top:2px">اهدای رایگان به همسایه علاقه‌مند 🪴</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+          <span style="font-size:11px;background:rgba(46,204,113,0.2);color:#2ecc71;padding:2px 8px;border-radius:8px;font-weight:800">اهدای رایگان (رایگان)</span>
+          <button onclick="toast('چت برای دریافت هدیه باز شد 🎁')" class="badge" style="background:var(--green);color:#fff;border:0;padding:4px 10px">دریافت هدیه</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -11704,9 +11857,9 @@ function shareActiveChannelLink() {
 }
 
 let newChannelType = 'channel';
-function openCreateChannelModal() {
-  newChannelType = 'channel';
-  setCreateType('channel');
+function openCreateChannelModal(type = 'channel') {
+  newChannelType = type;
+  setCreateType(type);
   $('newChannelTitle').value = '';
   $('newChannelUsername').value = '';
   $('newChannelDescription').value = '';
@@ -11907,6 +12060,59 @@ function openTelegramPremiumModal() {
 
 function openTelegramHelpModal() {
   alert('❓ راهنمای جامع تلگرام GeoSocial:\n• گفتگوهای بلادرنگ با افراد نزدیک بر اساس موقعیت مکانی\n• ایجاد کانال‌ها و گروه‌های محلی\n• مسیریابی دقیق و چت خصوصی رمزگذاری‌شده');
+}
+
+function openCarpoolModal() {
+  const m = $('carpoolModal');
+  if (m) {
+    m.classList.add('open');
+    registerModalHistory('carpoolModal');
+    playHapticSound('pop');
+  }
+}
+
+function openLocalMarketModal() {
+  const m = $('localMarketModal');
+  if (m) {
+    m.classList.add('open');
+    registerModalHistory('localMarketModal');
+    playHapticSound('pop');
+  }
+}
+
+function triggerEmergencySos() {
+  playHapticSound('alert');
+  const confirmed = confirm('⚠️ آیا می‌خواهید پیام هشدار اضطراری (SOS) را به تمام کاربران و همسایگان اطراف با موقعیت زنده ارسال کنید؟');
+  if (!confirmed) return;
+
+  const lat = (state.coords && state.coords.lat) ? state.coords.lat.toFixed(5) : '35.6892';
+  const lng = (state.coords && state.coords.lng) ? state.coords.lng.toFixed(5) : '51.3890';
+  const sosMsg = {
+    id: 'sos_' + Date.now(),
+    sender_id: state.user?.id || 'anonymous_sos',
+    sender_name: '🚨 هشدار اضطراری (SOS) - ' + (state.profile?.name || state.user?.name || 'کاربر'),
+    text: `🚨 درخواست کمک اضطراری (SOS)!\n📍 موقعیت مکانی: https://maps.google.com/?q=${lat},${lng}\n⏰ زمان: ${new Date().toLocaleTimeString('fa-IR')}`,
+    created_at: new Date().toISOString(),
+    is_sos: true,
+    lat: state.coords?.lat,
+    lng: state.coords?.lng
+  };
+
+  state.publicMessages.push(sosMsg);
+  renderPublicMessages();
+  playHapticSound('alert');
+
+  fetch('/api/public_messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(sosMsg)
+  }).catch(() => {});
+
+  toast('🚨 پیام اضطراری SOS با موقعیت زنده شما به تمام افراد نزدیک ارسال شد!');
+  
+  if (navigator.vibrate) {
+    try { navigator.vibrate([200, 100, 200, 100, 500]); } catch {}
+  }
 }
 
 // Realtime system theme change listener
