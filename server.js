@@ -1190,15 +1190,27 @@ app.delete('/api/public_messages/:id', (req, res) => {
 // Direct Messaging API
 app.get('/api/messages', (req, res) => {
   const { user1, user2, user_id } = req.query;
+  const now = Date.now();
+
+  const isNotExpired = m => {
+    if (!m.self_destruct_seconds) return true;
+    const createdAt = new Date(m.created_at).getTime();
+    return (now - createdAt) < (m.self_destruct_seconds * 1000);
+  };
+
   if (user1 && user2) {
     const key = [user1, user2].sort().join('_');
+    if (directMessages[key]) {
+      directMessages[key] = directMessages[key].filter(isNotExpired);
+    }
     return res.json({ success: true, messages: directMessages[key] || [] });
   }
   if (user_id) {
     const userMsgs = [];
     for (const [k, msgs] of Object.entries(directMessages)) {
       if (k.includes(user_id) && Array.isArray(msgs)) {
-        msgs.forEach(m => {
+        directMessages[k] = msgs.filter(isNotExpired);
+        directMessages[k].forEach(m => {
           if (m.sender_id === user_id || m.receiver_id === user_id) {
             userMsgs.push(m);
           }
@@ -1511,9 +1523,13 @@ app.post('/api/messages/pin', (req, res) => {
 });
 
 // Clear chat history (Telegram style)
-app.post('/api/messages/clear', (req, res) => {
-  const { user1, user2 } = req.body || {};
-  if (!user1 || !user2) return res.status(400).json({ success: false });
+app.all(['/api/messages/clear', '/api/messages/history'], (req, res) => {
+  if (req.method !== 'POST' && req.method !== 'DELETE') {
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
+  }
+  const user1 = (req.body && req.body.user1) || req.query.user1;
+  const user2 = (req.body && req.body.user2) || req.query.user2;
+  if (!user1 || !user2) return res.status(400).json({ success: false, error: 'Missing users' });
 
   const key = [user1, user2].sort().join('_');
   directMessages[key] = [];

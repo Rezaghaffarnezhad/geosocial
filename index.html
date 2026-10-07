@@ -3960,7 +3960,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     </div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="composer-icon-btn" onclick="openProfileQrModal()" title="کد QR"><i class="fa-solid fa-qrcode"></i></button>
-      <button class="composer-icon-btn" onclick="logoutAccount()" style="color:var(--danger)" title="خروج"><i class="fa-solid fa-right-from-bracket"></i></button>
+      <button class="composer-icon-btn" onclick="logout()" style="color:var(--danger)" title="خروج"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </div>
 
@@ -4001,27 +4001,27 @@ input:checked + .slider:before { transform: translateX(20px); }
     <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:18px;overflow:hidden">
       <div style="padding:10px 16px;font-size:12px;font-weight:700;color:var(--blue);border-bottom:1px solid var(--border)">تنظیمات برنامه</div>
       
-      <div class="telegram-setting-row" onclick="alert('تنظیمات اعلان‌ها و صداها فعال است.')">
+      <div class="telegram-setting-row" onclick="toast('اعلان‌ها و صداها فعال هستند 🔔')">
         <i class="fa-solid fa-bell" style="color:#e53935"></i>
         <span>اعلان‌ها و صداها</span>
       </div>
 
-      <div class="telegram-setting-row" onclick="nav('profile'); $('telegramSettingsModal').classList.remove('open');">
+      <div class="telegram-setting-row" onclick="openPrivacySettingsModal()">
         <i class="fa-solid fa-lock" style="color:#2481cc"></i>
         <span>حریم خصوصی و امنیت (حالت روح 👻)</span>
       </div>
 
-      <div class="telegram-setting-row" onclick="toggleTheme()">
+      <div class="telegram-setting-row" onclick="openThemeSelectorModal()">
         <i class="fa-solid fa-paintbrush" style="color:#8774e1"></i>
         <span>تنظیمات گفتگو و تم‌ها</span>
       </div>
 
-      <div class="telegram-setting-row" onclick="alert('حافظه پنهان و داده‌های لوکال بهینه‌سازی شده‌اند.')">
+      <div class="telegram-setting-row" onclick="openStorageUsageModal()">
         <i class="fa-solid fa-database" style="color:#4fae4e"></i>
         <span>داده‌ها و ذخیره‌سازی</span>
       </div>
 
-      <div class="telegram-setting-row" onclick="toggleAppLanguage()">
+      <div class="telegram-setting-row" onclick="openLanguageModal()">
         <i class="fa-solid fa-globe" style="color:#2481cc"></i>
         <span style="flex:1">زبان برنامه (Language)</span>
         <span id="tgSettingsLangLabel" style="font-size:12px;color:var(--muted)">فارسی</span>
@@ -8215,9 +8215,13 @@ async function purgeSecretChat() {
   if (!user || !state.user) return;
   state.activeMessages = [];
   renderDirectMessages();
-  playHapticSound('pop');
+  playHapticSound('sent');
   try {
-    await fetch(`/api/messages/history?user1=${state.user.id}&user2=${user.id}`, { method: 'DELETE' });
+    await fetch('/api/messages/clear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user1: state.user.id, user2: user.id })
+    });
   } catch {}
   toast('💣 تمامی پیام‌های این گفتگوی محرمانه با موفقیت سوزانده و نابود شدند!');
 }
