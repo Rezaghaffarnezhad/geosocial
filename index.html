@@ -627,7 +627,7 @@ input, textarea { direction: rtl; }
 /* Public Chat Stream Overlay (Sleek Expandable Glass Widget) */
 .public-chat-overlay {
   position: absolute;
-  bottom: calc(72px + var(--safe-bottom));
+  bottom: calc(88px + var(--safe-bottom));
   left: 12px;
   width: min(210px, calc(60vw - 16px));
   max-width: calc(60vw - 16px);
@@ -1076,6 +1076,11 @@ body.in-chat-room .bottom-nav {
   border: 1px solid rgba(36, 129, 204, 0.35);
 }
 
+[dir="ltr"] .nav-active-glider {
+  right: auto;
+  left: 6px;
+}
+
 .nav-item {
   display: flex;
   flex-direction: column;
@@ -1456,14 +1461,19 @@ body.in-chat-room .bottom-nav {
 .chat-room {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: 120;
   background: var(--bg);
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
+  transform: translate3d(100%, 0, 0);
   transition: transform 0.25s cubic-bezier(0.33, 1, 0.68, 1);
+  content-visibility: auto;
+  contain: layout style paint;
 }
-.chat-room.open { transform: translateX(0); }
+.chat-room.open {
+  transform: translate3d(0, 0, 0);
+  content-visibility: visible;
+}
 .chat-header {
   height: 60px;
   padding: 0 12px;
@@ -11211,7 +11221,9 @@ function nav(tab, el) {
 
   const glider = $('navActiveGlider');
   if (glider && targetIndex >= 0) {
-    glider.style.transform = `translateX(-${targetIndex * 100}%)`;
+    const isRtl = document.documentElement.getAttribute('dir') === 'rtl' || !document.documentElement.getAttribute('dir');
+    const factor = isRtl ? -100 : 100;
+    glider.style.transform = `translateX(${targetIndex * factor}%)`;
   }
 
   closeAllModals();
