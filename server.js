@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
+const zlib = require('zlib');
 const { Pool } = require('pg');
 
 const app = express();
@@ -21,10 +22,41 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
+
+// High-speed Native GZIP compression for all static files and JSON payloads
+app.use((req, res, next) => {
+  const accept = req.headers['accept-encoding'] || '';
+  if (req.url.startsWith('/api/events')) return next(); // Exclude SSE streaming
+  
+  if (accept.includes('gzip')) {
+    const origSend = res.send;
+    res.send = function (data) {
+      if (res.headersSent || !data) return origSend.apply(this, arguments);
+      const isBuf = Buffer.isBuffer(data);
+      const isStr = typeof data === 'string';
+      if ((isBuf || isStr) && data.length > 512) {
+        res.setHeader('Content-Encoding', 'gzip');
+        res.removeHeader('Content-Length');
+        zlib.gzip(data, (err, result) => {
+          if (!err) {
+            res.setHeader('Content-Length', result.length);
+            origSend.call(this, result);
+          } else {
+            origSend.apply(this, arguments);
+          }
+        });
+        return;
+      }
+      return origSend.apply(this, arguments);
+    };
+  }
+  next();
+});
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(express.static(__dirname));
-app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname, { maxAge: '1h' }));
+app.use('/public', express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
 
 let users = [];
 let publicMessages = [];

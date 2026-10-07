@@ -7,6 +7,13 @@
 <meta name="description" content="GeoSocial - اکوسیستم جامع نقشه هوشمند، استوری‌های اینستاگرام و چت پیشرفته تلگرام">
 <title>GeoSocial - نقشه زنده، استوری و پیام‌رسان هوشمند</title>
 
+<!-- Resource Hints & Fast Preconnect -->
+<link rel="preconnect" href="https://telegram.org">
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://tile.openstreetmap.org">
+
 <!-- Telegram WebApp SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -1200,7 +1207,7 @@ body.in-chat-room .bottom-nav {
   50% { transform: scale(1.12); }
 }
 
-/* Fullscreen Modals & Drawers */
+/* Fullscreen Modals & Drawers (Hardware-accelerated with zero-overhead offscreen containment) */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1209,11 +1216,17 @@ body.in-chat-room .bottom-nav {
   display: flex;
   flex-direction: column;
   padding-bottom: calc(74px + var(--safe-bottom)); /* Leaves room for permanent bottom dock */
-  transform: translateY(100%);
-  transition: transform 0.28s cubic-bezier(0.33, 1, 0.68, 1);
+  transform: translate3d(0, 100%, 0);
+  transition: transform 0.26s cubic-bezier(0.33, 1, 0.68, 1);
   overflow: hidden;
+  content-visibility: auto;
+  contain: layout style paint;
+  will-change: transform;
 }
-.modal-overlay.open { transform: translateY(0); }
+.modal-overlay.open {
+  transform: translate3d(0, 0, 0);
+  content-visibility: visible;
+}
 
 /* Sub-modals & Deep Overlay Screens with full height */
 #otherUserModal,
@@ -6364,9 +6377,10 @@ let replyingPublicMsg = null;
 function renderPublicOverlayMessages() {
   const box = $('publicOverlayMessages');
   if (!box) return;
-  box.innerHTML = '';
   const filtered = state.publicMessages.filter(isMsgInRadius);
   const recent = filtered.slice(-35);
+  const fragment = document.createDocumentFragment();
+
   recent.forEach(m => {
     const item = document.createElement('div');
     const isMe = state.user && m.sender_id === state.user.id;
@@ -6395,8 +6409,10 @@ function renderPublicOverlayMessages() {
     // Attach Context Menu on click / long-press / contextmenu
     item.onclick = (e) => openPublicMsgContextMenu(m, e);
     item.oncontextmenu = (e) => { e.preventDefault(); openPublicMsgContextMenu(m, e); };
-    box.appendChild(item);
+    fragment.appendChild(item);
   });
+  box.innerHTML = '';
+  box.appendChild(fragment);
   box.scrollTop = box.scrollHeight;
 }
 
@@ -6620,7 +6636,7 @@ async function fetchPublicMessages() {
 function renderStoriesTray() {
   const tray = $('storiesTray');
   if (!tray) return;
-  tray.innerHTML = '';
+  const fragment = document.createDocumentFragment();
 
   // Check if current user has active story
   const myActiveStories = state.stories.filter(s => s.user_id === state.user?.id);
@@ -6645,7 +6661,7 @@ function renderStoriesTray() {
       openStoryCreator();
     }
   };
-  tray.appendChild(myStory);
+  fragment.appendChild(myStory);
 
   // Dedicated "New Story" slot when active stories exist
   if (hasMyStory) {
@@ -6658,7 +6674,7 @@ function renderStoriesTray() {
       <span style="color:var(--blue);font-weight:700">استوری جدید</span>
     `;
     addStoryItem.onclick = () => openStoryCreator();
-    tray.appendChild(addStoryItem);
+    fragment.appendChild(addStoryItem);
   }
 
   // Other Stories: EXCLUDE current user's stories so they don't repeat!
@@ -6674,8 +6690,10 @@ function renderStoriesTray() {
       <span>${esc(s.user_name)}</span>
     `;
     item.onclick = () => openStoryViewer(origIdx >= 0 ? origIdx : 0);
-    tray.appendChild(item);
+    fragment.appendChild(item);
   });
+  tray.innerHTML = '';
+  tray.appendChild(fragment);
 }
 
 function openStoryViewer(idx) {
@@ -7873,7 +7891,6 @@ function flyToPersonLocation(lat, lng, id) {
 function renderPeopleList(q = '') {
   const container = $('peopleListContainer');
   if (!container) return;
-  container.innerHTML = '';
   const needle = (q || '').trim().toLowerCase();
 
   const filtered = state.pins.filter(p => {
@@ -7908,6 +7925,8 @@ function renderPeopleList(q = '') {
     return;
   }
 
+  const fragment = document.createDocumentFragment();
+
   filtered.forEach(p => {
     const dKm = state.coords ? dist(state.coords.lat, state.coords.lng, Number(p.lat), Number(p.lng)) : 0;
     const distanceStr = dKm < 1 ? `${Math.round(dKm * 1000)} متر فاصله` : `${dKm.toFixed(1)} کیلومتر فاصله`;
@@ -7934,8 +7953,10 @@ function renderPeopleList(q = '') {
     item.onclick = () => {
       openOtherUserProfile(p);
     };
-    container.appendChild(item);
+    fragment.appendChild(item);
   });
+  container.innerHTML = '';
+  container.appendChild(fragment);
   if ($('peopleListCount')) $('peopleListCount').textContent = filtered.length;
 }
 
@@ -8612,6 +8633,8 @@ function renderDirectMessages() {
     return;
   }
 
+  const fragment = document.createDocumentFragment();
+
   state.activeMessages.forEach(m => {
     const isOut = m.sender_id === state.user?.id;
     const dateLabel = getDateLabel ? getDateLabel(m.created_at) : '';
@@ -8622,7 +8645,7 @@ function renderDirectMessages() {
       const divider = document.createElement('div');
       divider.className = 'chat-date-divider';
       divider.textContent = dateLabel;
-      box.appendChild(divider);
+      fragment.appendChild(divider);
     }
 
     const bubble = document.createElement('div');
@@ -8819,8 +8842,9 @@ function renderDirectMessages() {
         isSwiping = false;
       }
     }, { passive: true });
-    box.appendChild(bubble);
+    fragment.appendChild(bubble);
   });
+  box.appendChild(fragment);
   scrollChatToBottom();
 }
 
