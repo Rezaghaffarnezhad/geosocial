@@ -1016,32 +1016,16 @@ input, textarea { direction: rtl; }
   transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
 }
 
-/* Auto-Hide Bottom Dock in deep chat rooms and fullscreen viewers (Hardware-accelerated zero-CPU) */
+/* Auto-Hide Bottom Dock in all pages/modals and deep screens (Zero-CPU) */
+body:has(.modal-overlay.open) .bottom-nav,
+body:has(.telegram-drawer.open) .bottom-nav,
+body:has(#telegramDrawer.open) .bottom-nav,
 body:has(#chatRoom.open) .bottom-nav,
 body:has(#storyViewer.active) .bottom-nav,
 body:has(#storyViewer.open) .bottom-nav,
 body:has(#storyCreatorStudio.open) .bottom-nav,
-body:has(#otherUserModal.open) .bottom-nav,
-body:has(#createChannelModal.open) .bottom-nav,
-body:has(#editProfileModal.open) .bottom-nav,
-body:has(#channelViewModal.open) .bottom-nav,
-body:has(#channelInfoModal.open) .bottom-nav,
-body:has(#callModal.open) .bottom-nav,
-body:has(#incomingCallModal.open) .bottom-nav,
 body:has(#authScreen.open) .bottom-nav,
-body:has(#encryptionKeyModal.open) .bottom-nav,
-body:has(#selfDestructModal.open) .bottom-nav,
-body:has(#avatarCropModal.open) .bottom-nav,
-body:has(#avatarActionSheet.open) .bottom-nav,
-body:has(#languageModal.open) .bottom-nav,
-body:has(#storageUsageModal.open) .bottom-nav,
-body:has(#privacySettingsModal.open) .bottom-nav,
-body:has(#themeSelectorModal.open) .bottom-nav,
-body:has(#profileQrModal.open) .bottom-nav,
-body:has(#followListModal.open) .bottom-nav,
-body:has(#carpoolModal.open) .bottom-nav,
-body:has(#localMarketModal.open) .bottom-nav,
-body:has(#imageLightboxModal.open) .bottom-nav,
+body:has(#reactionPicker.open) .bottom-nav,
 body.hide-bottom-nav .bottom-nav,
 body.in-chat-room .bottom-nav {
   transform: translateY(180%) scale(0.85) !important;
@@ -3338,19 +3322,21 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div class="top-container">
   <!-- Top Header Action Row: Telegram Menu, Expandable Search, Theme, Online Indicator -->
   <div class="top-actions-row">
-    <!-- Telegram Hamburger Button -->
-    <button class="top-theme-btn" onclick="toggleTelegramDrawer(true)" title="منوی اصلی تلگرام" style="background:var(--panel-glass);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,0.25)">
-      <i class="fa-solid fa-bars" style="font-size:16px;"></i>
-    </button>
-
-    <!-- Expandable Search Widget (گزینه ذره‌بین بسته و با زدن باز می‌شود) -->
-    <div id="searchWidget" class="search-expand-widget solid">
-      <button id="searchTriggerBtn" class="search-trigger-btn" onclick="toggleSearchExpand()" title="جستجو">
-        <i class="fa-solid fa-magnifying-glass"></i>
+    <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+      <!-- 3-Dots Menu Button (تبدیل ۳ خط منو به ۳ نقطه) -->
+      <button class="top-theme-btn" onclick="toggleTelegramDrawer(true)" title="منوی اصلی" style="background:var(--panel-glass);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,0.25)">
+        <i class="fa-solid fa-ellipsis-vertical" style="font-size:18px;"></i>
       </button>
-      <div id="searchExpandableContent" class="search-expand-content">
-        <input id="searchInput" placeholder="جستجوی شهر، خیابان یا کاربران..." onkeypress="searchPlace(event)">
-        <button class="search-close-btn" onclick="toggleSearchExpand(false)"><i class="fa-solid fa-xmark"></i></button>
+
+      <!-- Expandable Search Widget (ذره‌بین جستجو کنار منوی ۳ نقطه) -->
+      <div id="searchWidget" class="search-expand-widget solid">
+        <button id="searchTriggerBtn" class="search-trigger-btn" onclick="toggleSearchExpand()" title="جستجو">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <div id="searchExpandableContent" class="search-expand-content">
+          <input id="searchInput" placeholder="جستجوی شهر، خیابان یا کاربران..." onkeypress="searchPlace(event)">
+          <button class="search-close-btn" onclick="toggleSearchExpand(false)"><i class="fa-solid fa-xmark"></i></button>
+        </div>
       </div>
     </div>
 
@@ -4003,7 +3989,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div id="telegramSettingsModal" class="modal-overlay" style="z-index:95">
   <div class="modal-header">
     <div style="display:flex;align-items:center;gap:8px">
-      <button class="composer-icon-btn" onclick="$('telegramSettingsModal').classList.remove('open')"><i class="fa-solid fa-arrow-right"></i></button>
+      <button class="composer-icon-btn" onclick="closeAllModals()"><i class="fa-solid fa-arrow-right"></i></button>
       <h3 style="font-size:15px;font-weight:700">تنظیمات</h3>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -4082,7 +4068,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div id="chatsModal" class="modal-overlay">
   <div class="modal-header">
     <div style="display:flex;align-items:center;gap:10px">
-      <button class="composer-icon-btn" onclick="toggleTelegramDrawer(true)" title="منوی اصلی تلگرام" style="color:var(--text);font-size:18px"><i class="fa-solid fa-bars"></i></button>
+      <button class="composer-icon-btn" onclick="toggleTelegramDrawer(true)" title="منوی اصلی" style="color:var(--text);font-size:18px"><i class="fa-solid fa-ellipsis-vertical"></i></button>
       <h3 style="font-size:16px;font-weight:700"><i class="fa-solid fa-comments" style="color:var(--blue)"></i> گفتگوها</h3>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -10881,37 +10867,19 @@ function updateTelegramBackButton() {
 }
 
 function updateBottomNavVisibility() {
-  const isDeepModalOpen = Boolean(document.querySelector(`
+  const hasOtherPageOpen = Boolean(document.querySelector(`
+    .modal-overlay.open,
+    .telegram-drawer.open,
+    #telegramDrawer.open,
     #chatRoom.open,
     #storyViewer.active,
     #storyViewer.open,
     #storyCreatorStudio.open,
-    #otherUserModal.open,
-    #createChannelModal.open,
-    #editProfileModal.open,
-    #channelViewModal.open,
-    #channelInfoModal.open,
-    #callModal.open,
-    #incomingCallModal.open,
     #authScreen.open,
-    #encryptionKeyModal.open,
-    #selfDestructModal.open,
-    #avatarCropModal.open,
-    #avatarActionSheet.open,
-    #languageModal.open,
-    #storageUsageModal.open,
-    #privacySettingsModal.open,
-    #themeSelectorModal.open,
-    #profileQrModal.open,
-    #followListModal.open,
-    #carpoolModal.open,
-    #localMarketModal.open,
-    #imageLightboxModal.open,
-    #reactionPicker.open,
-    .modal-overlay.open:not(#chatsModal):not(#pulseModal):not(#peopleModal):not(#profileModal)
+    #reactionPicker.open
   `));
 
-  if (isDeepModalOpen) {
+  if (hasOtherPageOpen) {
     document.body.classList.add('hide-bottom-nav');
     if ($('chatRoom')?.classList.contains('open')) {
       document.body.classList.add('in-chat-room');
@@ -11196,7 +11164,16 @@ function closeAllModals() {
     const pubOverlay = $('publicChatOverlay');
     if (pubOverlay) pubOverlay.style.display = 'flex';
   }
+  // Reset active tab and glider back to map (home)
+  const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+  navItems.forEach((item, idx) => {
+    if (idx === 0) item.classList.add('active');
+    else item.classList.remove('active');
+  });
+  const glider = $('navActiveGlider');
+  if (glider) glider.style.transform = 'translateX(0)';
   updateBottomNavVisibility();
+  updateTelegramBackButton();
 }
 
 function openStoriesTrayAction() {
